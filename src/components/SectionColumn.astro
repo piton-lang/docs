@@ -1,0 +1,43 @@
+---
+/**
+ * One column of a <TwoColumnSection>.
+ *
+ * Label and title are props because they are single lines with no markup in
+ * them; everything that is prose comes through the slots, so it stays Markdown
+ * and the component never has to know what is in it.
+ *
+ * The foot block goes in the `note` slot rather than the default one — see
+ * <ColumnNote>, which is pushed to the bottom of the column and has to be a
+ * child of the column itself to get there.
+ */
+interface Props {
+	/** Micro-label above the title. */
+	label: string;
+	/** The column's heading. */
+	title: string;
+	/**
+	 * Step this column back.
+	 *
+	 * The columns are told apart by weight, not by colour-coding: red is this
+	 * design's system marker and is not spent on a value judgement. A recessed
+	 * column sits a step back in the ink and marks its list with a dash — what
+	 * merely happens — while a plain one keeps the accent and the arrow, which
+	 * is what follows from a decision.
+	 */
+	recessed?: boolean;
+}
+
+const { label, title, recessed = false } = Astro.props;
+---
+
+<div
+	class:list={['pi-twocol__column', { 'pi-twocol__column--recessed': recessed }]}
+>
+	<p class="pi-twocol__label">{label}</p>
+
+	<h2 class="pi-twocol__title">{title}</h2>
+
+	<div class="pi-twocol__body"><slot /></div>
+
+	<slot name="note" />
+</div>

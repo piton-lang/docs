@@ -1,0 +1,27 @@
+---
+/**
+ * The block at the foot of a <SectionColumn>: a micro-label over a list.
+ *
+ * It renders two elements and no wrapper, so both are children of the column
+ * itself — which is what lets the label take `margin-top: auto` and sit on the
+ * bottom of the column, so the notes line up across the section however
+ * unevenly the prose above them ran.
+ *
+ * ```mdx
+ * <ColumnNote slot="note" label="On a team">
+ *   - Intent is recoverable only by reading the implementation.
+ *   - Review argues about output.
+ * </ColumnNote>
+ * ```
+ */
+interface Props {
+	/** The micro-label above the list. */
+	label: string;
+}
+
+const { label } = Astro.props;
+---
+
+<p class="pi-twocol__note">{label}</p>
+
+<div class="pi-twocol__list"><slot /></div>

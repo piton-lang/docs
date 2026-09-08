@@ -21,6 +21,9 @@ hero:
 import { Card, CardGrid } from "@astrojs/starlight/components";
 import SplitSection from "../../components/SplitSection.astro";
 import RaisedCardSection from "../../components/RaisedCardSection.astro";
+import TwoColumnSection from "../../components/TwoColumnSection.astro";
+import SectionColumn from "../../components/SectionColumn.astro";
+import ColumnNote from "../../components/ColumnNote.astro";
 
 <CardGrid>
   <Card title="Structure and Prose as First-Class Peers" icon="document">
@@ -45,36 +48,45 @@ import RaisedCardSection from "../../components/RaisedCardSection.astro";
 </CardGrid>
 
 <SplitSection
-    label="The compile step"
-    title={["You write the shape.", "The agent builds the software."]}
-    cta={{ href: "/belay/", text: "The Belay framework" }}
+    label="A New Source of Truth"
+    title={["You engineer the shape while the agent builds the software."]}
+    cta={{ href: "/language/", text: "Learn the Language" }}
 >
+    Humans are good at engineering software, and we have decades of collective
+    experience and intuition accumulated around exactly that.
 
-    A Piton source is one document: the structure a machine can check, and the
-    prose only a person can write, in the same file. Belay compiles it into the
-    agentic Markdown your tools already read — skills, commands, instructions and
-    agents.
+    And this is *exactly* what Piton lets you focus on.  The human describes
+    the intent, the behaviour, the shape, the structure, and above all, infuses
+    it with their **judgement and sense of taste.**
 
-    What you maintain is the specification. Everything downstream of it is build
-    output, and build output cannot drift from the thing that generated it.
+    A `.pi` file is the structure a machine can follow, and the engineer
+    can compose.  It, not the implementing code, is the referenceable and
+    **repeatable** source of truth for the engineer's intent.
+
+    What you maintain is the specification. Everything downstream is a
+    disposable build artifact, including the Agent-generated code.
 
     <Fragment slot="example">
         ```piton
-        use @piton/belay
+        abstract anchor Component as component:
+            description:: string
+            accessibility:: string
 
-        skill ReviewDiff:
-            description: Reviews a change for correctness and reuse.
-            useWhen: the user asks for a review of the current diff
+        component Button:
+            description:
+                A single action, labelled with a verb.
 
-            prompt:
-                Read the diff, not the whole tree. Report a finding only when
-                you can name the input that breaks it, and say plainly what
-                the failure looks like.
 
-            checks:
-                - correctness
-                - reuse
-                - efficiency
+            accessibility:
+                Reachable by keyboard. The label is
+                the accessible name; never let an
+                icon alone carry it.
+
+        anchor IconButton extends Button:
+            description:
+                + {super.description}
+                The label moves to a tooltip;
+                the icon is decorative.
         ```
     </Fragment>
 </SplitSection>
@@ -96,21 +108,21 @@ import RaisedCardSection from "../../components/RaisedCardSection.astro";
 
     <Fragment slot="example">
         ```piton
-        abstract anchor Component as component:
-            description:: string
-            accessibility:: string
+        use @piton/belay
 
-        component Button:
-            description: A single action, labelled with a verb.
+        skill ReviewDiff:
+            description: Reviews a change for correctness and reuse.
+            useWhen: the user asks for a review of the current diff
 
-            accessibility:
-                Reachable by keyboard. The label is the accessible
-                name; never let an icon alone carry it.
+            prompt:
+                Read the diff, not the whole tree. Report a finding only when
+                you can name the input that breaks it, and say plainly what
+                the failure looks like.
 
-        anchor IconButton extends Button:
-            description:
-                + {super.description}
-                The label moves to a tooltip; the icon is decorative.
+            checks:
+                - correctness
+                - reuse
+                - efficiency
         ```
     </Fragment>
 </SplitSection>
@@ -144,62 +156,59 @@ import RaisedCardSection from "../../components/RaisedCardSection.astro";
     review.
 </RaisedCardSection>
 
-<div class="pi-versus not-content">
-<div class="pi-versus__grid">
+<TwoColumnSection>
 
-<div class="pi-versus__side pi-versus__side--before">
+<SectionColumn
+    label="The usual way"
+    title="The prompt is thrown away. The code is the record."
+    recessed
+>
 
-<p class="pi-versus__label">The usual way</p>
-
-<h2 class="pi-versus__title">The prompt is thrown away. The code is the record.</h2>
-
-<p class="pi-versus__body">You describe what you want, an agent writes it, and what survives is the
+You describe what you want, an agent writes it, and what survives is the
 output. The reasoning that produced it — the constraints, the options rejected,
 the sentence explaining why — lived in a conversation, and the conversation is
-gone.</p>
+gone.
 
-<p class="pi-versus__body">So the code becomes the specification by default. It is the only artefact left
+So the code becomes the specification by default. It is the only artefact left
 that describes the system, and it describes it in the most verbose and least
-stable form available.</p>
+stable form available.
 
-<p class="pi-versus__note">On a team</p>
+<ColumnNote slot="note" label="On a team">
 
-<ul class="pi-versus__list">
-<li>Intent is recoverable only by reading the implementation.</li>
-<li>Review argues about output, because output is all there is to argue about.</li>
-<li>Two people asking for the same thing get two different systems.</li>
-<li>Growth means more code to hold in your head, and no summary of it that is guaranteed to still be true.</li>
-</ul>
+- Intent is recoverable only by reading the implementation.
+- Review argues about output, because output is all there is to argue about.
+- Two people asking for the same thing get two different systems.
+- Growth means more code to hold in your head, and no summary of it that is guaranteed to still be true.
 
-</div>
+</ColumnNote>
 
-<div class="pi-versus__side pi-versus__side--after">
+</SectionColumn>
 
-<p class="pi-versus__label">The Piton way</p>
+<SectionColumn
+    label="The Piton way"
+    title="The spec is the record. The code is output."
+>
 
-<h2 class="pi-versus__title">The spec is the record. The code is output.</h2>
-
-<p class="pi-versus__body">The specification is what you write, review and keep. It carries the structure a
+The specification is what you write, review and keep. It carries the structure a
 compiler can check and the prose explaining the parts it cannot, in one
-document, under the version control you already use.</p>
+document, under the version control you already use.
 
-<p class="pi-versus__body">What the agent builds is a build. When it is wrong you do not patch it — you
+What the agent builds is a build. When it is wrong you do not patch it — you
 correct the spec and compile again, which is the reflex you already have about
-every other compiler's output.</p>
+every other compiler's output.
 
-<p class="pi-versus__note">On a team</p>
+<ColumnNote slot="note" label="On a team">
 
-<ul class="pi-versus__list">
-<li>Intent is written down, in the artefact everyone already reviews.</li>
-<li>Review argues about the specification, which is short enough to read in full.</li>
-<li>Two people extend the same anchors instead of re-deriving them.</li>
-<li>Growth means more spec, and spec composes — inheritance, imports and type constraints hold it together.</li>
-</ul>
+- Intent is written down, in the artefact everyone already reviews.
+- Review argues about the specification, which is short enough to read in full.
+- Two people extend the same anchors instead of re-deriving them.
+- Growth means more spec, and spec composes — inheritance, imports and type constraints hold it together.
 
-</div>
+</ColumnNote>
 
-</div>
-</div>
+</SectionColumn>
+
+</TwoColumnSection>
 
 <div class="pi-end not-content">
 <div class="pi-end__grid">

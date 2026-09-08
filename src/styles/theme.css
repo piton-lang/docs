@@ -1967,21 +1967,21 @@
 }
 
 /* ============================================================================
- * HOMEPAGE VERSUS — two columns, staggered, no container
+ * TWO-COLUMN SECTION — columns set against each other, no container
  *
- * The fourth section, and the only one on the page with no surface of its own:
+ * The one band on the page with no surface of its own:
  * no pane, no card, no ground, not even a cut between the columns. Everything
  * above it is a contained thing; this is just type on the sheet, and the
  * absence is what separates it from them.
  *
  * The columns are aligned at the top, and both are opened by a rule above the
  * label — so the two rules meet as one line across the section. That is what
- * makes it a comparison rather than a sequence: the sides are set against each
+ * makes it a comparison rather than a sequence: the columns are set against each
  * other at the same height and answer point for point, and the two `On a team`
  * blocks fall at roughly the same place down each column.
  * ==========================================================================*/
 
-:root .sl-markdown-content .pi-versus {
+:root .sl-markdown-content .pi-twocol {
 	width: 100vw;
 	margin-inline: calc(50% - 50vw);
 	margin-block: 0;
@@ -1989,7 +1989,7 @@
 	border-block-end: 1px solid var(--pi-rule);
 }
 
-:root .sl-markdown-content .pi-versus__grid {
+:root .sl-markdown-content .pi-twocol__grid {
 	max-width: 76rem;
 	margin-inline: auto;
 	display: grid;
@@ -2008,7 +2008,7 @@
  * come from the 1fr columns; minmax(0, …) is what lets them actually be equal
  * rather than being widened by their longest unbreakable line.
  */
-:root .sl-markdown-content .pi-versus__side {
+:root .sl-markdown-content .pi-twocol__column {
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
@@ -2018,39 +2018,50 @@
 
 /*
  * The two sides are told apart by weight, not by colour-coding. Red is this
- * design's system marker and it is not spent on a value judgement; the losing
- * column simply sits a step back in the ink, and only the Piton side gets the
- * accent on its label.
+ * design's system marker and it is not spent on a value judgement; the side
+ * being argued against simply sits a step back in the ink.
+ *
+ * The full-strength treatment is the DEFAULT and --recessed steps back from
+ * it, rather than the other way round: a comparison with one side stepped back
+ * then says so once, on the side that is stepped back.
  */
-:root .sl-markdown-content .pi-versus__label {
+:root .sl-markdown-content .pi-twocol__label {
 	margin: 0 0 calc(var(--pi-unit) * 1);
 	font-size: var(--sl-text-xs);
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
-	color: var(--pi-ink-muted);
-}
-:root .sl-markdown-content .pi-versus__side--after .pi-versus__label {
 	color: var(--pi-accent);
 }
+:root .sl-markdown-content .pi-twocol__column--recessed .pi-twocol__label {
+	color: var(--pi-ink-muted);
+}
 
-:root .sl-markdown-content .pi-versus__title {
+:root .sl-markdown-content .pi-twocol__title {
 	margin: 0 0 calc(var(--pi-unit) * 1.25);
 	font-size: var(--sl-text-xl);
 	font-weight: 600;
 	line-height: var(--sl-line-height-headings);
 	letter-spacing: -0.01em;
-	color: var(--pi-ink-muted);
+	color: var(--pi-ink);
 	text-wrap: balance;
 }
-:root .sl-markdown-content .pi-versus__side--after .pi-versus__title {
-	color: var(--pi-ink);
+:root .sl-markdown-content .pi-twocol__column--recessed .pi-twocol__title {
+	color: var(--pi-ink-muted);
 }
 
-:root .sl-markdown-content .pi-versus__body {
-	margin: 0 0 calc(var(--pi-unit) * 1.25);
+/*
+ * A wrapper, not a class on each paragraph: the prose comes in through the
+ * column's default slot as ordinary Markdown, so there is nothing to hang a
+ * class on.
+ */
+:root .sl-markdown-content .pi-twocol__body {
+	margin: 0;
 	color: var(--pi-ink-muted);
 	text-wrap: pretty;
+}
+:root .sl-markdown-content .pi-twocol__body p {
+	margin: 0 0 calc(var(--pi-unit) * 1.25);
 }
 
 /* ---- the team note ------------------------------------------------------ */
@@ -2064,7 +2075,7 @@
  * collapses to nothing on the taller side, where there is no free space to
  * absorb, and the rule would then sit hard against the paragraph.
  */
-:root .sl-markdown-content .pi-versus__note {
+:root .sl-markdown-content .pi-twocol__note {
 	margin: auto 0 calc(var(--pi-unit) * 0.75);
 	padding-top: calc(var(--pi-unit) * 1.75);
 	border-top: 1px solid var(--pi-rule);
@@ -2075,37 +2086,37 @@
 	color: var(--pi-ink-muted);
 }
 
-:root .sl-markdown-content .pi-versus__list {
+:root .sl-markdown-content .pi-twocol__list ul {
 	list-style: none;
 	margin: 0;
 	padding: 0;
 	font-size: var(--sl-text-sm);
 	color: var(--pi-ink-muted);
 }
-:root .sl-markdown-content .pi-versus__list li {
+:root .sl-markdown-content .pi-twocol__list li {
 	position: relative;
 	margin: 0 0 calc(var(--pi-unit) * 0.6);
 	padding-inline-start: 1.6em;
 	text-wrap: pretty;
 }
-:root .sl-markdown-content .pi-versus__list li::before {
+:root .sl-markdown-content .pi-twocol__list li::before {
 	position: absolute;
 	inset-inline-start: 0;
 }
-/* A dash for what merely happens; an arrow for what follows from a decision. */
-:root .sl-markdown-content .pi-versus__side--before .pi-versus__list li::before {
-	content: '\2014';
-	color: var(--pi-rule-strong);
-}
-:root .sl-markdown-content .pi-versus__side--after .pi-versus__list li::before {
+/* An arrow for what follows from a decision; a dash for what merely happens. */
+:root .sl-markdown-content .pi-twocol__list li::before {
 	content: '\2192';
 	color: var(--pi-accent);
+}
+:root .sl-markdown-content .pi-twocol__column--recessed .pi-twocol__list li::before {
+	content: '\2014';
+	color: var(--pi-rule-strong);
 }
 
 /* ---- stacked ------------------------------------------------------------ */
 
 @media (width < 62rem) {
-	:root .sl-markdown-content .pi-versus__grid {
+	:root .sl-markdown-content .pi-twocol__grid {
 		grid-template-columns: minmax(0, 1fr);
 		row-gap: calc(var(--pi-unit) * 3.5);
 	}

@@ -1,0 +1,32 @@
+---
+/**
+ * Two-column section — columns set against each other, no surface.
+ *
+ * The one band on the page with no container of its own: no pane, no card, no
+ * ground, not even a cut between the columns. The columns are aligned at the
+ * top and opened by a rule that runs across the whole section, so they answer
+ * each other point for point rather than reading as a sequence.
+ *
+ * This is the grid and nothing else. The columns are <SectionColumn>, written
+ * as children in reading order, and their prose is Markdown in their own
+ * slots — the section never sees it.
+ *
+ * Styling is in `src/styles/theme.css` under `.pi-twocol*`.
+ *
+ * ```mdx
+ * <TwoColumnSection>
+ *   <SectionColumn label="The usual way" title="The prompt is thrown away." recessed>
+ *     Prose, as ordinary Markdown.
+ *   </SectionColumn>
+ *
+ *   <SectionColumn label="The Piton way" title="The spec is the record.">
+ *     Prose, as ordinary Markdown.
+ *   </SectionColumn>
+ * </TwoColumnSection>
+ * ```
+ */
+---
+
+<div class="pi-twocol not-content">
+	<div class="pi-twocol__grid"><slot /></div>
+</div>
