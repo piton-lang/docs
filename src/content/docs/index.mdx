@@ -1,40 +1,36 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: Piton
+description: A semi-natural programming language for writing skills, agents, and reference documents for Agentic Software Development.
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
+  tagline: A language for describing systems, not typing them out. Piton compiles structure and prose into the skills, agents, and instructions your coding agents actually read.
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Read the Introduction
+      link: /introduction/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
+    - text: Jump to the Language
+      link: /language/
+      icon: open-book
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
-
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="Structure and prose, both first-class" icon="document">
+		Markdown has no tools for reuse. Piton gives you inheritance, imports, and
+		type constraints — while `the button should be blue` stays a sentence.
 	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
+	<Card title="No runtime" icon="rocket">
+		Piton compiles to data — JSON, YAML, Markdown — via adapters. There is
+		nothing to execute, only something to build.
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="Anchors" icon="puzzle">
+		One user-defined type. Named structural declarations that participate in
+		inheritance, typing, exports, and composition.
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
-	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="The Belay framework" icon="setting">
+		Bundled with Piton. Adds `agent`, `skill`, `command`, and `instruction`
+		keywords that compile into agentic Markdown.
 	</Card>
 </CardGrid>
