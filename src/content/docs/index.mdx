@@ -92,44 +92,56 @@ import ColumnNote from "../../components/ColumnNote.astro";
 </SplitSection>
 
 <SplitSection
-    label="The language"
-    title="The prose inherits too."
-    cta={{ href: "/language/", text: "The language reference" }}
+    label="The Method is the Output"
+    title="Architect the guidance instead of just writing prompts."
+    cta={{ href: "/belay/", text: "The Belay Framework" }}
     reverse
 >
+    It's one thing to build a small tool with a few prompts, but once a project
+    or team starts to scale, agentic structure becomes a necessity. That's
+    exactly why `AGENTS.md` files exist.
 
-    An anchor is the one user-defined type: a named declaration that takes part in
-    inheritance, typing, exports and composition. A type constraint holds a
-    paragraph to the same contract it holds a number to, and a child extends a
-    sentence the way it extends any other property.
+    But that Markdown file quickly becomes a body of unstructured prose written
+    by different people, each with a different voice and different assumptions,
+    maintained separately from the specification it intends to support.
 
-    So the paragraph you wrote once has a single home. Everything that needs it
-    refers to it, and there is no second copy left to fall out of date.
+    The Belay Framework is built on Piton to **unify** the what *and* the how;
+    the specification and the guidance are the complete, versionable, shareable,
+    and buildable definition of an agentic workflow.
 
     <Fragment slot="example">
         ```piton
         use @piton/belay
 
-        skill ReviewDiff:
-            description: Reviews a change for correctness and reuse.
-            useWhen: the user asks for a review of the current diff
+        from /shape/components/Button import Button
+        from /context import TechStack, CodingGuidelines
+
+
+        skill BuildButtonComponent:
+            description:
+                Implement the ${Button} component to
+                according to the spec
+
+            useWhen:
+                You need to implement or make changes to
+                the ${Button} component or any of its
+                descendants
 
             prompt:
-                Read the diff, not the whole tree. Report a finding only when
-                you can name the input that breaks it, and say plainly what
-                the failure looks like.
+                ${self.description} adhering to the
+                @{TechStack}. If the component is already
+                implemented, check the implementation
+                against differences in the spec and
+                refactor accordingly.
 
-            checks:
-                - correctness
-                - reuse
-                - efficiency
+                Follow all @{CodingGuidelines}
         ```
     </Fragment>
 </SplitSection>
 
 <RaisedCardSection
-    label="The lifecycle"
-    title="The specification is the source. Everything else is output."
+    label="Compilation as Constrained Probability"
+    title="Keep building while the compiler infers the implementation."
     steps={[
         {
             name: "Specification",
@@ -150,7 +162,7 @@ import ColumnNote from "../../components/ColumnNote.astro";
     ]}
     note="A change starts at the specification, never in what it produced — which is what makes this a lifecycle and not a hand-off."
 >
-    Piton treats the agent as the compiler. What you keep is a document a machine
+    Piton treats the [agent as the compiler](./thesis/agent-as-compiler). What you keep is a document a machine
     can check and a person can read; what the agent produces is a build. The
     distinction matters because only one of the two is worth arguing about in
     review.
