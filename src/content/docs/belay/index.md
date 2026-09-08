@@ -1,5 +1,5 @@
 ---
-title: The Belay Framework
+title: Introduction
 description: The bundled framework that turns Piton into agentic skills, commands, instructions, and agents.
 sidebar:
   order: 1
