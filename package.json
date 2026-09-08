@@ -3,8 +3,12 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "logo": "node scripts/logo.mjs",
+    "predev": "npm run logo",
     "dev": "astro dev",
+    "prestart": "npm run logo",
     "start": "astro dev",
+    "prebuild": "npm run logo",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

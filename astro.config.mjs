@@ -22,8 +22,12 @@ export default defineConfig({
 		starlight({
 			title: 'Piton',
 			logo: {
-				// The source logo is a single black path, which would vanish on the
-				// dark header, so a light-ink variant is used for the dark scheme.
+				// Starlight renders these as an <img>, so the ink has to be baked
+				// into the file and the dark scheme needs its own copy — the mark
+				// is a black path that would vanish on the dark header. Only
+				// logo.svg is drawn by hand; logo-dark.svg (and public/logo.svg,
+				// which the CSS masks read) are derived from it by
+				// scripts/logo.mjs, which npm runs before dev and build.
 				light: './logo.svg',
 				dark: './logo-dark.svg',
 				// The mark is a wordmark, so the text title would be a duplicate.

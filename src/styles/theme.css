@@ -37,7 +37,8 @@
 	--pi-anodized-sheen: rgba(255, 255, 255, 0.045);
 	--pi-anodized-shade: rgba(0, 0, 0, 0.16);
 	--pi-anodized-edge: rgba(255, 255, 255, 0.07);
-	--pi-title-block: #111111; /* the title banner, both schemes */
+	--pi-title-block: #000000; /* the banner ground, both schemes */
+	--pi-burst-hue: var(--pi-accent); /* the burst colour, both schemes */
 	--pi-paper-raised: #222222; /* data blocks: tables, code */
 	--pi-ink: #f4f3ef; /* 17.01:1 */
 	--pi-ink-muted: #a0a0a0; /*  7.22:1 */
@@ -77,7 +78,6 @@
 	--pi-anodized-sheen: rgba(255, 255, 255, 0.55);
 	--pi-anodized-shade: rgba(0, 0, 0, 0.05);
 	--pi-anodized-edge: rgba(255, 255, 255, 0.6);
-	--pi-title-block: #111111;
 
 	--pi-paper-raised: #ffffff;
 	--pi-ink: #111111; /* 17.01:1 */
@@ -146,6 +146,15 @@
 	--sl-line-height-headings: 1.15;
 
 	--pi-measure: 68ch; /* 45-75 characters; Barlow is narrow */
+
+	/*
+	 * The wordmark's drawing, taken from logo.svg's viewBox. Three rules size
+	 * a box from it and none of them can measure the file, so the numbers are
+	 * written here by scripts/logo.mjs whenever the logo is replaced. Do not
+	 * hand-edit: they will be overwritten on the next dev or build run.
+	 */
+	--pi-logo-aspect: 213.56628 / 58.608826;
+	--pi-logo-ratio: 3.6439; /* the same figure, for calc() */
 	--pi-panel-pad-x: calc(var(--pi-unit) * 2.5);
 	--pi-gutter: 1.5rem; /* one gutter for header, sidebar and content */
 	--sl-nav-pad-x: var(--pi-gutter);
@@ -207,9 +216,82 @@
 	);
 }
 
-/* Generous margins: the field is the layout. */
-:root .content-panel {
-	padding: calc(var(--pi-unit) * 2.5) var(--pi-panel-pad-x);
+/* ---- wide viewports: the body stops, the rail takes the rest ------------ */
+
+/*
+ * Starlight splits whatever space is left over after the content column and
+ * the table of contents EVENLY between the two: the pane gets half and the
+ * rail gets half (see TwoColumnContent.astro). Past about 1600px that half
+ * lands as dead space between where the text stops and where the rail begins
+ * — it belongs to neither column and does nothing.
+ *
+ * This replaces the split with a cap. The body grows to --pi-body-max and
+ * then stops; everything past that is the rail's. Both widths are stated
+ * rather than left to flex because .right-sidebar is `position: fixed` and so
+ * takes no part in the flex layout — it has to be told the same number its
+ * container worked out, which is what --pi-rail is for.
+ *
+ * The frame is the viewport less the nav sidebar, so:
+ *   body = min(frame - rail-min, cap)      rail = frame - body
+ * which reduces to the max() below, and keeps the rail at its natural width
+ * on any viewport not wide enough to hit the cap.
+ *
+ * SCOPED to [data-has-sidebar][data-has-toc], which is the exact condition
+ * Starlight puts its own split under, and the only arrangement where there is
+ * a rail to give the space to. The splash page carries neither attribute — it
+ * has no nav sidebar and no contents — so on the homepage there is nothing on
+ * the right and the pane must stay full width. Capping it there strands the
+ * hero and the quadrants in a column with empty page beside them.
+ */
+@media (width >= 72rem) {
+	:root:root[data-has-sidebar][data-has-toc] {
+		--pi-body-max: 64rem;
+		--pi-rail: max(
+			var(--sl-sidebar-width),
+			100vw - var(--sl-sidebar-width) - var(--pi-body-max)
+		);
+		/*
+		 * Raise the token rather than overriding .sl-container, so that the
+		 * text column fills the capped pane instead of sitting at 45rem
+		 * inside it. Everything else keyed to --sl-content-width follows —
+		 * notably the footer, which releases its own container and re-applies
+		 * this width to .sl-markdown-content instead (see below). Overriding
+		 * the container directly would have left that one behind.
+		 */
+		--sl-content-width: calc(
+			var(--pi-body-max) - 2 * var(--pi-panel-pad-x)
+		);
+	}
+
+	:root[data-has-sidebar][data-has-toc] .main-pane {
+		flex: 0 1 auto;
+		width: min(100% - var(--sl-sidebar-width), var(--pi-body-max));
+		/*
+		 * Starlight parks .sl-container against one edge of the pane because
+		 * the pane was oversized on purpose. Now that it is exactly the body,
+		 * the container fills it.
+		 */
+		--sl-content-margin-inline: 0;
+	}
+
+	:root[data-has-sidebar][data-has-toc] .right-sidebar-container {
+		flex: 0 0 auto;
+		width: var(--pi-rail);
+	}
+	:root[data-has-sidebar][data-has-toc] .right-sidebar {
+		width: var(--pi-rail);
+	}
+
+	/*
+	 * The contents column is pinned to a quarter of the viewport upstream —
+	 * the comment on it in PageSidebar.astro reads `MAGIC NUMBER`, which is
+	 * fair. Widening the rail without lifting this just moves the dead space
+	 * inside it, and the leaders in here are built to run the full width.
+	 */
+	:root[data-has-sidebar][data-has-toc] .right-sidebar-panel > .sl-container {
+		width: 100%;
+		max-width: none;
+	}
 }
 @media (width >= 72rem) {
 	:root .content-panel {
@@ -615,12 +697,20 @@
 :root .sidebar-content .top-level {
 	counter-reset: pi-nav-group;
 }
+/*
+ * Each group is a band between two rules, and the two halves of that band are
+ * set by different properties: the space above the label is this item's own
+ * padding, the space below it is the NEXT item's margin. They were 0.75u and
+ * 1.25u, so a collapsed group — where the label is all there is between the
+ * rules — sat high in its band. Equal values centre it, and the pair still
+ * sums to 2u, so the list's overall rhythm is unchanged.
+ */
 :root .sidebar-content .top-level > li {
 	counter-increment: pi-nav-group;
 	counter-reset: pi-nav-item;
 	border-top: 1px solid var(--pi-rule);
-	padding-top: calc(var(--pi-unit) * 0.75);
-	margin-top: calc(var(--pi-unit) * 1.25);
+	padding-top: var(--pi-unit);
+	margin-top: var(--pi-unit);
 }
 :root .sidebar-content .top-level > li:first-child {
 	margin-top: 0;
@@ -836,14 +926,27 @@
  * Both carry the same black ground and the same red burst from the
  * bottom-right corner.
  */
-:root main > .content-panel:first-of-type:not(:has(.hero)) {
-	background-color: var(--pi-title-block);
-	background-image: radial-gradient(
+
+/*
+ * The burst falls off through darker red into pure black, and every stop is
+ * OPAQUE. A tail that fades to `transparent` does not fade to black — it fades
+ * to whatever the banner is sitting on, which is how this picked up the light
+ * sheet's pale grey. Mixing toward #000 makes the falloff independent of the
+ * ground. --pi-title-block is #000 to match, so the corner the gradient does
+ * not reach is the same black the gradient ends on.
+ */
+:root:root {
+	--pi-burst: radial-gradient(
 		farthest-corner at 100% 100%,
-		var(--pi-accent) 0%,
-		color-mix(in srgb, var(--pi-accent) 45%, #000) 34%,
+		var(--pi-burst-hue) 0%,
+		color-mix(in srgb, var(--pi-burst-hue) 45%, #000) 34%,
 		#000 78%
 	);
+}
+
+:root main > .content-panel:first-of-type:not(:has(.hero)) {
+	background-color: var(--pi-title-block);
+	background-image: var(--pi-burst);
 	border-bottom: 1px solid var(--pi-rule);
 	position: relative;
 	overflow: hidden;
@@ -861,12 +964,7 @@
 	margin-inline: calc(50% - 50vw);
 	padding-inline: var(--pi-panel-pad-x);
 	background-color: var(--pi-title-block);
-	background-image: radial-gradient(
-		farthest-corner at 100% 100%,
-		var(--pi-accent) 0%,
-		color-mix(in srgb, var(--pi-accent) 45%, #000) 34%,
-		#000 78%
-	);
+	background-image: var(--pi-burst);
 	border-bottom: 1px solid var(--pi-rule);
 	position: relative;
 	overflow: hidden;
@@ -907,7 +1005,8 @@
  * The banner is always dark, in BOTH schemes, so the text tokens are re-pointed
  * inside it. Without this the hero title, tagline and buttons take the light
  * scheme's ink (#111) and go dark-on-dark — they inherit from tokens, not from
- * a colour set here, so overriding `color` alone does not reach them.
+ * a colour set here, so overriding `color` alone does not reach them. Nothing
+ * in here may resolve through --pi-ink or --pi-paper for the same reason.
  */
 :root main > .content-panel:first-of-type:not(:has(.hero)),
 :root .hero {
@@ -939,6 +1038,7 @@
 	display: block;
 	width: fit-content;
 	max-width: 100%;
+	text-transform: uppercase;
 }
 
 /* The burst is decoration; it must not survive into print or high-contrast. */
@@ -995,40 +1095,113 @@
 }
 
 /* ============================================================================
- * HOMEPAGE QUADRANTS — obsidian glass
+ * HOMEPAGE QUADRANTS — a sheet of glass
  *
  * Markup is just <CardGrid> and four <Card>s; there is no wrapper element, so
  * the grid itself is the pane.
  *
- * The pane carries the only background: obsidian at 70%, with a low-angle
+ * The pane carries the only background: a translucent sheet with a low-angle
  * gradient for sheen. The cards carry NONE — they are transparent, and the
  * divisions between them are hairline borders on the cards themselves, so the
  * cross reads as a cut in one sheet of glass rather than as a gap between four
  * separate tiles.
  *
- * 70% holds the muted body text at 5.41:1 on the light sheet, 12.89:1 on dark.
+ * The construction is one design in two materials. On the dark scheme it is
+ * black glass: the sheet darkens the page, the sheen is a faint white film,
+ * and the groove is a dark wall with a lit lip. On paper it is the same sheet
+ * cast in frosted white: it lightens the page, the modelling is carried by
+ * shade rather than by light, and the groove inverts to an ink wall with a
+ * white lip. Every value below is therefore overridden in the light block —
+ * nothing here is scheme-neutral.
+ *
+ * Both stay translucent so the mint wash crossing the sheet from the lower
+ * left reads through the glass rather than being covered by it. The pane's
+ * own source sits at the top centre and is achromatic in both schemes, so it
+ * lifts that mint where they overlap instead of tinting against it.
+ * Muted body text holds ~13:1 on the dark sheet and ~7.5:1 on paper; the
+ * titles hold ~17:1 in both.
  * ==========================================================================*/
 
 :root:root {
+	--pi-glass: rgb(0 0 0 / 0.82);
+	--pi-glass-ink: #f2f2f3;
+	--pi-glass-muted: #d2d2d6;
+	--pi-glass-cut: rgba(0, 0, 0, 0.62); /* the dark wall of the groove */
+	--pi-glass-lip: rgba(255, 255, 255, 0.17); /* the lit wall */
+	/* The facet under the pointer catches a little more light. */
+	--pi-glass-hover: rgba(255, 255, 255, 0.04);
 	/*
-	 * Obsidian, in BOTH schemes — the light scheme does not override these.
-	 * Like the title banner, the panes are a deliberate always-dark element;
-	 * a light-mode page reads as paper with black glass set into it. Text
-	 * inside them therefore stays light in either scheme.
+	 * The source behind the sheet, at the top centre — the same direction the
+	 * sheen's 158deg is lit from, so the pane has one light on it rather than
+	 * two. It is that sheen concentrated into one place rather than a colour
+	 * laid over the glass, which is why it is achromatic: the mint wash
+	 * crosses the same pane, and anything with a hue of its own muddies where
+	 * they meet.
 	 */
-	--pi-obsidian: rgb(0 0 0 / 0.82);
-	--pi-obsidian-ink: #f2f2f3;
-	--pi-obsidian-muted: #d2d2d6;
-	--pi-obsidian-cut: rgba(0, 0, 0, 0.62); /* the dark wall of the groove */
-	--pi-obsidian-lip: rgba(255, 255, 255, 0.17); /* the lit wall */
-	--pi-obsidian-sheen: linear-gradient(
+	--pi-glass-source: rgba(255, 255, 255, 0.18);
+	--pi-glass-sheen: linear-gradient(
 		158deg,
 		rgba(255, 255, 255, 0.045) 0%,
 		rgba(255, 255, 255, 0.01) 34%,
 		transparent 62%,
 		rgba(255, 255, 255, 0.02) 100%
 	);
-	--pi-obsidian-grain: 0.2;
+	/*
+	 * Overlay leaves a mid-grey noise field neutral and lets its variance do
+	 * the work, which is what texture on a dark ground wants. On a near-white
+	 * ground overlay resolves to screen and vanishes, so the light scheme
+	 * switches to multiply and grains downward instead — see below.
+	 */
+	--pi-glass-grain: 0.2;
+	--pi-glass-grain-blend: overlay;
+}
+
+:root:root[data-theme='light'] {
+	/*
+	 * Frosted white on warm paper. Pure white against the sheet's #f7f6f2
+	 * reads as the cooler material of the two, which is what separates the
+	 * pane from the page — the border hairlines only edge it.
+	 */
+	--pi-glass: rgb(255 255 255 / 0.72);
+	--pi-glass-ink: #111111; /* 17.0:1 */
+	--pi-glass-muted: #4e4e4e; /*  7.5:1 */
+	/*
+	 * The groove reverses with the material. Light still arrives from the
+	 * upper left, so the near wall is the one in shade — ink here, where the
+	 * dark scheme used black — and the far wall is the one lit, which on a
+	 * white sheet can only be a step whiter than the sheet itself.
+	 */
+	--pi-glass-cut: rgba(17, 17, 17, 0.16);
+	--pi-glass-lip: rgba(255, 255, 255, 0.95);
+	--pi-glass-hover: rgba(255, 255, 255, 0.6);
+	/*
+	 * White light cannot brighten a white sheet, so the source inverts with
+	 * the material like everything else here: the pane reads as shaded from
+	 * above rather than as lit from behind. Lower than the
+	 * dark scheme's 0.12 because a light ground shows darkening more readily
+	 * than a dark ground shows light. At its peak it takes the muted text's
+	 * 7.5:1 down to 6.0:1, which is the floor for this pane.
+	 */
+	--pi-glass-source: rgba(0, 0, 0, 0.1);
+	/*
+	 * Kept to a whisper. The specular still comes off the upper left, which is
+	 * what the groove above is cut for, but the source now sits at the top
+	 * centre and these two land in the same place — at the 0.75 white this
+	 * carried when the source was at the bottom, the sheen simply erased it
+	 * and the top of the pane went white. The source does the modelling here;
+	 * this is only the film over it.
+	 */
+	--pi-glass-sheen: linear-gradient(
+		158deg,
+		rgba(255, 255, 255, 0.26) 0%,
+		rgba(255, 255, 255, 0.1) 34%,
+		transparent 62%,
+		rgba(17, 17, 17, 0.035) 100%
+	);
+	/* Multiply, so the noise reads as tooth in the paper. Kept low: the mean
+	   of the field darkens the whole pane a few percent as a side effect. */
+	--pi-glass-grain: 0.08;
+	--pi-glass-grain-blend: multiply;
 }
 
 /*
@@ -1047,21 +1220,21 @@
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 0;
 
-	background-color: var(--pi-obsidian);
+	background-color: var(--pi-glass);
 	/*
-	 * Two layers: a golden wash rising from the bottom centre, over the sheen
-	 * that crosses the pane. The gold is listed first so it sits above the
-	 * sheen and reads as light coming up through the glass.
+	 * Two layers: the source at the top centre, over the sheen that crosses
+	 * the pane. The source is listed first so it sits above the sheen — one
+	 * light behind the glass, with the film of the sheen across it.
 	 */
 	background-image:
 		radial-gradient(
-			90% 120% at 50% 100%,
-			var(--pi-glow-gold) 0%,
+			90% 120% at 50% 0%,
+			var(--pi-glass-source) 0%,
 			transparent 68%
 		),
-		var(--pi-obsidian-sheen);
+		var(--pi-glass-sheen);
 	border-block: 1px solid var(--pi-rule);
-	color: var(--pi-obsidian-muted);
+	color: var(--pi-glass-muted);
 }
 
 @media (width < 46rem) {
@@ -1078,6 +1251,16 @@
 	margin: 0;
 	/* Equal on all four sides, not the panel gutter horizontally. */
 	padding: 64px;
+	transition: background-color 160ms ease-out;
+}
+
+/*
+ * Hover lights the quadrant, not a card: the tint fills the facet edge to
+ * edge because there is no inset and no radius to interrupt it, so the sheet
+ * reads as four panes of one window rather than four tiles.
+ */
+:root .sl-markdown-content .card:hover {
+	background-color: var(--pi-glass-hover);
 }
 
 /*
@@ -1096,16 +1279,16 @@
 	box-shadow: inset var(--pi-lip-x), inset var(--pi-lip-y);
 }
 :root .sl-markdown-content .card:nth-child(odd) {
-	border-inline-end: 1px solid var(--pi-obsidian-cut);
+	border-inline-end: 1px solid var(--pi-glass-cut);
 }
 :root .sl-markdown-content .card:nth-child(-n + 2) {
-	border-block-end: 1px solid var(--pi-obsidian-cut);
+	border-block-end: 1px solid var(--pi-glass-cut);
 }
 :root .sl-markdown-content .card:nth-child(even) {
-	--pi-lip-x: 1px 0 0 var(--pi-obsidian-lip);
+	--pi-lip-x: 1px 0 0 var(--pi-glass-lip);
 }
 :root .sl-markdown-content .card:nth-child(n + 3) {
-	--pi-lip-y: 0 1px 0 var(--pi-obsidian-lip);
+	--pi-lip-y: 0 1px 0 var(--pi-glass-lip);
 }
 
 @media (width < 46rem) {
@@ -1113,20 +1296,20 @@
 		border-inline-end: 0;
 	}
 	:root .sl-markdown-content .card:not(:last-child) {
-		border-block-end: 1px solid var(--pi-obsidian-cut);
+		border-block-end: 1px solid var(--pi-glass-cut);
 	}
 	:root .sl-markdown-content .card {
 		--pi-lip-x: 0 0 0 transparent;
 	}
 	:root .sl-markdown-content .card:not(:first-child) {
-		--pi-lip-y: 0 1px 0 var(--pi-obsidian-lip);
+		--pi-lip-y: 0 1px 0 var(--pi-glass-lip);
 	}
 }
 
 :root .sl-markdown-content .card .title {
 	font-size: var(--sl-text-lg);
 	font-weight: 600;
-	color: var(--pi-obsidian-ink);
+	color: var(--pi-glass-ink);
 }
 :root .sl-markdown-content .card .icon {
 	border: 0;
@@ -1134,7 +1317,7 @@
 	color: var(--pi-accent);
 }
 
-/* ---- grain on the obsidian ---------------------------------------------- */
+/* ---- grain on the glass ------------------------------------------------ */
 
 /*
  * The pane is a grid container, so the overlay is absolutely positioned — a
@@ -1154,8 +1337,8 @@
 	pointer-events: none;
 	background-image: var(--pi-grain);
 	background-size: 140px 140px;
-	mix-blend-mode: overlay;
-	opacity: var(--pi-obsidian-grain);
+	mix-blend-mode: var(--pi-glass-grain-blend);
+	opacity: var(--pi-glass-grain);
 }
 
 :root .sl-markdown-content .card {
@@ -1164,10 +1347,10 @@
 }
 
 /* ============================================================================
- * PAGINATION — obsidian, side by side
+ * PAGINATION — the same glass, side by side
  *
- * Same pane as the homepage quadrants: one sheet of obsidian glass with a
- * sheen, grain over it, and the division between prev and next drawn as a
+ * Same pane as the homepage quadrants, in whichever material the scheme is
+ * wearing: one sheet of glass with a sheen, grain over it, and the division between prev and next drawn as a
  * hairline cut rather than a gap. Starlight's rounded, drop-shadowed cards are
  * stripped back to transparent.
  *
@@ -1196,10 +1379,10 @@
 
 	position: relative;
 	isolation: isolate;
-	background-color: var(--pi-obsidian);
-	background-image: var(--pi-obsidian-sheen);
+	background-color: var(--pi-glass);
+	background-image: var(--pi-glass-sheen);
 	border-block: 1px solid var(--pi-rule);
-	color: var(--pi-obsidian-muted);
+	color: var(--pi-glass-muted);
 }
 
 /* Grain over the glass, under the links. Absolutely positioned: a static
@@ -1212,8 +1395,8 @@
 	pointer-events: none;
 	background-image: var(--pi-grain);
 	background-size: 140px 140px;
-	mix-blend-mode: overlay;
-	opacity: var(--pi-obsidian-grain);
+	mix-blend-mode: var(--pi-glass-grain-blend);
+	opacity: var(--pi-glass-grain);
 }
 
 :root .pagination-links a {
@@ -1225,7 +1408,7 @@
 	box-shadow: none;
 	width: auto;
 	padding: calc(var(--pi-unit) * 2) var(--pi-panel-pad-x);
-	color: var(--pi-obsidian-muted);
+	color: var(--pi-glass-muted);
 }
 
 /* Next always sits in the right half, even when it is the only link. */
@@ -1235,18 +1418,18 @@
 
 /* The cut between them. */
 :root .pagination-links a[rel='prev'] {
-	border-inline-end: 1px solid var(--pi-obsidian-cut);
+	border-inline-end: 1px solid var(--pi-glass-cut);
 }
 
 :root .pagination-links a:hover {
-	border-color: var(--pi-obsidian-cut);
-	background: rgba(255, 255, 255, 0.04);
+	border-color: var(--pi-glass-cut);
+	background: var(--pi-glass-hover);
 }
 
 :root .pagination-links .link-title {
 	font-size: var(--sl-text-lg);
 	font-weight: 600;
-	color: var(--pi-obsidian-ink);
+	color: var(--pi-glass-ink);
 }
 
 @media (width < 46rem) {
@@ -1258,7 +1441,7 @@
 	}
 	:root .pagination-links a[rel='prev'] {
 		border-inline-end: 0;
-		border-block-end: 1px solid var(--pi-obsidian-cut);
+		border-block-end: 1px solid var(--pi-glass-cut);
 	}
 }
 
@@ -1442,7 +1625,7 @@
 :root .hero h1#_top {
 	display: block;
 	width: min(100%, 26rem);
-	aspect-ratio: 213.56628 / 58.608307;
+	aspect-ratio: var(--pi-logo-aspect);
 	font-size: 0;
 	color: var(--sl-color-white);
 	background-color: currentColor;
@@ -1523,10 +1706,10 @@
  * dark wall, the one after it draws the lit lip.
  */
 :root .hero .sl-link-button:not(:last-child) {
-	border-inline-end: 1px solid var(--pi-obsidian-cut);
+	border-inline-end: 1px solid rgba(0, 0, 0, 0.62);
 }
 :root .hero .sl-link-button:not(:first-child) {
-	box-shadow: inset 1px 0 0 var(--pi-obsidian-lip);
+	box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.17);
 }
 
 /* Below 46rem three across is unreadable; stack them and turn the cuts. */
@@ -1536,10 +1719,10 @@
 	}
 	:root .hero .sl-link-button:not(:last-child) {
 		border-inline-end: 0;
-		border-block-end: 1px solid var(--pi-obsidian-cut);
+		border-block-end: 1px solid rgba(0, 0, 0, 0.62);
 	}
 	:root .hero .sl-link-button:not(:first-child) {
-		box-shadow: inset 0 1px 0 var(--pi-obsidian-lip);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.17);
 	}
 }
 
@@ -1560,7 +1743,7 @@
  */
 :root .hero .sl-link-button:not(.primary) {
 	background: rgba(255, 255, 255, 0.07);
-	color: var(--pi-obsidian-ink);
+	color: #f2f2f3;
 }
 :root .hero .sl-link-button:not(.primary):hover {
 	background: rgba(255, 255, 255, 0.13);
@@ -1577,7 +1760,7 @@
  * Sized in `em` so it scales with the type around it: the SVG's bounding box
  * is the wordmark's cap height (no descenders), so 0.72em tall matches the
  * cap height of the text it sits in, and the width follows the mark's own
- * 3.644:1 ratio.
+ * ratio (--pi-logo-ratio).
  *
  * The glyphs are pushed out of the box with text-indent rather than
  * `font-size: 0` — em units are relative to the element's own font size, so
@@ -1586,7 +1769,7 @@
 :root .pi-wordmark {
 	display: inline-block;
 	height: 0.72em;
-	width: calc(0.72em * 3.644);
+	width: calc(0.72em * var(--pi-logo-ratio));
 	vertical-align: baseline;
 	overflow: hidden;
 	text-indent: -100em;
@@ -1850,7 +2033,7 @@
 :root .pi-footer__mark {
 	display: block;
 	width: 7rem;
-	aspect-ratio: 213.56628 / 58.608307;
+	aspect-ratio: var(--pi-logo-aspect);
 	background-color: currentColor;
 	color: var(--pi-ink);
 	-webkit-mask: url('/logo.svg') no-repeat left center / contain;
@@ -1893,9 +2076,17 @@
  * Scoped with :has(.hero) — the homepage only.
  */
 :root:root {
+	/*
+	 * Scheme-aware: the wash sits on the sheet, so in light mode it must reach
+	 * further and sit stronger to register next to paper at all.
+	 *
+	 * This is the page's only chromatic note besides the red. The quadrant
+	 * pane's own source used to be a second one — an amber that had no anchor
+	 * anywhere else in the system and slid toward green where it met this —
+	 * and is now achromatic, part of the glass rather than a colour over it.
+	 * See --pi-glass-source.
+	 */
 	--pi-glow: color-mix(in srgb, #4bf3c8 16%, transparent);
-	/* The panes are obsidian in both schemes, so one value serves both. */
-	--pi-glow-gold: color-mix(in srgb, #ffc247 20%, transparent);
 }
 :root:root[data-theme='light'] {
 	--pi-glow: color-mix(in srgb, #4bf3c8 32%, transparent);
