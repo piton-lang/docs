@@ -1,0 +1,1689 @@
+/* ============================================================================
+ * PITON DOCS — after the NASA Graphics Standards Manual (Danne & Blackburn,
+ * 1976), with Braun/Rams restraint.
+ *
+ * The manual is printed matter: flat ink on paper. No bevel, no grain, no
+ * shadow, no rounded card floating above a ground — those were the previous
+ * theme's devices and every one of them is removed here. What does the work
+ * instead:
+ *
+ *   PAPER      A warm off-white field. Black ink. The empty field is the
+ *              layout; marks are placed into it sparingly.
+ *   ONE RULE   Hairline, one weight. Rules divide zones; they never decorate.
+ *   ONE ACCENT NASA red #FC3D21, as a system marker only — section indices and
+ *              the current-page edge. It clears 3.24:1 on paper, enough for
+ *              markers and display numerals, not for running text. The manual
+ *              used red the same way.
+ *   INDEXED    Every section carries a number. Position in the document is
+ *              always legible, which is what lets a dense page stay ordered.
+ *   GRID       One gutter, one rhythm unit, one measure. Nothing floats.
+ *
+ * Dark mode is the manual's reversed spread, not a different design.
+ *
+ * NOTE ON SPECIFICITY: Starlight declares its tokens on `:root, ::backdrop`
+ * and its stylesheet is emitted AFTER this file, so a plain `:root` here loses
+ * the cascade on equal specificity. Every rule therefore carries one extra
+ * `:root`. Do not remove it.
+ * ==========================================================================*/
+
+/* ----------------------------------------------------------------- palette */
+
+/* Reversed spread (Starlight's dark scheme). */
+:root:root {
+	--pi-paper: #191919; /* the sheet */
+	--pi-chrome: #0d0d0d; /* header sits below the sheet in value */
+	--pi-anodized: #1e1f21; /* sidebar panel, a touch cooler than the sheet */
+	--pi-anodized-grain: rgba(255, 255, 255, 0.014);
+	--pi-anodized-sheen: rgba(255, 255, 255, 0.045);
+	--pi-anodized-shade: rgba(0, 0, 0, 0.16);
+	--pi-anodized-edge: rgba(255, 255, 255, 0.07);
+	--pi-title-block: #111111; /* the title banner, both schemes */
+	--pi-paper-raised: #222222; /* data blocks: tables, code */
+	--pi-ink: #f4f3ef; /* 17.01:1 */
+	--pi-ink-muted: #a0a0a0; /*  7.22:1 */
+	--pi-rule: rgba(244, 243, 239, 0.22);
+	--pi-rule-strong: rgba(244, 243, 239, 0.5);
+	--pi-accent: #fc3d21; /*  5.24:1 */
+
+	--sl-color-bg: var(--pi-paper);
+	--sl-color-bg-nav: var(--pi-chrome);
+	--sl-color-bg-sidebar: var(--pi-paper);
+	--sl-color-bg-inline-code: rgba(244, 243, 239, 0.09);
+	--sl-color-text: var(--pi-ink);
+	--sl-color-white: var(--pi-ink);
+	--sl-color-gray-1: #fafafa;
+	--sl-color-gray-2: #d8d8d8;
+	--sl-color-gray-3: var(--pi-ink-muted);
+	--sl-color-gray-4: #7a7a7a;
+	--sl-color-gray-5: #2a2a2a;
+	--sl-color-gray-6: #1f1f1f;
+	--sl-color-gray-7: #191919;
+	--sl-color-black: var(--pi-paper);
+	--sl-color-hairline: var(--pi-rule);
+	--sl-color-hairline-light: var(--pi-rule);
+	--sl-color-hairline-shade: var(--pi-rule);
+	--sl-color-accent: var(--pi-ink);
+	--sl-color-accent-low: rgba(244, 243, 239, 0.14);
+	--sl-color-accent-high: var(--pi-ink);
+	--sl-color-text-accent: var(--pi-ink);
+}
+
+/* Paper (Starlight's light scheme) — the manual's primary state. */
+:root:root[data-theme='light'] {
+	--pi-paper: #f7f6f2;
+	--pi-chrome: #e8e7e2;
+	--pi-anodized: #e6e7e8;
+	--pi-anodized-grain: rgba(0, 0, 0, 0.016);
+	--pi-anodized-sheen: rgba(255, 255, 255, 0.55);
+	--pi-anodized-shade: rgba(0, 0, 0, 0.05);
+	--pi-anodized-edge: rgba(255, 255, 255, 0.6);
+	--pi-title-block: #111111;
+
+	--pi-paper-raised: #ffffff;
+	--pi-ink: #111111; /* 17.01:1 */
+	--pi-ink-muted: #5a5a5a; /*  6.21:1 */
+	--pi-rule: rgba(17, 17, 17, 0.22);
+	--pi-rule-strong: rgba(17, 17, 17, 0.55);
+	--pi-accent: #fc3d21; /*  3.24:1 — markers only */
+
+	--sl-color-white: var(--pi-ink);
+	--sl-color-black: var(--pi-paper);
+	--sl-color-gray-1: #000000;
+	--sl-color-gray-2: #1f1f1f;
+	--sl-color-gray-3: var(--pi-ink-muted);
+	--sl-color-gray-4: #6e6e6e;
+	--sl-color-gray-5: #dcdbd6;
+	--sl-color-gray-6: #e6e5e0;
+	--sl-color-gray-7: #eeede9;
+	--sl-color-bg-inline-code: rgba(17, 17, 17, 0.07);
+	--sl-color-accent: var(--pi-ink);
+	--sl-color-accent-low: rgba(17, 17, 17, 0.1);
+	--sl-color-accent-high: var(--pi-ink);
+	--sl-color-text-accent: var(--pi-ink);
+}
+
+/* ------------------------------------------------------------------ system */
+
+:root:root {
+	--sl-font: 'Barlow Semi Condensed', ui-sans-serif, system-ui, sans-serif;
+	--pi-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+	/* Display face for the page title only — a full condensed cut, narrower
+	   than the semi-condensed used everywhere else. */
+	--pi-display: 'Barlow Condensed', 'Barlow Semi Condensed', ui-sans-serif,
+		system-ui, sans-serif;
+	--sl-font-mono: var(--pi-mono);
+
+	/*
+	 * Body copy inherits from the root — Starlight sets no font-size on <body>
+	 * or .sl-markdown-content — so the root size is the real lever. 18px.
+	 */
+	font-size: 112.5%;
+
+	/* Modular scale, ratio 1.2 (minor third), base 1rem = 18px. */
+	--sl-text-2xs: 0.694rem;
+	--sl-text-xs: 0.75rem; /* floored: UI below ~13px costs legibility */
+	--sl-text-sm: 0.833rem;
+	--sl-text-base: 1rem;
+	--sl-text-lg: 1.2rem;
+	--sl-text-xl: 1.44rem;
+	--sl-text-2xl: 1.728rem;
+	--sl-text-3xl: 2.074rem;
+	--sl-text-4xl: 2.488rem;
+	--sl-text-5xl: 2.986rem;
+	--sl-text-6xl: 3.583rem;
+
+	/* Heading steps pinned: Starlight promotes each one step at >=50rem, which
+	   on a modular scale compounds past what a manual page needs. */
+	--sl-text-h1: var(--sl-text-4xl);
+	--sl-text-h2: var(--sl-text-3xl);
+	--sl-text-h3: var(--sl-text-2xl);
+	--sl-text-h4: var(--sl-text-xl);
+	--sl-text-h5: var(--sl-text-lg);
+
+	--pi-line: 1.65;
+	--pi-unit: calc(var(--pi-line) * 0.5rem); /* rhythm unit ~14.85px */
+	--sl-line-height: var(--pi-line);
+	--sl-line-height-headings: 1.15;
+
+	--pi-measure: 68ch; /* 45-75 characters; Barlow is narrow */
+	--pi-panel-pad-x: calc(var(--pi-unit) * 2.5);
+	--pi-gutter: 1.5rem; /* one gutter for header, sidebar and content */
+	--sl-nav-pad-x: var(--pi-gutter);
+	--sl-sidebar-pad-x: var(--pi-gutter);
+	--sl-content-pad-x: var(--pi-gutter);
+}
+
+/* Flat. Printed matter has no corner radius. */
+:root :is(.card, .starlight-aside, .expressive-code .frame, pre, table, button, select, input) {
+	border-radius: 0;
+}
+
+:root body {
+	background: var(--pi-paper);
+	color: var(--pi-ink);
+	font-family: var(--sl-font);
+	font-kerning: normal;
+	font-variant-ligatures: common-ligatures contextual;
+	text-rendering: optimizeLegibility;
+	letter-spacing: 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* --------------------------------------------------------------- structure */
+
+/*
+ * Zones are separated by a single hairline, nothing else. No inset plate, no
+ * radius, no shadow — the manual's pages are full-bleed fields divided by
+ * rules.
+ */
+:root header.header {
+	/* Chrome, not sheet: darker in value, and the graph field stops here. */
+	background: var(--pi-chrome);
+	background-image: none;
+	border-bottom: 1px solid var(--pi-rule);
+	box-shadow: none;
+}
+
+:root #starlight__sidebar,
+:root .sidebar-pane {
+	/* background comes from the anodized panel rule below */
+	border-inline-end: 1px solid var(--pi-rule);
+	box-shadow: none;
+}
+
+:root .right-sidebar {
+	border-inline-start: 1px solid var(--pi-rule);
+	box-shadow: none;
+}
+
+:root .main-pane {
+	flex: 1;
+	width: auto;
+	min-width: 0;
+	min-height: calc(100vh - var(--sl-nav-height) - var(--sl-mobile-toc-height));
+	min-height: calc(
+		100dvh - var(--sl-nav-height) - var(--sl-mobile-toc-height)
+	);
+}
+
+/* Generous margins: the field is the layout. */
+:root .content-panel {
+	padding: calc(var(--pi-unit) * 2.5) var(--pi-panel-pad-x);
+}
+@media (width >= 72rem) {
+	:root .content-panel {
+		padding: calc(var(--pi-unit) * 3.5) calc(var(--pi-unit) * 4);
+	}
+}
+:root .content-panel + .content-panel {
+	border-top: 1px solid var(--pi-rule);
+	box-shadow: none;
+	margin-block: 0;
+}
+
+:root hr {
+	border: 0;
+	border-top: 1px solid var(--pi-rule);
+	box-shadow: none;
+	margin-block: calc(var(--pi-unit) * 3);
+}
+
+/* ------------------------------------------------------------------ type */
+
+:root .site-title {
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+/* Optical tracking: tightens as size grows, opens as it shrinks. */
+:root .sl-markdown-content :is(h1, h2) {
+	letter-spacing: -0.015em;
+	font-weight: 600;
+}
+:root .sl-markdown-content :is(h3, h4) {
+	letter-spacing: -0.008em;
+	font-weight: 600;
+}
+:root .sl-markdown-content :is(h5, h6) {
+	font-weight: 600;
+}
+:root .sl-markdown-content :is(h1, h2, h3, h4, h5, h6) {
+	color: var(--pi-ink);
+	line-height: var(--sl-line-height-headings);
+	text-wrap: balance;
+	scroll-margin-top: calc(
+		var(--sl-nav-height) + var(--sl-mobile-toc-height) + var(--pi-unit) * 2
+	);
+}
+
+/*
+ * Prose runs the full width of the sheet. (An earlier revision capped it at
+ * --pi-measure for a classic 45-75 character line; that cap is deliberately
+ * lifted here — the variable is kept in case it is wanted back.)
+ */
+:root .sl-markdown-content > * {
+	max-width: none;
+}
+:root .sl-markdown-content > :is(
+		.expressive-code, pre, table, figure, .starlight-aside, .sl-heading-wrapper
+	),
+:root .sl-markdown-content > * > table {
+	max-width: none;
+}
+
+:root .sl-markdown-content p {
+	margin-block: 0 calc(var(--pi-unit) * 1.5);
+	text-wrap: pretty; /* pulls up widows */
+}
+:root .sl-markdown-content :is(ul, ol) {
+	margin-block: 0 calc(var(--pi-unit) * 1.5);
+	padding-inline-start: calc(var(--pi-unit) * 1.5);
+}
+:root .sl-markdown-content li + li {
+	margin-top: calc(var(--pi-unit) * 0.5);
+}
+:root .sl-markdown-content li > :is(ul, ol) {
+	margin-block: calc(var(--pi-unit) * 0.5) 0;
+}
+:root .sl-markdown-content :is(.expressive-code, pre, table, figure) {
+	margin-block: calc(var(--pi-unit) * 2);
+}
+
+/* Space above a heading belongs to the section it starts. */
+:root .sl-markdown-content h2:not(:where(.not-content *)) {
+	margin-top: calc(var(--pi-unit) * 5);
+	margin-bottom: calc(var(--pi-unit) * 1);
+	padding-bottom: calc(var(--pi-unit) * 0.4);
+	border-bottom: 1px solid var(--pi-rule);
+}
+:root .sl-markdown-content h3:not(:where(.not-content *)) {
+	margin-top: calc(var(--pi-unit) * 2.5);
+	margin-bottom: calc(var(--pi-unit) * 0.75);
+}
+:root .sl-markdown-content :is(h4, h5, h6):not(:where(.not-content *)) {
+	margin-top: calc(var(--pi-unit) * 2);
+	margin-bottom: calc(var(--pi-unit) * 0.5);
+}
+:root .sl-markdown-content > :first-child,
+:root .sl-markdown-content > .sl-heading-wrapper:first-child {
+	margin-top: 0;
+}
+
+/* Links: ink, underlined. The accent is reserved for system markers. */
+:root .sl-markdown-content a:not(:where(.not-content *)) {
+	color: var(--pi-ink);
+	text-decoration-color: var(--pi-rule-strong);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.18em;
+}
+:root .sl-markdown-content a:hover:not(:where(.not-content *)) {
+	text-decoration-color: var(--pi-accent);
+}
+
+/* ------------------------------------------------------ numbered sections */
+
+/*
+ * The manual's signature device. Indices hang in the margin at desktop so the
+ * headings stay flush with the body text and the grid stays visible.
+ */
+:root .sl-markdown-content {
+	counter-reset: pi-h2;
+}
+:root .sl-markdown-content h2:not(:where(.not-content *)) {
+	counter-increment: pi-h2;
+	counter-reset: pi-h3;
+	position: relative;
+}
+:root .sl-markdown-content h3:not(:where(.not-content *)) {
+	counter-increment: pi-h3;
+	position: relative;
+}
+:root .sl-markdown-content h2:not(:where(.not-content *))::before {
+	content: counter(pi-h2, decimal-leading-zero);
+	color: var(--pi-accent);
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	letter-spacing: 0;
+	margin-inline-end: 0.6em;
+}
+:root .sl-markdown-content h3:not(:where(.not-content *))::before {
+	content: counter(pi-h2) '.' counter(pi-h3);
+	color: var(--pi-ink-muted);
+	font-variant-numeric: tabular-nums;
+	font-family: var(--pi-mono);
+	font-size: 0.62em;
+	margin-inline-end: 0.7em;
+	vertical-align: 0.15em;
+}
+
+/* ------------------------------------------------------------- micro-labels */
+
+/* One treatment for every small structural label, so they read as one system. */
+:root .sidebar-content summary,
+:root .sidebar-content h2,
+:root .right-sidebar-panel h2,
+:root .sl-markdown-content th {
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pi-ink-muted);
+}
+
+/* ---------------------------------------------------------------- sidebar */
+
+/* Every item reserves the marker, so marking one current shifts nothing. */
+:root .sidebar-content a {
+	border-inline-start: 2px solid transparent;
+	border-radius: 0;
+	padding-block: calc(var(--pi-unit) * 0.3);
+	padding-inline-start: calc(var(--pi-unit) * 0.6);
+	font-weight: 400;
+}
+:root .sidebar-content a[aria-current='page'] {
+	background: none;
+	border-inline-start-color: var(--pi-accent);
+	color: var(--pi-ink);
+	font-weight: 600;
+}
+
+/* ----------------------------------------------------------------- tables */
+
+/*
+ * Horizontal rules only. The eye tracks columns by alignment; a full grid
+ * competes with the data. Figures set in tabular numerals so columns align.
+ */
+:root .sl-markdown-content table {
+	border: 0;
+	border-collapse: collapse;
+	width: 100%;
+	font-variant-numeric: tabular-nums;
+	background: var(--pi-paper-raised);
+}
+:root .sl-markdown-content :is(th, td) {
+	border: 0;
+	border-bottom: 1px solid var(--pi-rule);
+	padding: calc(var(--pi-unit) * 0.55) calc(var(--pi-unit) * 0.75);
+	vertical-align: baseline;
+	text-align: start;
+}
+:root .sl-markdown-content th {
+	border-bottom-color: var(--pi-rule-strong);
+}
+:root .sl-markdown-content tbody tr:last-child :is(th, td) {
+	border-bottom: 0;
+}
+
+/* ------------------------------------------------------------------- code */
+
+:root .sl-markdown-content :is(code, pre, kbd, samp) {
+	font-family: var(--pi-mono);
+	font-variant-ligatures: none;
+}
+:root .expressive-code .frame {
+	border: 1px solid var(--pi-rule);
+	box-shadow: none;
+}
+/*
+ * Code blocks are a plain plate: one flat surface, no field behind the code.
+ *
+ * background-COLOR, never the `background:` shorthand — the shorthand resets
+ * background-image, which has silently wiped textures in this file before.
+ */
+:root .expressive-code .frame,
+:root .sl-markdown-content pre {
+	background-color: var(--pi-paper-raised);
+}
+:root .expressive-code .frame pre,
+:root .expressive-code .frame pre > code,
+:root .expressive-code .frame .header {
+	background-color: transparent !important;
+	background-image: none;
+}
+/*
+ * Expressive Code draws its own 1px border on `pre`, inside the frame border
+ * set above — two rules where there should be one. Zeroing EC's own variable
+ * (rather than overriding `border` on pre) also collapses the radius and
+ * scrollbar calcs that are derived from it.
+ */
+:root .expressive-code {
+	--ec-codeBg: transparent;
+	--ec-brdWd: 0;
+	/*
+	 * Equal padding on all four sides. Expressive Code splits this in two:
+	 * --ec-codePadBlk goes on `pre > code` (top and bottom) and
+	 * --ec-codePadInl on each line's `.code` cell (left and right). They
+	 * default to 0.75rem and 1rem, so the block was tighter vertically than
+	 * horizontally; matching them squares it up.
+	 */
+	--ec-codePadBlk: 32px;
+	--ec-codePadInl: 32px;
+}
+
+/* Plain <pre> blocks (not Expressive Code) get the same. */
+:root .sl-markdown-content pre:not(:where(.expressive-code *)) {
+	padding: 32px;
+}
+:root :not(pre) > code {
+	border: 1px solid var(--pi-rule);
+	padding: 0.05em 0.32em;
+}
+
+/* --------------------------------------------------------- asides & cards */
+
+/* A hairline and space, not a filled box. */
+:root .card,
+:root starlight-aside,
+:root .starlight-aside {
+	background: none;
+	border: 1px solid var(--pi-rule);
+	box-shadow: none;
+	padding: calc(var(--pi-unit) * 1.25) calc(var(--pi-unit) * 1.5);
+}
+
+:root .sl-markdown-content blockquote {
+	border-inline-start: 1px solid var(--pi-rule-strong);
+	padding-inline-start: calc(var(--pi-unit) * 1.25);
+	color: var(--pi-ink-muted);
+	font-style: italic;
+}
+
+/* --------------------------------------------------------------- controls */
+
+:root .sl-flex button,
+:root site-search button,
+:root starlight-theme-select select {
+	background: none;
+	border: 1px solid var(--pi-rule);
+	box-shadow: none;
+	color: var(--pi-ink);
+}
+
+:root :focus-visible {
+	outline: 2px solid var(--pi-accent);
+	outline-offset: 2px;
+}
+
+/* ============================================================================
+ * CONTENTS PAGES, GRID FIELD, AND AIR
+ *
+ * Three devices taken directly from the manual:
+ *
+ *   CONTENTS  The manual's contents spread sets a hairline above each section
+ *             group, a numbered bold section label, then entries connected to
+ *             right-aligned indices by dot leaders. The sidebar and the "on
+ *             this page" list are contents pages; they get the same treatment.
+ *   GRID      The logotype drawing sheets are printed on a fine graph field.
+ *             It sits behind everything at the threshold of perception — it
+ *             should read as paper stock, not as a visible table.
+ *   AIR       The manual's pages put a short column of text at the top and
+ *             leave the rest of the sheet empty. White space is the layout,
+ *             not what is left over.
+ * ==========================================================================*/
+
+:root:root {
+	--pi-grid-size: 16px; /* graph field */
+	/* Film grain: single-octave turbulence at high frequency reads as
+	   emulsion; multi-octave fractal noise reads as smoke. */
+	--pi-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+	--pi-grid-ink: rgba(244, 243, 239, 0.045);
+}
+:root:root[data-theme='light'] {
+	--pi-grid-ink: rgba(17, 17, 17, 0.05);
+}
+
+/* Graph field. Two hairline gradients; no image request, no extra element. */
+:root body {
+	background-image:
+		repeating-linear-gradient(
+			to right,
+			var(--pi-grid-ink) 0 1px,
+			transparent 1px var(--pi-grid-size)
+		),
+		repeating-linear-gradient(
+			to bottom,
+			var(--pi-grid-ink) 0 1px,
+			transparent 1px var(--pi-grid-size)
+		);
+	background-attachment: fixed;
+}
+
+/*
+ * The sheet is plain. In the manual the graph field appears on the DRAWING
+ * pages, not under running text — the text pages are bare white. So the field
+ * is kept, but only behind figures (see the code-block rule below), and the
+ * reading area carries nothing.
+ */
+:root .main-pane {
+	background: var(--pi-paper);
+	background-image: none;
+}
+
+/* ---- air --------------------------------------------------------------- */
+
+@media (width >= 72rem) {
+	:root:root {
+		--pi-panel-pad-x: calc(var(--pi-unit) * 5);
+	}
+	:root .content-panel {
+		padding: calc(var(--pi-unit) * 4.5) var(--pi-panel-pad-x);
+	}
+}
+:root .sl-markdown-content h2:not(:where(.not-content *)) {
+	margin-top: calc(var(--pi-unit) * 6);
+}
+
+/* ---- contents: shared leader mechanics --------------------------------- */
+
+/*
+ * Dot leaders without extra markup. The label is the anonymous/`span` flex
+ * item at order 0; ::before becomes the leader at order 1; ::after carries the
+ * index at order 2. The leader is nudged up so the dots sit on the baseline
+ * rather than under it.
+ */
+:root .sidebar-content li > a,
+:root .right-sidebar-panel li > a {
+	display: flex;
+	align-items: baseline;
+	column-gap: 0.45em;
+}
+:root .sidebar-content li > a > span,
+:root .right-sidebar-panel li > a > span {
+	flex: 0 1 auto;
+	min-width: 0;
+}
+:root .sidebar-content li > a::before,
+:root .right-sidebar-panel li > a::before {
+	content: '';
+	order: 1;
+	flex: 1 1 1.5em;
+	min-width: 1.25em;
+	position: relative;
+	top: -0.3em;
+	border-bottom: 1px dotted var(--pi-rule-strong);
+}
+:root .sidebar-content li > a::after,
+:root .right-sidebar-panel li > a::after {
+	order: 2;
+	flex: none;
+	font-family: var(--pi-mono);
+	font-size: var(--sl-text-2xs);
+	font-variant-numeric: tabular-nums;
+	color: var(--pi-ink-muted);
+}
+
+/* ---- contents: the sidebar --------------------------------------------- */
+
+:root .sidebar-content .top-level {
+	counter-reset: pi-nav-group;
+}
+:root .sidebar-content .top-level > li {
+	counter-increment: pi-nav-group;
+	counter-reset: pi-nav-item;
+	border-top: 1px solid var(--pi-rule);
+	padding-top: calc(var(--pi-unit) * 0.75);
+	margin-top: calc(var(--pi-unit) * 1.25);
+}
+:root .sidebar-content .top-level > li:first-child {
+	margin-top: 0;
+}
+
+/* Numbered, bold section label — the left column of the contents spread. */
+:root .sidebar-content .group-label .large {
+	font-size: var(--sl-text-sm);
+	font-weight: 600;
+	text-transform: none;
+	letter-spacing: 0;
+	color: var(--pi-ink);
+}
+:root .sidebar-content .group-label .large::before {
+	content: counter(pi-nav-group) '\2002';
+	font-family: var(--pi-mono);
+	font-variant-numeric: tabular-nums;
+	color: var(--pi-accent);
+}
+
+:root .sidebar-content .top-level > li li {
+	counter-increment: pi-nav-item;
+}
+:root .sidebar-content .top-level > li li > a::after {
+	content: counter(pi-nav-group) '.' counter(pi-nav-item);
+}
+
+/* ---- contents: on this page -------------------------------------------- */
+
+/*
+ * Starlight marks TOC depth with an inline `--depth` custom property, so the
+ * levels are addressed through it. Depth 0 is an h2, depth 1 an h3; the first
+ * entry is the page overview and carries no index.
+ */
+:root .right-sidebar-panel ul {
+	counter-reset: pi-toc-h2;
+}
+:root .right-sidebar-panel li[style*='--depth: 0']:not(:first-child) {
+	counter-increment: pi-toc-h2;
+	counter-reset: pi-toc-h3;
+}
+:root .right-sidebar-panel li[style*='--depth: 1'] {
+	counter-increment: pi-toc-h3;
+}
+:root .right-sidebar-panel li[style*='--depth: 0']:not(:first-child) > a::after {
+	content: counter(pi-toc-h2, decimal-leading-zero);
+	color: var(--pi-accent);
+}
+:root .right-sidebar-panel li[style*='--depth: 1'] > a::after {
+	content: counter(pi-toc-h2) '.' counter(pi-toc-h3);
+}
+/* The overview entry has no index, so it needs no leader either. */
+:root .right-sidebar-panel li:first-child > a::before {
+	border-bottom: 0;
+}
+:root .right-sidebar-panel h2 {
+	padding-bottom: calc(var(--pi-unit) * 0.5);
+	border-bottom: 1px solid var(--pi-rule);
+	margin-bottom: calc(var(--pi-unit) * 0.75);
+}
+
+/* ============================================================================
+ * SEARCH DIALOG
+ *
+ * Starlight already blurs its backdrop, but only by .25rem — at this file's
+ * 18px root that is ~4.5px, which barely registers — and it pairs the blur
+ * with its own blue-grey overlay (#16181da8), which is off-palette here.
+ * Both are replaced: a blur that reads, over an overlay mixed from the theme's
+ * own ink.
+ *
+ * The dialog itself is brought onto the sheet as well: flat, hairline, paper.
+ * ==========================================================================*/
+
+:root:root,
+:root:root ::backdrop {
+	--sl-color-backdrop-overlay: rgba(9, 9, 9, 0.72);
+}
+:root:root[data-theme='light'],
+:root:root[data-theme='light'] ::backdrop {
+	--sl-color-backdrop-overlay: rgba(17, 17, 17, 0.38);
+}
+
+:root site-search dialog::backdrop {
+	background-color: var(--sl-color-backdrop-overlay);
+	/* Written unprefixed only: the CSS minifier adds the -webkit- form from the
+	   build's browser targets. Writing both by hand made it keep ONLY the
+	   prefixed one, which would leave Firefox unblurred. */
+	backdrop-filter: blur(0.65rem) saturate(0.9);
+}
+
+/* The panel is a sheet like any other: flat, hairline, paper. */
+:root site-search dialog {
+	background-color: var(--pi-paper);
+	border: 1px solid var(--pi-rule-strong);
+	border-radius: 0;
+	box-shadow: none;
+	color: var(--pi-ink);
+}
+:root site-search .dialog-frame {
+	background: transparent;
+}
+
+/* Pagefind's own chrome, so the results list matches the contents pages. */
+:root site-search {
+	--pagefind-ui-background: var(--pi-paper);
+	--pagefind-ui-text: var(--pi-ink);
+	--pagefind-ui-border: var(--pi-rule);
+	--pagefind-ui-primary: var(--pi-ink);
+	--pagefind-ui-tag: var(--pi-paper-raised);
+	--pagefind-ui-border-radius: 0;
+	--pagefind-ui-border-width: 1px;
+	--pagefind-ui-font: var(--sl-font);
+}
+
+/* ---- full-bleed code ---------------------------------------------------- */
+
+/*
+ * Prose stays at the measure; code does not. A code block's width is set by
+ * its longest line, not by reading comfort, so it spans the whole sheet —
+ * pulled back across the label column, the way the manual runs its drawings
+ * full width beneath a narrow heading.
+ */
+/* Cancel the panel's own padding so the block meets the container edge. */
+:root .sl-markdown-content > .expressive-code {
+	margin-inline: calc(-1 * var(--pi-panel-pad-x));
+}
+
+/* Flush to the edge, so the vertical rules would sit on the container border. */
+:root .sl-markdown-content > .expressive-code .frame {
+	border-inline: 0;
+}
+
+/* ============================================================================
+ * ANODIZED PANEL — the left sidebar
+ *
+ * The graph field is drafting paper; it belongs under the content sheet, not
+ * under the navigation. The sidebar is a machined part instead: a matte
+ * anodized panel, cooler in tone than the sheet.
+ *
+ * Anodising leaves a fine matte micro-grain, not a drawn texture, so the grain
+ * here is a 3px vertical hairline pattern at ~1.5% alpha — enough to break up
+ * a flat fill under raking light, not enough to read as stripes. Over it, a
+ * long sheen falloff (light at the top, shading at the foot) and a 1px
+ * highlight on the machined inner edge.
+ * ==========================================================================*/
+
+:root .sidebar-pane,
+:root #starlight__sidebar {
+	background-color: var(--pi-anodized);
+	background-image:
+		/* brushed micro-grain */
+		repeating-linear-gradient(
+			to right,
+			var(--pi-anodized-grain) 0 1px,
+			transparent 1px 3px
+		),
+		/* sheen: light gathers at the head of the panel and falls away */
+		linear-gradient(
+			to bottom,
+			var(--pi-anodized-sheen) 0,
+			transparent 42%,
+			var(--pi-anodized-shade) 100%
+		);
+	background-attachment: scroll;
+	/* the machined edge where the panel meets the sheet */
+	box-shadow: inset -1px 0 0 var(--pi-anodized-edge);
+}
+
+/* ---- the field, kept where it belongs ---------------------------------- */
+
+/*
+ * Code blocks are this document's drawings, so they keep the graph field the
+ * way the manual's construction sheets do. It sits under the code at the same
+ * low alpha as before, which is well below the syntax colours and does not
+ * compete with them.
+ */
+/*
+ * Expressive Code puts the block padding on `pre > code` and the inline
+ * padding inside each line's `.code` cell. So the field goes on `pre`, and the
+ * code text sits on an opaque panel clipped to its CONTENT box — which leaves
+ * the grid showing through the padding on all four sides.
+ */
+:root .expressive-code pre > code {
+	background: none;
+}
+
+
+/* ============================================================================
+ * PAGE TITLE
+ *
+ * The title sits in a black banner carrying a radial gradient from its
+ * bottom-right corner in the NASA red. Film grain sits over the whole banner.
+ * ==========================================================================*/
+
+/*
+ * NOTE: the page title is NOT in a .sl-heading-wrapper — that wrapper is only
+ * created for headings inside markdown. The title is rendered by Starlight's
+ * PageTitle component as `h1#_top` directly inside .content-panel .sl-container.
+ * Targeting the wrapper here silently matched nothing.
+ */
+/* The title sits in its own dark banner, full width of the sheet. */
+/*
+ * Title banner: a plain radial gradient from the bottom-right corner, NASA red
+ * fading to black. `farthest-corner` sizes the gradient to reach the opposite
+ * corner, so it stretches across the whole container at any width.
+ */
+:root main > .content-panel:first-of-type {
+	background-color: var(--pi-title-block);
+	background-image: radial-gradient(
+		farthest-corner at 100% 100%,
+		var(--pi-accent) 0%,
+		color-mix(in srgb, var(--pi-accent) 45%, #000) 34%,
+		#000 78%
+	);
+	border-bottom: 1px solid var(--pi-rule);
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+}
+
+/*
+ * The burst: solid accent with the grain blended into it, then masked to a
+ * radial falloff anchored at the container's bottom-right corner. Masking the
+ * whole layer (rather than fading the gradient) means the grain fades out with
+ * the colour instead of hanging around as grey noise over the banner.
+ */
+/*
+ * FILM GRAIN — a separate plate over the whole banner, not part of the burst.
+ * Single-octave turbulence at high frequency is what reads as emulsion grain;
+ * multi-octave fractal noise reads as smoke. Overlay keeps it luminance-only,
+ * so it grains the red and the black alike.
+ */
+:root main > .content-panel:first-of-type::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+	background-image: var(--pi-grain);
+	background-size: 140px 140px;
+	mix-blend-mode: overlay;
+	opacity: 0.38;
+}
+
+/* Title sits above the burst. */
+:root main > .content-panel:first-of-type > .sl-container {
+	position: relative;
+	z-index: 1;
+}
+/*
+ * The banner is always dark, in BOTH schemes, so the text tokens are re-pointed
+ * inside it. Without this the hero title, tagline and buttons take the light
+ * scheme's ink (#111) and go dark-on-dark — they inherit from tokens, not from
+ * a colour set here, so overriding `color` alone does not reach them.
+ */
+:root main > .content-panel:first-of-type {
+	--sl-color-white: #f4f3ef;
+	--sl-color-text: #e8e8e9;
+	--sl-color-text-accent: #f4f3ef;
+	--sl-color-gray-2: #d2d2d6;
+	--sl-color-gray-3: #bcbcc0;
+	--sl-color-gray-4: #9a9a9e;
+	/*
+	 * The primary CTA is `background: var(--sl-color-text-accent); color:
+	 * var(--sl-color-black)`. --sl-color-black resolves to the sheet, which in
+	 * the light scheme is #f7f6f2 — near-white text on the near-white button.
+	 * Inside an always-dark banner the inverted text must be dark.
+	 */
+	--sl-color-black: #111111;
+	color: var(--sl-color-text);
+}
+
+/*
+ * `position: relative; z-index: 0` makes the title its own stacking context.
+ * Without it the burst's z-index:-1 would paint BELOW the banner's background
+ * — negative-index descendants are painted before descendant block
+ * backgrounds — and the banner would simply cover it.
+ */
+:root .content-panel .sl-container > h1 {
+	position: relative;
+	z-index: 0;
+	display: block;
+	width: fit-content;
+	max-width: 100%;
+}
+
+/* The burst is decoration; it must not survive into print or high-contrast. */
+@media print, (prefers-contrast: more) {
+	:root main > .content-panel:first-of-type::before {
+		display: none;
+	}
+}
+
+/* ============================================================================
+ * SECTION HEADERS — full-width band
+ *
+ * A rule across the sheet, the index in red, the label in bold beside it. The
+ * band bleeds to the container edge like a code block, so the rules run the
+ * full width and the header reads as a divider in the document rather than as
+ * a line of text that happens to be bold.
+ *
+ * This replaces the hanging label column: with prose now running full width
+ * there is no narrow text column for a margin heading to hang beside.
+ * ==========================================================================*/
+
+:root .sl-markdown-content > .sl-heading-wrapper.level-h2 {
+	margin-inline: calc(-1 * var(--pi-panel-pad-x));
+	margin-block: calc(var(--pi-unit) * 3) calc(var(--pi-unit) * 1.5);
+	padding: calc(var(--pi-unit) * 0.7) var(--pi-panel-pad-x);
+	border-top: 1px solid var(--pi-rule);
+	border-bottom: 1px solid var(--pi-rule);
+	display: flex;
+	align-items: end;
+}
+
+:root .sl-markdown-content > .sl-heading-wrapper.level-h2 h2 {
+	font-size: var(--sl-text-base);
+	font-weight: 600;
+	letter-spacing: 0;
+	line-height: var(--pi-line);
+	margin: 0;
+	padding: 0;
+	border: 0;
+	display: flex;
+	align-items: baseline;
+	gap: 0.85em;
+}
+
+/* Index: red, mono, tabular — sits in the flow ahead of the label. */
+:root .sl-markdown-content h2:not(:where(.not-content *))::before {
+	position: static;
+	margin: 0;
+	color: var(--pi-accent);
+	font-family: var(--pi-mono);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+ * HOMEPAGE QUADRANTS — obsidian glass
+ *
+ * Markup is just <CardGrid> and four <Card>s; there is no wrapper element, so
+ * the grid itself is the pane.
+ *
+ * The pane carries the only background: obsidian at 70%, with a low-angle
+ * gradient for sheen. The cards carry NONE — they are transparent, and the
+ * divisions between them are hairline borders on the cards themselves, so the
+ * cross reads as a cut in one sheet of glass rather than as a gap between four
+ * separate tiles.
+ *
+ * 70% holds the muted body text at 5.41:1 on the light sheet, 12.89:1 on dark.
+ * ==========================================================================*/
+
+:root:root {
+	/*
+	 * Obsidian, in BOTH schemes — the light scheme does not override these.
+	 * Like the title banner, the panes are a deliberate always-dark element;
+	 * a light-mode page reads as paper with black glass set into it. Text
+	 * inside them therefore stays light in either scheme.
+	 */
+	--pi-obsidian: rgb(0 0 0 / 0.82);
+	--pi-obsidian-ink: #f2f2f3;
+	--pi-obsidian-muted: #d2d2d6;
+	--pi-obsidian-cut: rgba(0, 0, 0, 0.62); /* the dark wall of the groove */
+	--pi-obsidian-lip: rgba(255, 255, 255, 0.17); /* the lit wall */
+	--pi-obsidian-sheen: linear-gradient(
+		158deg,
+		rgba(255, 255, 255, 0.045) 0%,
+		rgba(255, 255, 255, 0.01) 34%,
+		transparent 62%,
+		rgba(255, 255, 255, 0.02) 100%
+	);
+	--pi-obsidian-grain: 0.2;
+}
+
+:root .sl-markdown-content .card-grid {
+	/* to the page edge: .sl-container caps children at --sl-content-width */
+	width: 100vw;
+	margin-inline: calc(50% - 50vw);
+
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0;
+
+	background-color: var(--pi-obsidian);
+	/* sheen: light crossing the pane, not a glow */
+	background-image: var(--pi-obsidian-sheen);
+	border-block: 1px solid var(--pi-rule);
+	color: var(--pi-obsidian-muted);
+}
+
+@media (width < 46rem) {
+	:root .sl-markdown-content .card-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+:root .sl-markdown-content .card {
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin: 0;
+	/* Equal on all four sides, not the panel gutter horizontally. */
+	padding: 64px;
+}
+
+/*
+ * The cut. A groove has two walls: a dark one on the side the light comes
+ * from, and a lit one on the far side. So the card BEFORE each division draws
+ * the dark hairline as a border, and the card AFTER it draws a bright 1px
+ * inset — two crisp lines, no blur, reading as carved rather than drawn.
+ *
+ * The lips compose through two custom properties because the bottom-right
+ * quadrant needs both at once, and a second box-shadow rule would replace the
+ * first rather than add to it.
+ */
+:root .sl-markdown-content .card {
+	--pi-lip-x: 0 0 0 transparent;
+	--pi-lip-y: 0 0 0 transparent;
+	box-shadow: inset var(--pi-lip-x), inset var(--pi-lip-y);
+}
+:root .sl-markdown-content .card:nth-child(odd) {
+	border-inline-end: 1px solid var(--pi-obsidian-cut);
+}
+:root .sl-markdown-content .card:nth-child(-n + 2) {
+	border-block-end: 1px solid var(--pi-obsidian-cut);
+}
+:root .sl-markdown-content .card:nth-child(even) {
+	--pi-lip-x: 1px 0 0 var(--pi-obsidian-lip);
+}
+:root .sl-markdown-content .card:nth-child(n + 3) {
+	--pi-lip-y: 0 1px 0 var(--pi-obsidian-lip);
+}
+
+@media (width < 46rem) {
+	:root .sl-markdown-content .card:nth-child(odd) {
+		border-inline-end: 0;
+	}
+	:root .sl-markdown-content .card:not(:last-child) {
+		border-block-end: 1px solid var(--pi-obsidian-cut);
+	}
+	:root .sl-markdown-content .card {
+		--pi-lip-x: 0 0 0 transparent;
+	}
+	:root .sl-markdown-content .card:not(:first-child) {
+		--pi-lip-y: 0 1px 0 var(--pi-obsidian-lip);
+	}
+}
+
+:root .sl-markdown-content .card .title {
+	font-size: var(--sl-text-lg);
+	font-weight: 600;
+	color: var(--pi-obsidian-ink);
+}
+:root .sl-markdown-content .card .icon {
+	border: 0;
+	background: none;
+	color: var(--pi-accent);
+}
+
+/* ---- grain on the obsidian ---------------------------------------------- */
+
+/*
+ * The pane is a grid container, so the overlay is absolutely positioned — a
+ * static pseudo-element would become a fifth grid item and break the 2x2.
+ * It sits above the glass and below the cards, so the text is not grained.
+ */
+:root .sl-markdown-content .card-grid {
+	position: relative;
+	isolation: isolate;
+}
+
+:root .sl-markdown-content .card-grid::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background-image: var(--pi-grain);
+	background-size: 140px 140px;
+	mix-blend-mode: overlay;
+	opacity: var(--pi-obsidian-grain);
+}
+
+:root .sl-markdown-content .card {
+	position: relative;
+	z-index: 1;
+}
+
+/* ============================================================================
+ * PAGINATION — obsidian, side by side
+ *
+ * Same pane as the homepage quadrants: one sheet of obsidian glass with a
+ * sheen, grain over it, and the division between prev and next drawn as a
+ * hairline cut rather than a gap. Starlight's rounded, drop-shadowed cards are
+ * stripped back to transparent.
+ *
+ * Bleeds to the content pane's edge (not the viewport): on a docs page the
+ * viewport includes the sidebar, so 100vw would run underneath it. This uses
+ * the same negative panel padding as a code block.
+ * ==========================================================================*/
+
+/*
+ * A splash page renders <div class="pagination-links"> with no links inside.
+ * Left styled, that empty box draws its top and bottom borders as a stray
+ * hairline across the page. Both selectors are here on purpose: :empty catches
+ * it when the markup has no whitespace, :has() when it does.
+ */
+:root .pagination-links:empty,
+:root .pagination-links:not(:has(a)) {
+	display: none;
+}
+
+:root .pagination-links {
+	margin-inline: calc(-1 * var(--pi-panel-pad-x));
+	margin-block-start: calc(var(--pi-unit) * 4);
+
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0;
+
+	position: relative;
+	isolation: isolate;
+	background-color: var(--pi-obsidian);
+	background-image: var(--pi-obsidian-sheen);
+	border-block: 1px solid var(--pi-rule);
+	color: var(--pi-obsidian-muted);
+}
+
+/* Grain over the glass, under the links. Absolutely positioned: a static
+   pseudo-element would become a third grid item. */
+:root .pagination-links::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background-image: var(--pi-grain);
+	background-size: 140px 140px;
+	mix-blend-mode: overlay;
+	opacity: var(--pi-obsidian-grain);
+}
+
+:root .pagination-links a {
+	position: relative;
+	z-index: 1;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	width: auto;
+	padding: calc(var(--pi-unit) * 2) var(--pi-panel-pad-x);
+	color: var(--pi-obsidian-muted);
+}
+
+/* Next always sits in the right half, even when it is the only link. */
+:root .pagination-links a[rel='next'] {
+	grid-column: 2;
+}
+
+/* The cut between them. */
+:root .pagination-links a[rel='prev'] {
+	border-inline-end: 1px solid var(--pi-obsidian-cut);
+}
+
+:root .pagination-links a:hover {
+	border-color: var(--pi-obsidian-cut);
+	background: rgba(255, 255, 255, 0.04);
+}
+
+:root .pagination-links .link-title {
+	font-size: var(--sl-text-lg);
+	font-weight: 600;
+	color: var(--pi-obsidian-ink);
+}
+
+@media (width < 46rem) {
+	:root .pagination-links {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	:root .pagination-links a[rel='next'] {
+		grid-column: 1;
+	}
+	:root .pagination-links a[rel='prev'] {
+		border-inline-end: 0;
+		border-block-end: 1px solid var(--pi-obsidian-cut);
+	}
+}
+
+/* ---- heading anchor links ----------------------------------------------- */
+
+/*
+ * Starlight pulls the anchor icon back over the heading text with a negative
+ * inline-start margin. In the banded h2 rows that lands it on top of the
+ * label; `auto` pushes it to the far end of the row instead.
+ */
+:root .sl-markdown-content .sl-heading-wrapper > .sl-anchor-link {
+	margin-inline-start: auto;
+	align-self: center;
+}
+
+/* ---- pagination flush to the bottom of the sheet ------------------------ */
+
+/*
+ * Space below the footer came from three places: Starlight's --sl-main-pad
+ * (0 0 3vh 0), the sheet's own bottom padding (removed above), and the content
+ * panel wrapping the footer. All are zeroed so the pane meets the sheet edge.
+ *
+ * Zeroing padding only removes the gap; on a short page the footer still stops
+ * wherever the prose ends. To sit it at the BOTTOM of the panel, the height
+ * has to be handed down the chain — sheet, main, panel, container — and then
+ * `margin-block-start: auto` on the footer takes up whatever is left. The
+ * footer is a sibling of .sl-markdown-content inside the last content panel,
+ * so every one of those ancestors needs to be a column that grows.
+ */
+:root .main-pane,
+:root main,
+:root .content-panel:has(footer),
+:root .content-panel:has(footer) > .sl-container {
+	display: flex;
+	flex-direction: column;
+}
+:root main,
+:root .content-panel:has(footer),
+:root .content-panel:has(footer) > .sl-container {
+	flex: 1 1 auto;
+}
+:root footer.sl-flex {
+	margin-block-start: auto;
+}
+
+/* Override the variable, not the longhand: `padding-bottom: 0` is an initial
+   value and the minifier removes it, which would leave Starlight's 3vh. */
+:root main {
+	--sl-main-pad: 0;
+}
+:root .content-panel:has(footer) {
+	padding-bottom: 0;
+}
+:root footer.sl-flex {
+	margin-bottom: 0;
+}
+
+/* ---- the footer spans the panel, not the text column -------------------- */
+
+/*
+ * .sl-container caps its children at --sl-content-width and positions itself
+ * with --sl-content-margin-inline, which Starlight varies by page (it is only
+ * set under [data-has-sidebar][data-has-toc]). The pagination bleeds by the
+ * panel padding, so anything that moves the container moves the band with it,
+ * and pages laid out differently ended up with a narrower band.
+ *
+ * So the container that holds the footer is released, and the width it used to
+ * impose is applied to .sl-markdown-content instead — prose sits exactly where
+ * it did, and the band no longer depends on how the container is placed.
+ */
+:root .content-panel:has(footer) > .sl-container {
+	max-width: none;
+	margin-inline: 0;
+}
+:root .content-panel:has(footer) > .sl-container > .sl-markdown-content {
+	max-width: var(--sl-content-width);
+	margin-inline: var(--sl-content-margin-inline, auto);
+	width: 100%;
+}
+
+/* ---- skip link ---------------------------------------------------------- */
+
+/*
+ * Starlight's skip link focuses to `background: var(--sl-color-text-accent)`,
+ * which this theme maps to the ink — a pure white slab in dark mode. Put it on
+ * the chrome colour with an accent outline so it follows the scheme.
+ */
+:root .sl-skip-link:focus {
+	background-color: var(--pi-chrome);
+	color: var(--pi-ink);
+	box-shadow: none;
+	border-radius: 0;
+	outline: 2px solid var(--pi-accent);
+	outline-offset: 0;
+	font-weight: 600;
+}
+
+/* ---- header: search aligned to the content's left edge ------------------ */
+
+/*
+ * Starlight sizes the header's first column from --sl-content-pad-x, on the
+ * assumption that the content starts at
+ *
+ *     --sl-content-inline-start + --sl-content-pad-x
+ *
+ * This theme pads .content-panel with --pi-panel-pad-x instead, which is much
+ * wider, so the search box stopped short of the actual text edge.
+ *
+ * The search begins at: header padding + column 1 + the grid gap. Solving for
+ * column 1 so that lands on the content edge:
+ *
+ *     col1 = sidebar + panel-pad - nav-pad - gap
+ *
+ * and since --sl-nav-pad-x and --sl-nav-gap both resolve to --pi-gutter here,
+ * that is sidebar + panel-pad - 2 * gutter.
+ */
+@media (width >= 50rem) {
+	:root[data-has-sidebar] header.header > .header {
+		grid-template-columns:
+			minmax(
+				calc(
+					var(--sl-sidebar-width) + var(--pi-panel-pad-x) - 2 *
+						var(--pi-gutter)
+				),
+				auto
+			)
+			1fr
+			auto;
+	}
+}
+
+/* ---- no terminal chrome ------------------------------------------------- */
+
+/*
+ * Expressive Code renders shell languages as a "terminal" frame: a title bar
+ * with three macOS-style traffic-light dots drawn by .header::before. Nothing
+ * else in this design imitates an application window, so the header is removed
+ * and terminal blocks render as plain plates like every other code block.
+ */
+:root .expressive-code .frame.is-terminal .header {
+	display: none;
+}
+:root .expressive-code .frame.is-terminal {
+	--ec-frm-trmBg: transparent;
+	--code-background: transparent;
+}
+:root .expressive-code .frame.is-terminal pre,
+:root .expressive-code .frame.is-terminal code {
+	border-top: 0;
+}
+
+/* ---- page title face ---------------------------------------------------- */
+
+/* h1#_top is the page title on docs pages and the hero title on the splash. */
+:root h1#_top {
+	font-family: var(--pi-display);
+	text-transform: uppercase;
+	/* Condensed caps set tight; open the tracking back up so they breathe. */
+	letter-spacing: 0.02em;
+}
+
+/* ---- on-this-page: reachable end, legible current item ------------------ */
+
+/*
+ * The panel is `position: fixed; height: 100vh; padding-top: var(--sl-nav-height)`,
+ * so a long list ends flush against the viewport edge with nothing below it.
+ * Bottom padding gives the last entries somewhere to scroll to.
+ */
+:root .right-sidebar-panel {
+	padding-block-end: calc(var(--pi-unit) * 6);
+}
+
+/*
+ * The current heading was marked only by --sl-color-text-accent, which this
+ * theme maps to the ink — nearly the same value as an inactive entry, so it
+ * read as no tracking at all. Mark it with the accent and weight instead.
+ */
+:root .right-sidebar-panel a[aria-current='true'] {
+	color: var(--pi-ink);
+	font-weight: 600;
+}
+:root .right-sidebar-panel a[aria-current='true']::after {
+	color: var(--pi-accent);
+}
+
+/* ---- logo ---------------------------------------------------------------- */
+
+/*
+ * Starlight sizes the mark at nav-height minus the block padding (45px here),
+ * which is large for a wordmark. Set to a normal header size instead; the
+ * header's own padding is left alone.
+ */
+:root header.header .site-title img {
+	height: 1.6rem;
+}
+
+/* ---- homepage hero: the title IS the logo ------------------------------- */
+
+/*
+ * The h1 still says "Piton" for screen readers, the document outline, search
+ * and the #_top anchor. Visually it is the wordmark: the SVG is used as a
+ * MASK, not an <img>, so the mark is painted in `currentColor` and follows the
+ * banner's ink in either scheme — which is what the light/dark image pair kept
+ * getting wrong.
+ *
+ * font-size: 0 collapses the glyphs without removing the text from the
+ * accessibility tree; the box is sized by width and the wordmark's aspect.
+ */
+:root .hero h1#_top {
+	display: block;
+	width: min(100%, 26rem);
+	aspect-ratio: 213.56628 / 58.608307;
+	font-size: 0;
+	color: var(--sl-color-white);
+	background-color: currentColor;
+	-webkit-mask: url('/logo.svg') no-repeat left center / contain;
+	mask: url('/logo.svg') no-repeat left center / contain;
+}
+
+/*
+ * Equal 128px above and below the hero. Starlight's own padding is asymmetric
+ * (padding-bottom: 1rem at base, a clamp() at wide), and the banner panel adds
+ * its own on top — so the panel's block padding is zeroed and the hero carries
+ * the whole measure. Scoped with :has(.hero) so docs-page banners are
+ * untouched.
+ */
+:root .content-panel:has(.hero) {
+	padding-block: 0;
+}
+
+:root .hero {
+	grid-template-columns: 100%;
+	justify-items: start;
+	gap: calc(var(--pi-unit) * 2);
+	padding-block: 128px;
+}
+
+/* ---- hero actions: one split block -------------------------------------- */
+
+/*
+ * The two calls to action read as a single square block cut in half, the same
+ * construction as the quadrants: no gap, no radius, a dark wall and a lit lip
+ * on the division. The primary half carries the accent so it still reads as
+ * the primary.
+ */
+:root .hero .actions {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0;
+	width: min(100%, 26rem);
+	margin: 0;
+	/* One frame around the pair, not around each button — the division
+	   between them is the carved cut, not a second border. */
+	border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+:root .hero .sl-link-button {
+	border: 0;
+	border-radius: 0;
+	margin: 0;
+	justify-content: center;
+	padding: calc(var(--pi-unit) * 1.4) calc(var(--pi-unit) * 1.2);
+	font-size: var(--sl-text-base);
+	font-weight: 600;
+}
+
+/* Primary: the contrast is white, dark text on it (17.01:1). */
+:root .hero .sl-link-button.primary {
+	background: #f4f3ef;
+	color: #111111;
+	border-inline-end: 1px solid var(--pi-obsidian-cut);
+}
+:root .hero .sl-link-button.primary:hover {
+	background: #ffffff;
+	color: #111111;
+}
+
+/*
+ * Secondary: what used to be the hover state is the resting state — a lift off
+ * the banner rather than a darker pane. Hover goes a step brighter again so
+ * there is still somewhere to go.
+ */
+:root .hero .sl-link-button:not(.primary) {
+	background: rgba(255, 255, 255, 0.07);
+	color: var(--pi-obsidian-ink);
+	box-shadow: inset 1px 0 0 var(--pi-obsidian-lip);
+}
+:root .hero .sl-link-button:not(.primary):hover {
+	background: rgba(255, 255, 255, 0.13);
+	color: #ffffff;
+}
+
+/* ---- the wordmark set inline in running text ---------------------------- */
+
+/*
+ * "Piton" inside the tagline is drawn as the logo rather than typed. Same
+ * masking approach as the hero title, so it takes `currentColor` and matches
+ * whatever the surrounding text is set in.
+ *
+ * Sized in `em` so it scales with the type around it: the SVG's bounding box
+ * is the wordmark's cap height (no descenders), so 0.72em tall matches the
+ * cap height of the text it sits in, and the width follows the mark's own
+ * 3.644:1 ratio.
+ *
+ * The glyphs are pushed out of the box with text-indent rather than
+ * `font-size: 0` — em units are relative to the element's own font size, so
+ * zeroing it would collapse the width and height to nothing.
+ */
+:root .pi-wordmark {
+	display: inline-block;
+	height: 0.72em;
+	width: calc(0.72em * 3.644);
+	vertical-align: baseline;
+	overflow: hidden;
+	text-indent: -100em;
+	background-color: currentColor;
+	-webkit-mask: url('/logo.svg') no-repeat left center / contain;
+	mask: url('/logo.svg') no-repeat left center / contain;
+}
+
+/*
+ * In the hero the mark is bright white, a step above the tagline's ink, so it
+ * reads as the logo rather than as a word set in the running colour. Elsewhere
+ * .pi-wordmark keeps `currentColor` and matches its surroundings.
+ */
+:root .hero .pi-wordmark {
+	background-color: #ffffff;
+}
+
+/* ---- subordinate headings ----------------------------------------------- */
+
+/*
+ * With h2 set as a body-size band, the modular scale's h3 (1.728rem) and h4
+ * (1.44rem) were LARGER than the sections containing them — the hierarchy read
+ * backwards. Below the band, levels step down by weight, case and colour
+ * rather than by size, which is what keeps a dense page legible.
+ */
+:root .sl-markdown-content .sl-heading-wrapper.level-h3,
+:root .sl-markdown-content h3:not(:where(.not-content *)) {
+	font-size: var(--sl-text-base);
+	font-weight: 600;
+	letter-spacing: 0;
+}
+
+/* The index sits inline ahead of the label, in mono, muted. */
+:root .sl-markdown-content h3:not(:where(.not-content *))::before {
+	position: static;
+	margin-inline-end: 0.8em;
+	font-size: 0.78em;
+	vertical-align: 0.05em;
+}
+
+/* h4 and below become small caps-style labels, not headings with a size. */
+:root .sl-markdown-content .sl-heading-wrapper:is(.level-h4, .level-h5, .level-h6),
+:root .sl-markdown-content :is(h4, h5, h6):not(:where(.not-content *)) {
+	font-size: var(--sl-text-sm);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pi-ink-muted);
+}
+
+/* ---- level 3: the same band, boxed to the content column ---------------- */
+
+/*
+ * h3 gets the h2 band's construction — a ruled row with the index and label —
+ * but it stops at the content column instead of bleeding to the container
+ * edge, and it is closed on all four sides. Nesting reads as containment: the
+ * open full-width rule is the section, the closed box inside it is the
+ * subsection.
+ */
+:root .sl-markdown-content > .sl-heading-wrapper.level-h3 {
+	display: flex;
+	align-items: end;
+	margin-inline: 0;
+	margin-block: calc(var(--pi-unit) * 2.5) calc(var(--pi-unit) * 1.25);
+	padding: calc(var(--pi-unit) * 0.7) calc(var(--pi-unit) * 1.2);
+	border: 1px solid var(--pi-rule);
+}
+
+:root .sl-markdown-content > .sl-heading-wrapper.level-h3 h3 {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	display: flex;
+	align-items: baseline;
+	gap: 0.85em;
+}
+
+/* Index sits in the flow like the h2 band's, but stays muted so the two
+   levels are told apart by more than the box. */
+:root .sl-markdown-content > .sl-heading-wrapper.level-h3 h3::before {
+	margin-inline-end: 0;
+	color: var(--pi-ink-muted);
+}
+
+/* ---- anchor icons ------------------------------------------------------- */
+
+/*
+ * Starlight sizes the icon in `em` (.8275em) against the HEADING WRAPPER, and
+ * the wrapper still carries the modular scale's size even where the heading
+ * inside it has been set to body size — so on an h2 the icon was being drawn
+ * from a ~37px em and came out around 31px. Cap it at 16px square.
+ */
+:root .sl-markdown-content .sl-heading-wrapper {
+	--sl-anchor-icon-size: 16px;
+}
+:root .sl-markdown-content .sl-anchor-icon > svg {
+	width: 16px;
+	height: 16px;
+}
+
+/* The wrapper's own size is what made the em large; bring it in line with the
+   heading it contains. */
+:root .sl-markdown-content .sl-heading-wrapper.level-h2 {
+	font-size: var(--sl-text-base);
+}
+
+/* ============================================================================
+ * ASIDES — one bright accent each
+ *
+ * The flat treatment above stripped asides back to a hairline with no colour,
+ * which made the four kinds indistinguishable. Each now carries a saturated
+ * accent on its leading edge, its title and its links, over a faint tint of
+ * the same hue.
+ *
+ * Two sets, because a colour bright enough to read on the dark sheet is too
+ * pale on paper: every value below clears 4.5:1 against the sheet it is used
+ * on. Danger is the NASA red the rest of the design uses.
+ * ==========================================================================*/
+
+:root:root {
+	--pi-aside-note: #3aa9ff; /* 6.95:1 */
+	--pi-aside-tip: #26d98a; /* 9.52:1 */
+	--pi-aside-caution: #ffb020; /* 9.61:1 */
+	--pi-aside-danger: #ff4a2e; /* 5.25:1 */
+}
+:root:root[data-theme='light'] {
+	--pi-aside-note: #0c63c4; /* 5.40:1 */
+	--pi-aside-tip: #0a7a4a; /* 4.98:1 */
+	--pi-aside-caution: #8a5a00; /* 5.48:1 */
+	--pi-aside-danger: #c22d13; /* 5.28:1 */
+}
+
+:root .sl-markdown-content .starlight-aside {
+	border: 1px solid color-mix(in srgb, var(--pi-aside) 45%, transparent);
+	border-inline-start: 3px solid var(--pi-aside);
+	background-color: color-mix(in srgb, var(--pi-aside) 9%, transparent);
+	padding: calc(var(--pi-unit) * 1.25) calc(var(--pi-unit) * 1.5);
+	/* Starlight reads these two for the title, links and inline code. */
+	--sl-color-asides-text-accent: var(--pi-aside);
+	--sl-color-asides-border: var(--pi-aside);
+}
+
+:root .sl-markdown-content .starlight-aside--note {
+	--pi-aside: var(--pi-aside-note);
+}
+:root .sl-markdown-content .starlight-aside--tip {
+	--pi-aside: var(--pi-aside-tip);
+}
+:root .sl-markdown-content .starlight-aside--caution {
+	--pi-aside: var(--pi-aside-caution);
+}
+:root .sl-markdown-content .starlight-aside--danger {
+	--pi-aside: var(--pi-aside-danger);
+}
+
+/* The title carries the accent; the body stays in the page's ink so the colour
+   marks the aside without tinting a paragraph of prose. */
+:root .sl-markdown-content .starlight-aside__title {
+	color: var(--pi-aside);
+	font-size: var(--sl-text-base);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+}
+:root .sl-markdown-content .starlight-aside__content {
+	color: var(--pi-ink);
+}

@@ -1,5 +1,5 @@
 ---
-title: Introduction
+title: Thesis
 description: What Piton is, and the thesis behind a semi-natural programming language for agentic development.
 sidebar:
   order: 1

@@ -3,7 +3,7 @@ title: Piton
 description: A semi-natural programming language for writing skills, agents, and reference documents for Agentic Software Development.
 template: splash
 hero:
-  tagline: A language for describing systems, not typing them out. Piton compiles structure and prose into the skills, agents, and instructions your coding agents actually read.
+  tagline: A language for describing concrete systems. <span class="pi-wordmark">Piton</span> compiles structure and prose into the agentic constructs required to shape and constrain software rather than letting it be the byproduct of transient context.
   actions:
     - text: Read the Introduction
       link: /introduction/
@@ -14,23 +14,23 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid } from "@astrojs/starlight/components";
 
-<CardGrid stagger>
-	<Card title="Structure and prose, both first-class" icon="document">
-		Markdown has no tools for reuse. Piton gives you inheritance, imports, and
-		type constraints — while `the button should be blue` stays a sentence.
-	</Card>
-	<Card title="No runtime" icon="rocket">
-		Piton compiles to data — JSON, YAML, Markdown — via adapters. There is
-		nothing to execute, only something to build.
-	</Card>
-	<Card title="Anchors" icon="puzzle">
-		One user-defined type. Named structural declarations that participate in
-		inheritance, typing, exports, and composition.
-	</Card>
-	<Card title="The Belay framework" icon="setting">
-		Bundled with Piton. Adds `agent`, `skill`, `command`, and `instruction`
-		keywords that compile into agentic Markdown.
-	</Card>
+<CardGrid>
+  <Card title="Structure and prose, both first-class" icon="document">
+    Markdown has no tools for reuse. Piton gives you inheritance, imports, and
+    type constraints — while `the button should be blue` stays a sentence.
+  </Card>
+  <Card title="No runtime" icon="rocket">
+    Piton compiles to data — JSON, YAML, Markdown — via adapters. There is
+    nothing to execute, only something to build.
+  </Card>
+  <Card title="Anchors" icon="puzzle">
+    One user-defined type. Named structural declarations that participate in
+    inheritance, typing, exports, and composition.
+  </Card>
+  <Card title="The Belay framework" icon="setting">
+    Bundled with Piton. Adds `agent`, `skill`, `command`, and `instruction`
+    keywords that compile into agentic Markdown.
+  </Card>
 </CardGrid>

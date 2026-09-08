@@ -35,11 +35,4 @@ years. And perhaps that's even part of my larger point; I don't want to lose
 that joy by simply prompting an agent "MAKE IT MORE" -- I want to use those
 concepts to focus on building the systems they support so well.
 
-But perhaps I never wanted to write code itself; I want to create. I want to
-build. And I think there's many forms of what "creating" looks like if we step
-outside the software world. If I sketch out and design a backpack in great
-detail, then send it to professionals to figure out how to make it, how to cut
-the patterns, how to sew it, is it "my creation" or not? I would argue that
-sure, yes, it was my idea. I developed the concept, worked out the details, and
-then asked for help when I didn't have the expertise to make the patterns or do
-the sewing myself.
+But perhaps I never wanted to write code itself; I wanted to create.

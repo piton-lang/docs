@@ -1,5 +1,5 @@
 ---
-title: The Language
+title: Overview
 description: Source files, whitespace, comments, and keywords — the ground rules of Piton.
 sidebar:
   order: 1
