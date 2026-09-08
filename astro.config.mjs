@@ -35,6 +35,14 @@ export default defineConfig({
 				// theme partners it for the light scheme.
 				themes: ['houston', 'github-light'],
 			},
+			head: [
+				{
+					// Adds tail distribution and click intent to the on-this-page
+					// tracker; see the comment at the top of the file.
+					tag: 'script',
+					attrs: { src: '/toc-tail.js', defer: true },
+				},
+			],
 			customCss: [
 				// Barlow Semi Condensed, self-hosted via Fontsource (no external
 				// request at runtime). Weights match those used in theme.css.
