@@ -420,6 +420,80 @@
 	text-decoration-color: var(--pi-accent);
 }
 
+/*
+ * The same link, inside the landing page's bands.
+ *
+ * Every band carries .not-content — that is what turns Starlight's markdown
+ * styling off so the sections can set their own — and the rule above is
+ * excluded from those on purpose, which left a link in band prose with no
+ * treatment at all: browser blue, and purple once visited.
+ *
+ * Listed by the containers that hold author prose rather than applied to the
+ * whole band, so it cannot reach the buttons, the wordmark link or a CTA.
+ *
+ * The colour is INHERITED: each band pins its own ink — black ground, paper
+ * panel, plain sheet — and a link should be the ink it is sitting in, at any
+ * width and in either scheme.
+ *
+ * The UNDERLINE is the accent, which is where these part company with the
+ * running-text link. In a document a link is one of hundreds and the rule
+ * under it stays quiet; in a band there are one or two on a whole screen, and
+ * the red is what makes them findable at a glance without colouring the text
+ * itself. The accent resolves per band, so it is the bright red on black and
+ * the darkened one on the paper panel, where the bright red would not hold its
+ * contrast.
+ *
+ * Hover holds the red, lifts the TEXT, and doubles the rule: prose in these
+ * bands is set a step back from full ink, so brightening the link to the
+ * ground's strongest ink and thickening the underline under it is a change you
+ * can see across a screen without anything moving.
+ *
+ * --sl-color-white is that ink, and it is the only token that is right in all
+ * four places this rule reaches: it follows the scheme on the sheet, and both
+ * the black bands and the paper panel pin it to their own.
+ *
+ * The thickness is transitioned rather than switched, because 1px to 2px under
+ * a line of text is a jump big enough to read as a glitch.
+ */
+:root
+	.sl-markdown-content
+	:is(
+		.pi-split__body,
+		.pi-card__lede,
+		.pi-card__note,
+		.pi-steps__body,
+		.pi-twocol__body,
+		.pi-twocol__list,
+		.pi-end__body,
+		.pi-end__aside-body
+	)
+	a {
+	color: inherit;
+	text-decoration-line: underline;
+	text-decoration-color: var(--pi-accent);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.18em;
+	transition:
+		color 120ms ease-out,
+		text-decoration-thickness 120ms ease-out;
+}
+:root
+	.sl-markdown-content
+	:is(
+		.pi-split__body,
+		.pi-card__lede,
+		.pi-card__note,
+		.pi-steps__body,
+		.pi-twocol__body,
+		.pi-twocol__list,
+		.pi-end__body,
+		.pi-end__aside-body
+	)
+	a:hover {
+	color: var(--sl-color-white);
+	text-decoration-thickness: 2px;
+}
+
 /* ------------------------------------------------------ numbered sections */
 
 /*
@@ -1910,13 +1984,22 @@
  * The closing note under the row, opened by a return arrow — what says the
  * last stage comes back to the first rather than stopping. A section whose
  * steps genuinely end simply leaves it out.
+ *
+ * It is an ASIDE, and it takes the real one's shell rather than an imitation
+ * of it: the panel, the leading rule and the tint all come from the aside rule
+ * further down, which lists this class alongside .starlight-aside. Only the
+ * hue is chosen here — the accent, which this note already carried on its
+ * return arrow, and which is the mark the rest of the page uses for the thing
+ * it is arguing.
+ *
+ * Body size, not the step size: it answers the lede at the top of the card,
+ * and those two are the card's own voice.
  */
 :root .sl-markdown-content .pi-card__note {
+	--pi-aside: var(--pi-accent);
 	margin: calc(var(--pi-unit) * 2) 0 0;
-	padding-top: calc(var(--pi-unit) * 1.25);
-	border-top: 1px solid var(--pi-rule);
-	font-size: var(--sl-text-sm);
-	color: var(--pi-ink-muted);
+	font-size: var(--sl-text-base);
+	color: var(--pi-ink);
 	text-wrap: pretty;
 }
 :root .sl-markdown-content .pi-card__note::before {
@@ -2989,7 +3072,13 @@
 	--pi-aside-danger: #c22d13; /* 5.28:1 */
 }
 
-:root .sl-markdown-content .starlight-aside {
+/*
+ * The shell. .pi-card__note is here because it IS an aside — a remark set
+ * beside the thing it is about — and there is no reason for the landing page
+ * to draw its own version of a panel this design already has. It brings its
+ * own --pi-aside; everything else is shared.
+ */
+:root .sl-markdown-content :is(.starlight-aside, .pi-card__note) {
 	border: 1px solid color-mix(in srgb, var(--pi-aside) 45%, transparent);
 	border-inline-start: 3px solid var(--pi-aside);
 	background-color: color-mix(in srgb, var(--pi-aside) 9%, transparent);

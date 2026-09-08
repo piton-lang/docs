@@ -144,82 +144,85 @@ import ColumnNote from "../../components/ColumnNote.astro";
     title="Keep building while the compiler infers the implementation."
     steps={[
         {
-            name: "Specification",
-            body: "Structure and prose in one document. Anchors, inheritance and type constraints hold the parts a compiler can verify against the parts only a person can write.",
+            name: "Specification + Guidance",
+            body: "Product and engineering define the goals, constraints, specifications, and guidance for what needs to be built.",
         },
         {
-            name: "Compilation",
-            body: "Belay lowers the spec into agentic Markdown. The agent reads that and does the work — it is the compiler, and the specification is its input.",
+            name: "Agentic Compilation",
+            body: "The agent interprets the specification and guidance, inferring an implementation that satisfies the defined intent and constraints.",
         },
         {
-            name: "Software",
-            body: "The application, its configuration, its documentation. Build artefacts: regenerate them and nothing of record has been lost.",
+            name: "Testing + Validation",
+            body: "The result is tested and reviewed to determine where it meets expectations—and where it falls short.",
         },
         {
-            name: "The team",
-            body: "Read it, disagree with it, decide against it. The spec is the one artefact small enough to hold in your head and exact enough to be wrong.",
+            name: "Refinement",
+            body: "What the team learns from the build feeds back into the next iteration, improving the output and process over time.",
         },
     ]}
-    note="A change starts at the specification, never in what it produced — which is what makes this a lifecycle and not a hand-off."
+    note="Change originates at the specification, never in the output. This gives teams a shared lifecycle within which to operate, rather than a constant handoff of prompts and generated results."
 >
-    Piton treats the [agent as the compiler](./thesis/agent-as-compiler). What you keep is a document a machine
-    can check and a person can read; what the agent produces is a build. The
-    distinction matters because only one of the two is worth arguing about in
-    review.
+    Piton treats the [agent as the compiler](./thesis/agent-as-compiler). Our
+    goal as engineers is now to constrain the probability of output to the
+    bounds of **repeatable correctness**.
+
+    While the agent builds, the team continues to refine the constraints and
+    workflows, driving intent and result towards convergence.
 </RaisedCardSection>
 
 <TwoColumnSection>
+    <SectionColumn
+        label="Core"
+        title=""
+    >
+        ### Written in Rust
+        Fast, portable tooling with a small footprint.
 
-<SectionColumn
-    label="The usual way"
-    title="The prompt is thrown away. The code is the record."
-    recessed
->
+        ### Open Source
+        The language and framework are open source under a permissible MIT license.
 
-You describe what you want, an agent writes it, and what survives is the
-output. The reasoning that produced it — the constraints, the options rejected,
-the sentence explaining why — lived in a conversation, and the conversation is
-gone.
+        ### Familiar Output Formats
+        Compile to Markdown, JSON, and YAML (for now).
 
-So the code becomes the specification by default. It is the only artefact left
-that describes the system, and it describes it in the most verbose and least
-stable form available.
+        ### Version-Control Friendly
+        Plain-text source designed to diff, review, branch, merge, and evolve with the rest of the project.
 
-<ColumnNote slot="note" label="On a team">
+        <ColumnNote slot="note" label="Resources">
+            - [GitHub](https://github.com/piton-lang/)
+            - [Language Reference](./language/)
+            {/* - [Tutorials](./tutorials/)*/}
+            - [Belay Framework](./belay/)
+            - [Examples](https://github.com/piton-lang/piton-rs/tree/main/examples)
+        </ColumnNote>
+    </SectionColumn>
 
-- Intent is recoverable only by reading the implementation.
-- Review argues about output, because output is all there is to argue about.
-- Two people asking for the same thing get two different systems.
-- Growth means more code to hold in your head, and no summary of it that is guaranteed to still be true.
+    <SectionColumn
+        label="Tooling"
+        title=""
+    >
+        ### CLI
+        Compile, check, format, inspech reach, and build individual files or entire
+        Piton projects from one command-line tool.
 
-</ColumnNote>
+        ### LSP Support
+        Real-time diagnostics, validation, navigation, and editor-aware language
+        intelligence.
 
-</SectionColumn>
+        ### Editor Support
+        Works with VS Code, Zed, Neovim, Helix, and other LSP-capable editors for
+        syntax highlighting, diagnostics, formatting, go-to-definition, references,
+        and completion.
 
-<SectionColumn
-    label="The Piton way"
-    title="The spec is the record. The code is output."
->
+        ### Agent Integration
+        Works with Claude Code, Open Code, Codex, Cursor, and other agentic
+        development environments by compiling structured Piton source into the files
+        and conventions they already understand.
 
-The specification is what you write, review and keep. It carries the structure a
-compiler can check and the prose explaining the parts it cannot, in one
-document, under the version control you already use.
-
-What the agent builds is a build. When it is wrong you do not patch it — you
-correct the spec and compile again, which is the reflex you already have about
-every other compiler's output.
-
-<ColumnNote slot="note" label="On a team">
-
-- Intent is written down, in the artefact everyone already reviews.
-- Review argues about the specification, which is short enough to read in full.
-- Two people extend the same anchors instead of re-deriving them.
-- Growth means more spec, and spec composes — inheritance, imports and type constraints hold it together.
-
-</ColumnNote>
-
-</SectionColumn>
-
+        <ColumnNote slot="note" label="Resources">
+            - [Installation](./getting-started/)
+            - [CLI Reference](./tooling/)
+        </ColumnNote>
+    </SectionColumn>
 </TwoColumnSection>
 
 <div class="pi-end not-content">
@@ -227,12 +230,16 @@ every other compiler's output.
 
 <div class="pi-end__primary">
 
-<p class="pi-end__label">Get started</p>
+<p class="pi-end__label">Ready to build differently?</p>
 
-<h2 class="pi-end__title">Start with one file.</h2>
+<h2 class="pi-end__title">
+    Your first `.pi` file is moments away.
+</h2>
 
-<p class="pi-end__body">Piton builds from source with a recent stable Rust toolchain and needs nothing
-else. Write one anchor, compile it, and read what comes out the other side.</p>
+<p class="pi-end__body">
+    Set up the CLI, write and compile your first spec, then explore the
+    language, tooling, the Belay framework, and examples in the documentation.
+</p>
 
 <div class="actions">
 <a class="sl-link-button primary" href="/getting-started/">Install</a>
@@ -245,9 +252,12 @@ else. Write one anchor, compile it, and read what comes out the other side.</p>
 
 <p class="pi-end__label">Why Piton exists</p>
 
-<p class="pi-end__aside-body">On the argument behind all of this: why so much of software development repeats
-itself, what it means to treat an agent as the compiler, and why the
-specification is the thing worth keeping.</p>
+<p class="pi-end__aside-body">
+    Software engineering seems to be facing some big questions, and many of us,
+    too, are without clear answers about what happens to the craft we love.
+    Piton is the hypothesis that emerged from my own thinking on those
+    questions, and I’ve documented the breadcrumb trail that brought me here.
+</p>
 
 <a class="pi-end__cta" href="/thesis/">Founding Thesis</a>
 
