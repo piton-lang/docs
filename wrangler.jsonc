@@ -3,18 +3,18 @@
 	"name": "docs",
 	"compatibility_date": "2026-09-08",
 	// This is a fully static Starlight site: `astro build` writes prerendered
-	// HTML to ./dist and there is no server code. Declaring `assets` with no
-	// `main` deploys an assets-only Worker.
+	// HTML to ./dist and there is no server code, so Pages uploads that
+	// directory as-is.
 	//
-	// This file also stops `wrangler deploy` from running its auto-config,
-	// which otherwise runs `astro add cloudflare` and switches the build to an
+	// Deploy with `npx wrangler pages deploy` (NOT `wrangler deploy`, which is
+	// the Workers command and warns that it will "likely produce unwanted
+	// results" on a Pages project -- then auto-confirms in non-interactive CI).
+	//
+	// This file also stops `wrangler` from running its auto-config, which
+	// otherwise runs `astro add cloudflare` and switches the build to an
 	// SSR/worker target. That target breaks: Starlight's Markdown processor
 	// (satteri) resolves through its `browser` export, which re-exports the
 	// optional `@bruits/satteri-wasm32-wasi` package that npm does not install
 	// on linux-x64, and rolldown fails to resolve it.
-	"assets": {
-		"directory": "./dist",
-		// Serve Starlight's prerendered 404.html for unknown paths.
-		"not_found_handling": "404-page"
-	}
+	"pages_build_output_dir": "./dist"
 }
