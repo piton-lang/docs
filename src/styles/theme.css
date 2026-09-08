@@ -998,7 +998,8 @@
  * so it grains the red and the black alike.
  */
 :root main > .content-panel:first-of-type:not(:has(.hero))::after,
-:root .hero::after {
+:root .hero::after,
+:root .pi-end::after {
 	content: '';
 	position: absolute;
 	inset: 0;
@@ -1023,7 +1024,8 @@
  * in here may resolve through --pi-ink or --pi-paper for the same reason.
  */
 :root main > .content-panel:first-of-type:not(:has(.hero)),
-:root .hero {
+:root .hero,
+:root .pi-end {
 	--sl-color-white: #f4f3ef;
 	--sl-color-text: #e8e8e9;
 	--sl-color-text-accent: #f4f3ef;
@@ -1058,7 +1060,9 @@
 /* The burst is decoration; it must not survive into print or high-contrast. */
 @media print, (prefers-contrast: more) {
 	:root main > .content-panel:first-of-type:not(:has(.hero))::after,
-	:root .hero::after {
+	:root .hero::after,
+	:root .pi-end::after,
+	:root .sl-markdown-content .pi-end__aside::before {
 		display: none;
 	}
 }
@@ -1424,6 +1428,785 @@
 }
 
 /* ============================================================================
+ * HOMEPAGE SPLIT — the lede and the listing, side by side
+ *
+ * Follows the quadrants. Same construction as the pane above it — full bleed,
+ * two equal columns, no gap, the division drawn as a hairline rather than as
+ * space — but a different material on purpose: the glass has had its say, and
+ * this drops back to the sheet so the code reads as a drawing on paper.
+ *
+ * The quadrants already draw a rule along their bottom edge, so this only
+ * carries one at its foot. Two would double the line between them.
+ * ==========================================================================*/
+
+:root .sl-markdown-content .pi-split {
+	width: 100vw;
+	margin-inline: calc(50% - 50vw);
+	margin-block: 0;
+
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0;
+	align-items: stretch;
+	border-block-end: 1px solid var(--pi-rule);
+}
+
+/*
+ * 64px on all four sides, the same measure the cards use, so the two panes
+ * stack as one grid rather than as two sections that happen to touch.
+ */
+:root .sl-markdown-content .pi-split > * {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 64px;
+	min-width: 0; /* the code column must be allowed to scroll, not push */
+}
+
+/*
+ * The data panel is a translucent sheet rather than an opaque one, so that a
+ * light behind the section reads through it instead of being cut in half down
+ * the column edge. Over the flat sheet in the first section this is
+ * indistinguishable from the solid colour; it only does anything where there
+ * is something behind it to show.
+ */
+:root .sl-markdown-content .pi-split__example {
+	background-color: color-mix(in srgb, var(--pi-paper-raised) 86%, transparent);
+}
+
+/*
+ * The second split is lit from the bottom centre. Six stops, not two: this is
+ * a wide, low-contrast ramp across a large area, which is the shape that
+ * bands, and unlike the quadrant pane there is no dither plate under it.
+ */
+:root .sl-markdown-content .pi-split--reverse {
+	background-image: radial-gradient(
+		78% 88% at 50% 100%,
+		var(--pi-split-wash) 0%,
+		color-mix(in srgb, var(--pi-split-wash) 68%, transparent) 16%,
+		color-mix(in srgb, var(--pi-split-wash) 38%, transparent) 34%,
+		color-mix(in srgb, var(--pi-split-wash) 17%, transparent) 54%,
+		color-mix(in srgb, var(--pi-split-wash) 5%, transparent) 76%,
+		transparent 100%
+	);
+}
+
+/*
+ * The cut is drawn by whichever pane ends up on the RIGHT, so it always lands
+ * between the two and never on an outer edge.
+ *
+ * --reverse swaps them with `order` rather than in the markup. Source order
+ * stays lede-first in both sections, so when they stack on a narrow viewport
+ * every one of them reads prose before code — a reversed section that put the
+ * listing first on a phone would be reversing the reading order, not the
+ * layout.
+ */
+:root .sl-markdown-content .pi-split > :nth-child(2) {
+	border-inline-start: 1px solid var(--pi-rule);
+}
+:root .sl-markdown-content .pi-split--reverse > :nth-child(2) {
+	border-inline-start: 0;
+}
+:root .sl-markdown-content .pi-split--reverse > :nth-child(1) {
+	order: 2;
+	border-inline-start: 1px solid var(--pi-rule);
+}
+
+/* ---- the lede ----------------------------------------------------------- */
+
+/* The same micro-label as the sidebar, the tables and the footer groups. */
+:root .sl-markdown-content .pi-split__label,
+:root .sl-markdown-content .pi-cycle__label {
+	margin: 0 0 calc(var(--pi-unit) * 1.25);
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pi-accent);
+}
+
+/*
+ * Set here rather than left to the markdown h2, which in this theme is a
+ * numbered band with a rule under it — a device that belongs to running
+ * documentation, not to a landing page. .not-content on the wrapper turns that
+ * treatment off; this puts a display size back in its place.
+ */
+:root .sl-markdown-content .pi-split__title {
+	margin: 0 0 calc(var(--pi-unit) * 1.5);
+	font-size: var(--sl-text-3xl);
+	font-weight: 600;
+	line-height: var(--sl-line-height-headings);
+	letter-spacing: -0.015em;
+	color: var(--pi-ink);
+	text-wrap: balance;
+}
+
+:root .sl-markdown-content .pi-split__body {
+	margin: 0 0 calc(var(--pi-unit) * 1.25);
+	max-width: 34rem;
+	color: var(--pi-ink-muted);
+	text-wrap: pretty;
+}
+
+/*
+ * The arrow is generated, not typed, so it cannot be selected with the text or
+ * read out as a word. It carries the accent while the label stays ink — the
+ * same division the numbered headings use.
+ */
+:root .sl-markdown-content .pi-split__cta {
+	align-self: flex-start;
+	margin-top: calc(var(--pi-unit) * 0.5);
+	font-size: var(--sl-text-sm);
+	font-weight: 600;
+	color: var(--pi-ink);
+	text-decoration: none;
+	border-bottom: 1px solid var(--pi-rule-strong);
+	padding-bottom: 0.15em;
+}
+:root .sl-markdown-content .pi-split__cta::after {
+	content: '\2009\2192';
+	color: var(--pi-accent);
+}
+:root .sl-markdown-content .pi-split__cta:hover {
+	border-bottom-color: var(--pi-accent);
+}
+
+/* ---- the example -------------------------------------------------------- */
+
+/*
+ * The block is already inside a padded pane, so it drops the frame and the
+ * ground it would carry in running text and sits directly on the raised
+ * paper. It is a nested block, so the full-bleed rule for code — which is a
+ * direct child selector on .sl-markdown-content — never applied here.
+ */
+:root .sl-markdown-content .pi-split__example .expressive-code {
+	margin: 0;
+}
+:root .sl-markdown-content .pi-split__example .expressive-code .frame,
+:root .sl-markdown-content .pi-split__example .expressive-code pre {
+	background: transparent;
+	border: 0;
+	margin: 0;
+}
+
+/* ---- stacked ------------------------------------------------------------ */
+
+/* Below 46rem, one column and the cut turns — the same turn the quadrants and
+   the hero actions make at this width. */
+@media (width < 46rem) {
+	:root .sl-markdown-content .pi-split {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	:root .sl-markdown-content .pi-split > * {
+		padding: calc(var(--pi-unit) * 2.5) var(--pi-panel-pad-x);
+	}
+	/* Order and the vertical cut both go; the division turns with the stack. */
+	:root .sl-markdown-content .pi-split > :nth-child(1),
+	:root .sl-markdown-content .pi-split > :nth-child(2) {
+		order: 0;
+		border-inline-start: 0;
+	}
+	:root .sl-markdown-content .pi-split > :nth-child(2) {
+		border-block-start: 1px solid var(--pi-rule);
+	}
+}
+
+/* ============================================================================
+ * HOMEPAGE LIFECYCLE — a raised card on the field
+ *
+ * The third homepage section, and the one that has to look unlike the other
+ * two. Both of those are edge-to-edge and flush with the sheet; this one is
+ * inset, so the ground shows around it, and the ground is the graph field.
+ *
+ * The field is otherwise reserved for figures — it appears under code blocks
+ * and nowhere else, on the reasoning that the manual prints its drawings on
+ * squared paper and its prose on plain. A diagram of the build lifecycle is a
+ * drawing, so it gets the same treatment.
+ *
+ * NOTHING here casts a shadow. Elevation in this design is the anodized
+ * vocabulary from the sidebar: light gathering at the head of a face, shade at
+ * its foot, and a lit lip along the top edge where it stands off what is
+ * behind it. A drop shadow would be the only one on the site.
+ * ==========================================================================*/
+
+:root .sl-markdown-content .pi-cycle {
+	width: 100vw;
+	margin-inline: calc(50% - 50vw);
+	margin-block: 0;
+	padding: calc(var(--pi-unit) * 5) var(--pi-panel-pad-x);
+	border-block-end: 1px solid var(--pi-rule);
+
+	/*
+	 * The field, re-laid: .main-pane paints the sheet over the body's copy.
+	 * Listed first, so it sits ON TOP of the wash below — the ruling stays its
+	 * own colour and the red reads as light behind the paper rather than as a
+	 * tint laid over the lines. Moving the radial above the two repeating
+	 * gradients is the one-line version of the other reading.
+	 *
+	 * The wash carries four stops rather than two. It is a large, low-contrast
+	 * ramp, which is the shape that bands; the extra stops keep the falloff
+	 * off a straight line, and there is no dither plate on this section.
+	 */
+	background-image:
+		repeating-linear-gradient(
+			to right,
+			var(--pi-grid-ink) 0 1px,
+			transparent 1px var(--pi-grid-size)
+		),
+		repeating-linear-gradient(
+			to bottom,
+			var(--pi-grid-ink) 0 1px,
+			transparent 1px var(--pi-grid-size)
+		),
+		radial-gradient(
+			farthest-corner at 100% 0%,
+			var(--pi-field-wash) 0%,
+			color-mix(in srgb, var(--pi-field-wash) 52%, transparent) 26%,
+			color-mix(in srgb, var(--pi-field-wash) 20%, transparent) 48%,
+			color-mix(in srgb, var(--pi-field-wash) 5%, transparent) 68%,
+			transparent 86%
+		);
+}
+
+:root .sl-markdown-content .pi-cycle__card {
+	max-width: 68rem;
+	margin-inline: auto;
+	padding: 64px;
+
+	background-color: var(--pi-paper-raised);
+	/* Sheen down the face: the head catches the light, the foot falls away. */
+	background-image: linear-gradient(
+		to bottom,
+		var(--pi-anodized-sheen) 0,
+		transparent 38%,
+		var(--pi-anodized-shade) 100%
+	);
+	border: 1px solid var(--pi-rule);
+	/* The lit lip along the top edge — the card standing off the field. */
+	box-shadow: inset 0 1px 0 var(--pi-anodized-edge);
+}
+
+:root .sl-markdown-content .pi-cycle__title {
+	margin: 0 0 calc(var(--pi-unit) * 1.25);
+	font-size: var(--sl-text-2xl);
+	font-weight: 600;
+	line-height: var(--sl-line-height-headings);
+	letter-spacing: -0.015em;
+	color: var(--pi-ink);
+	text-wrap: balance;
+}
+
+:root .sl-markdown-content .pi-cycle__lede {
+	margin: 0;
+	max-width: 44rem;
+	color: var(--pi-ink-muted);
+	text-wrap: pretty;
+}
+
+/* ---- the four stages ---------------------------------------------------- */
+
+/*
+ * Gapped rather than cut. The quadrants and the splits divide with hairlines
+ * because those are one surface scored into parts; these are four separate
+ * states with something passing between them, and the arrows need somewhere
+ * to sit.
+ */
+:root .sl-markdown-content .pi-cycle__steps {
+	--pi-cycle-gap: calc(var(--pi-unit) * 2.5);
+
+	counter-reset: pi-cycle;
+	list-style: none;
+	margin: calc(var(--pi-unit) * 3) 0 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: var(--pi-cycle-gap);
+	border-top: 1px solid var(--pi-rule);
+	padding-top: calc(var(--pi-unit) * 2);
+}
+
+:root .sl-markdown-content .pi-cycle__step {
+	counter-increment: pi-cycle;
+	position: relative;
+	margin: 0;
+	min-width: 0;
+}
+
+/* The index, in the same mono tabular accent as every other counter here. */
+:root .sl-markdown-content .pi-cycle__step::after {
+	content: '0' counter(pi-cycle);
+	display: block;
+	margin-bottom: calc(var(--pi-unit) * 0.6);
+	order: -1;
+	font-family: var(--pi-mono);
+	font-size: var(--sl-text-xs);
+	font-variant-numeric: tabular-nums;
+	color: var(--pi-accent);
+}
+
+:root .sl-markdown-content .pi-cycle__step {
+	display: flex;
+	flex-direction: column;
+}
+
+/*
+ * The arrow rides in the gap, centred on it, so it belongs to the space
+ * between two stages rather than to either one. Generated, so it is never
+ * selected with the text and never read out as a word.
+ */
+:root .sl-markdown-content .pi-cycle__step + .pi-cycle__step::before {
+	content: '\2192';
+	position: absolute;
+	inset-inline-start: calc(var(--pi-cycle-gap) / -2);
+	inset-block-start: 0;
+	transform: translateX(-50%);
+	color: var(--pi-accent);
+	font-size: var(--sl-text-sm);
+	line-height: 1.2;
+	pointer-events: none;
+}
+
+:root .sl-markdown-content .pi-cycle__step-name {
+	margin: 0 0 calc(var(--pi-unit) * 0.5);
+	font-size: var(--sl-text-base);
+	font-weight: 600;
+	color: var(--pi-ink);
+}
+
+:root .sl-markdown-content .pi-cycle__step-body {
+	margin: 0;
+	font-size: var(--sl-text-sm);
+	color: var(--pi-ink-muted);
+	text-wrap: pretty;
+}
+
+/*
+ * The closing line is what makes the row a cycle rather than a pipeline: the
+ * fourth stage returns to the first. The arrow points back to say so.
+ */
+:root .sl-markdown-content .pi-cycle__return {
+	margin: calc(var(--pi-unit) * 2) 0 0;
+	padding-top: calc(var(--pi-unit) * 1.25);
+	border-top: 1px solid var(--pi-rule);
+	font-size: var(--sl-text-sm);
+	color: var(--pi-ink-muted);
+	text-wrap: pretty;
+}
+:root .sl-markdown-content .pi-cycle__return::before {
+	content: '\21ba\2002';
+	color: var(--pi-accent);
+}
+
+/* ---- narrower ----------------------------------------------------------- */
+
+/* Two across before one, so the row does not go from four to a long column. */
+@media (width < 72rem) {
+	:root .sl-markdown-content .pi-cycle__steps {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		row-gap: calc(var(--pi-unit) * 2.5);
+	}
+	/* The arrow only reads across a row; at the wrap it would point at a
+	   margin. Kept on the second column, dropped where a row begins. */
+	:root .sl-markdown-content .pi-cycle__step:nth-child(odd)::before {
+		content: none;
+	}
+}
+
+@media (width < 46rem) {
+	:root .sl-markdown-content .pi-cycle {
+		padding: calc(var(--pi-unit) * 3) var(--pi-panel-pad-x);
+	}
+	:root .sl-markdown-content .pi-cycle__card {
+		padding: calc(var(--pi-unit) * 2.5) var(--pi-panel-pad-x);
+	}
+	:root .sl-markdown-content .pi-cycle__steps {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	/* Stacked, the arrow turns down and sits above the stage it points into. */
+	:root .sl-markdown-content .pi-cycle__step::before,
+	:root .sl-markdown-content .pi-cycle__step:nth-child(odd)::before {
+		content: none;
+	}
+	:root .sl-markdown-content .pi-cycle__step + .pi-cycle__step::before {
+		content: '\2193';
+		position: static;
+		display: block;
+		transform: none;
+		/* Ahead of the index, which is order -1: the arrow arrives at the
+		   stage, so it reads before the stage's own number. */
+		order: -2;
+		margin-bottom: calc(var(--pi-unit) * 0.5);
+	}
+}
+
+/* ============================================================================
+ * HOMEPAGE VERSUS — two columns, staggered, no container
+ *
+ * The fourth section, and the only one on the page with no surface of its own:
+ * no pane, no card, no ground, not even a cut between the columns. Everything
+ * above it is a contained thing; this is just type on the sheet, and the
+ * absence is what separates it from them.
+ *
+ * The columns are aligned at the top, and both are opened by a rule above the
+ * label — so the two rules meet as one line across the section. That is what
+ * makes it a comparison rather than a sequence: the sides are set against each
+ * other at the same height and answer point for point, and the two `On a team`
+ * blocks fall at roughly the same place down each column.
+ * ==========================================================================*/
+
+:root .sl-markdown-content .pi-versus {
+	width: 100vw;
+	margin-inline: calc(50% - 50vw);
+	margin-block: 0;
+	padding: calc(var(--pi-unit) * 5) var(--pi-panel-pad-x);
+	border-block-end: 1px solid var(--pi-rule);
+}
+
+:root .sl-markdown-content .pi-versus__grid {
+	max-width: 76rem;
+	margin-inline: auto;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	column-gap: calc(var(--pi-unit) * 5);
+	/*
+	 * Stretch, not start: whichever side runs longer sets the height and the
+	 * other matches it, so the two read as a matched pair rather than as one
+	 * column that happens to be taller.
+	 */
+	align-items: stretch;
+}
+
+/*
+ * A column so the team block can be pushed to the foot of it. Equal widths
+ * come from the 1fr columns; minmax(0, …) is what lets them actually be equal
+ * rather than being widened by their longest unbreakable line.
+ */
+:root .sl-markdown-content .pi-versus__side {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	border-top: 1px solid var(--pi-rule);
+	padding-top: calc(var(--pi-unit) * 1.5);
+}
+
+/*
+ * The two sides are told apart by weight, not by colour-coding. Red is this
+ * design's system marker and it is not spent on a value judgement; the losing
+ * column simply sits a step back in the ink, and only the Piton side gets the
+ * accent on its label.
+ */
+:root .sl-markdown-content .pi-versus__label {
+	margin: 0 0 calc(var(--pi-unit) * 1);
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pi-ink-muted);
+}
+:root .sl-markdown-content .pi-versus__side--after .pi-versus__label {
+	color: var(--pi-accent);
+}
+
+:root .sl-markdown-content .pi-versus__title {
+	margin: 0 0 calc(var(--pi-unit) * 1.25);
+	font-size: var(--sl-text-xl);
+	font-weight: 600;
+	line-height: var(--sl-line-height-headings);
+	letter-spacing: -0.01em;
+	color: var(--pi-ink-muted);
+	text-wrap: balance;
+}
+:root .sl-markdown-content .pi-versus__side--after .pi-versus__title {
+	color: var(--pi-ink);
+}
+
+:root .sl-markdown-content .pi-versus__body {
+	margin: 0 0 calc(var(--pi-unit) * 1.25);
+	color: var(--pi-ink-muted);
+	text-wrap: pretty;
+}
+
+/* ---- the team note ------------------------------------------------------ */
+
+/*
+ * `margin-top: auto` takes whatever height is left over, so the team block sits
+ * on the foot of its column and the two rules above them line up across the
+ * section however unevenly the prose above ran.
+ *
+ * The gap above it is carried by padding rather than margin: an auto margin
+ * collapses to nothing on the taller side, where there is no free space to
+ * absorb, and the rule would then sit hard against the paragraph.
+ */
+:root .sl-markdown-content .pi-versus__note {
+	margin: auto 0 calc(var(--pi-unit) * 0.75);
+	padding-top: calc(var(--pi-unit) * 1.75);
+	border-top: 1px solid var(--pi-rule);
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pi-ink-muted);
+}
+
+:root .sl-markdown-content .pi-versus__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	font-size: var(--sl-text-sm);
+	color: var(--pi-ink-muted);
+}
+:root .sl-markdown-content .pi-versus__list li {
+	position: relative;
+	margin: 0 0 calc(var(--pi-unit) * 0.6);
+	padding-inline-start: 1.6em;
+	text-wrap: pretty;
+}
+:root .sl-markdown-content .pi-versus__list li::before {
+	position: absolute;
+	inset-inline-start: 0;
+}
+/* A dash for what merely happens; an arrow for what follows from a decision. */
+:root .sl-markdown-content .pi-versus__side--before .pi-versus__list li::before {
+	content: '\2014';
+	color: var(--pi-rule-strong);
+}
+:root .sl-markdown-content .pi-versus__side--after .pi-versus__list li::before {
+	content: '\2192';
+	color: var(--pi-accent);
+}
+
+/* ---- stacked ------------------------------------------------------------ */
+
+@media (width < 62rem) {
+	:root .sl-markdown-content .pi-versus__grid {
+		grid-template-columns: minmax(0, 1fr);
+		row-gap: calc(var(--pi-unit) * 3.5);
+	}
+}
+
+/* ============================================================================
+ * HOMEPAGE CLOSING BAND — the opening hero, reprised
+ *
+ * The page ends on the material it began with: the same black ground, the same
+ * red burst off the bottom-right corner, the same film grain over both. That
+ * is deliberate rather than lazy — the section above it is about a lifecycle
+ * that returns to where it started, and a closing band in any other material
+ * would be a fifth new idea at the moment the page should be arriving back
+ * somewhere familiar.
+ *
+ * It joins .hero on three shared rules rather than restating them: the pinned
+ * light ink for an always-dark element, the grain plate, and the whole action
+ * block. Only the ground and the measure are set here.
+ * ==========================================================================*/
+
+:root .sl-markdown-content .pi-end {
+	width: 100vw;
+	margin-inline: calc(50% - 50vw);
+	margin-block: 0;
+
+	background-color: var(--pi-title-block);
+	background-image: var(--pi-burst);
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+}
+
+/*
+ * Two thirds to the call to action, one third to the argument behind it.
+ *
+ * Above the grain, which the shared ::after paints at z-index 1. The band is
+ * its own stacking context, so this cannot climb over anything outside it.
+ *
+ * The panels carry the padding rather than the band, so the cut between them
+ * runs the full height of the band instead of stopping at the text.
+ */
+:root .sl-markdown-content .pi-end__grid {
+	position: relative;
+	z-index: 2;
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 0;
+	align-items: stretch;
+}
+
+:root .sl-markdown-content .pi-end__grid > * {
+	min-width: 0;
+	padding: 112px var(--pi-panel-pad-x);
+}
+
+/*
+ * The aside is a NOTE, not a lesser panel.
+ *
+ * An earlier pass recessed it behind a scrim, which separated it cleanly and
+ * said the wrong thing: dimming and shrinking are how you signal rank, and
+ * rank is not the difference here. The two sides differ in register. One is an
+ * instruction — do this, now. The other is an argument, which is a different
+ * kind of address and no less bright for it. So it keeps the band's measure
+ * and the band's typography, and what marks it as the other register is the
+ * material: the note is printed on paper, laid on the black.
+ */
+:root .sl-markdown-content .pi-end__aside {
+	/*
+	 * The column is a sheet of paper laid on the band.
+	 *
+	 * Every earlier attempt was a light thrown across the black — a cut, a
+	 * blue burst, a scrim — and each one was a decoration on a ground that was
+	 * already carrying one. This is the material swapping instead: the note is
+	 * printed on paper, the call to action is stamped on the black, and the
+	 * boundary between them needs no rule at all. It is also the page's own
+	 * two materials, which is why it costs nothing new.
+	 *
+	 * White at the top-left falling to the site's chrome grey at the
+	 * bottom-right, on the same diagonal the glass panes are lit along.
+	 *
+	 * Pinned rather than tokenised: the panel is paper in BOTH schemes, so a
+	 * token that follows the scheme would turn it black in the dark one.
+	 */
+	position: relative;
+	isolation: isolate;
+	background-image: linear-gradient(to bottom right, #ffffff 0%, #e8e7e2 100%);
+
+	/*
+	 * The ink inverts with the ground. The band re-points these tokens to its
+	 * light values a few rules up; inside this column they go back to the light
+	 * scheme's own ink, for the same reason and by the same mechanism — the
+	 * label, the prose and the button all resolve through tokens, so setting
+	 * `color` alone would not reach them.
+	 */
+	--sl-color-white: #111111;
+	--sl-color-text: #1f1f1f;
+	--sl-color-text-accent: #111111;
+	--sl-color-gray-2: #1f1f1f;
+	--sl-color-gray-3: #5a5a5a;
+	--sl-color-gray-4: #6e6e6e;
+	--sl-color-black: #f7f6f2;
+	color: var(--sl-color-text);
+
+	/*
+	 * The accent at full strength is a marker colour on paper — 3.26:1, which
+	 * is the light scheme's own reason for keeping it off text. A quarter of
+	 * the ink mixed in takes the label to 5.6:1 on the white corner and 4.5:1
+	 * on the grey one, and it is still unmistakably the same red as the label
+	 * opposite it.
+	 */
+	--pi-accent: color-mix(in srgb, #fc3d21 75%, #111111);
+}
+
+/*
+ * The paper's tooth.
+ *
+ * The band's grain plate sits at z-index 1 and the grid at z-index 2, so this
+ * column's background paints over it and would come out slick in a banner that
+ * is grained throughout. Same plate, but MULTIPLY at the light scheme's weight
+ * — overlay lightens toward white on a base this bright, which erases the
+ * noise exactly where the sheet is whitest. z-index -1 puts it above the
+ * column's background and below its text; `isolation` above keeps it from
+ * escaping behind the column.
+ */
+:root .sl-markdown-content .pi-end__aside::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background-image: var(--pi-grain);
+	background-size: 140px 140px;
+	mix-blend-mode: multiply;
+	opacity: 0.08;
+}
+
+/*
+ * The aside sets nothing of its own.
+ *
+ * It used to: a mono, tabular reference face for the label and an italic note
+ * face on a narrow measure for the prose — a whole second typographic register
+ * for one short column. The blue light is what tells you this side is a
+ * different kind of address, and one signal is enough. Label and body take the
+ * band's own rules, same as the call to action beside them.
+ */
+
+/*
+ * The primary button's treatment at a smaller size: the same white fill and
+ * dark text, square, no border. inline-block rather than the action block's
+ * grid, so it hugs its label instead of filling the column — which is most of
+ * what makes it read as the lesser of the two calls to action.
+ *
+ * Ink on paper, the reverse of the primary CTA's paper on ink — it lives on
+ * the white panel now, where a near-white fill would have disappeared. Pinned
+ * for the same reason the panel is: this column is paper in both schemes.
+ */
+:root .sl-markdown-content .pi-end__cta {
+	display: inline-block;
+	padding: calc(var(--pi-unit) * 0.85) calc(var(--pi-unit) * 1.2);
+	background: #111111;
+	color: #f4f3ef;
+	border: 0;
+	border-radius: 0;
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	line-height: 1.2;
+	text-decoration: none;
+}
+:root .sl-markdown-content .pi-end__cta:hover {
+	background: #000000;
+	color: #ffffff;
+}
+
+:root .sl-markdown-content .pi-end__label {
+	margin: 0 0 calc(var(--pi-unit) * 1);
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pi-accent);
+}
+
+:root .sl-markdown-content .pi-end__title {
+	margin: 0 0 calc(var(--pi-unit) * 1.25);
+	font-size: var(--sl-text-3xl);
+	font-weight: 600;
+	line-height: var(--sl-line-height-headings);
+	letter-spacing: -0.015em;
+	/* The banner's pinned ink, not the scheme's. */
+	color: var(--sl-color-white);
+	text-wrap: balance;
+}
+
+:root .sl-markdown-content .pi-end__body,
+:root .sl-markdown-content .pi-end__aside-body {
+	margin: 0 0 calc(var(--pi-unit) * 2.5);
+	color: var(--sl-color-gray-2);
+	text-wrap: pretty;
+}
+
+/*
+ * The hero's action block is a three-column grid because the hero has three
+ * buttons; this one has two. Everything else about it — the frame, the carved
+ * cut, the primary fill, the hover — comes from the shared rules.
+ */
+/*
+ * Guarded by the same breakpoint the shared rule stacks at. This selector is
+ * a class more specific than that one, so left unguarded it would win inside
+ * the narrow media query and hold two columns on a phone.
+ */
+@media (width >= 46rem) {
+	:root .sl-markdown-content .pi-end .actions {
+		grid-template-columns: repeat(2, 1fr);
+		width: min(100%, 30rem);
+	}
+}
+
+/* Stacked, and the cut turns with them. */
+@media (width < 62rem) {
+	:root .sl-markdown-content .pi-end__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	:root .sl-markdown-content .pi-end__grid > * {
+		padding-block: calc(var(--pi-unit) * 4);
+	}
+}
+
+/* ============================================================================
  * PAGINATION — the same glass, side by side
  *
  * Same pane as the homepage quadrants, in whichever material the scheme is
@@ -1682,9 +2465,30 @@
  * Starlight sizes the mark at nav-height minus the block padding (45px here),
  * which is large for a wordmark. Set to a normal header size instead; the
  * header's own padding is left alone.
+ *
+ * The anchor is then pinned to that same box, so the hit area is the drawing
+ * and nothing else. Starlight builds this link as a flex container holding two
+ * <img> — one per scheme, the other display:none — plus a screen-reader span,
+ * and gives it a nav gap and an h4 font-size it has no visible text to spend.
+ * Sized by its contents, the box is the mark's only by coincidence; sized
+ * explicitly, it is by construction.
+ *
+ * The width is the height times --pi-logo-ratio, which scripts/logo.mjs writes
+ * out of the SVG's viewBox, so replacing the logo keeps the target true to it.
  */
+:root header.header .site-title {
+	--pi-logo-height: 1.6rem;
+	display: block;
+	width: calc(var(--pi-logo-height) * var(--pi-logo-ratio));
+	height: var(--pi-logo-height);
+	gap: 0;
+	line-height: 0;
+}
+
 :root header.header .site-title img {
-	height: 1.6rem;
+	display: block;
+	width: 100%;
+	height: 100%;
 }
 
 /* ---- homepage hero: the title IS the logo ------------------------------- */
@@ -1731,12 +2535,17 @@
 /* ---- hero actions: one split block -------------------------------------- */
 
 /*
- * The two calls to action read as a single square block cut in half, the same
+ * The calls to action read as a single square block cut in half, the same
  * construction as the quadrants: no gap, no radius, a dark wall and a lit lip
  * on the division. The primary half carries the accent so it still reads as
  * the primary.
+ *
+ * Shared with the closing band, which reuses Starlight's own class names for
+ * its buttons so that one set of rules dresses both. Every value below is
+ * pinned light rather than taken from --pi-ink, because both places it lands
+ * are dark in either scheme.
  */
-:root .hero .actions {
+:root :is(.hero, .pi-end) .actions {
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	gap: 0;
@@ -1753,7 +2562,7 @@
  * the shorthand surviving. The icon is brought down from its 1.5rem default,
  * which is larger than the label beside it.
  */
-:root .hero .sl-link-button {
+:root :is(.hero, .pi-end) .sl-link-button {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1772,7 +2581,7 @@
 	text-decoration: none;
 }
 
-:root .hero .sl-link-button svg {
+:root :is(.hero, .pi-end) .sl-link-button svg {
 	--sl-icon-size: 1em;
 	width: 1em;
 	height: 1em;
@@ -1782,33 +2591,33 @@
  * The cut falls between every pair: the button before each division draws the
  * dark wall, the one after it draws the lit lip.
  */
-:root .hero .sl-link-button:not(:last-child) {
+:root :is(.hero, .pi-end) .sl-link-button:not(:last-child) {
 	border-inline-end: 1px solid rgba(0, 0, 0, 0.62);
 }
-:root .hero .sl-link-button:not(:first-child) {
+:root :is(.hero, .pi-end) .sl-link-button:not(:first-child) {
 	box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.17);
 }
 
 /* Below 46rem three across is unreadable; stack them and turn the cuts. */
 @media (width < 46rem) {
-	:root .hero .actions {
+	:root :is(.hero, .pi-end) .actions {
 		grid-template-columns: minmax(0, 1fr);
 	}
-	:root .hero .sl-link-button:not(:last-child) {
+	:root :is(.hero, .pi-end) .sl-link-button:not(:last-child) {
 		border-inline-end: 0;
 		border-block-end: 1px solid rgba(0, 0, 0, 0.62);
 	}
-	:root .hero .sl-link-button:not(:first-child) {
+	:root :is(.hero, .pi-end) .sl-link-button:not(:first-child) {
 		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.17);
 	}
 }
 
 /* Primary: the contrast is white, dark text on it (17.01:1). */
-:root .hero .sl-link-button.primary {
+:root :is(.hero, .pi-end) .sl-link-button.primary {
 	background: #f4f3ef;
 	color: #111111;
 }
-:root .hero .sl-link-button.primary:hover {
+:root :is(.hero, .pi-end) .sl-link-button.primary:hover {
 	background: #ffffff;
 	color: #111111;
 }
@@ -1818,11 +2627,11 @@
  * the banner rather than a darker pane. Hover goes a step brighter again so
  * there is still somewhere to go.
  */
-:root .hero .sl-link-button:not(.primary) {
+:root :is(.hero, .pi-end) .sl-link-button:not(.primary) {
 	background: rgba(255, 255, 255, 0.07);
 	color: #f2f2f3;
 }
-:root .hero .sl-link-button:not(.primary):hover {
+:root :is(.hero, .pi-end) .sl-link-button:not(.primary):hover {
 	background: rgba(255, 255, 255, 0.13);
 	color: #ffffff;
 }
@@ -2164,9 +2973,24 @@
 	 * See --pi-glass-source.
 	 */
 	--pi-glow: color-mix(in srgb, #4bf3c8 16%, transparent);
+	/*
+	 * Red light across the lifecycle band's field, from the top-right corner.
+	 * The homepage's other two lights both come off the BOTTOM — mint from the
+	 * lower left, the burst from the lower right — so an overhead source reads
+	 * as its own light rather than as either of those spilling upward.
+	 */
+	--pi-field-wash: color-mix(in srgb, var(--pi-accent) 16%, transparent);
+	/* Light rising behind the reversed split, off the bottom edge. */
+	--pi-split-wash: rgba(255, 255, 255, 0.13);
 }
 :root:root[data-theme='light'] {
 	--pi-glow: color-mix(in srgb, #4bf3c8 32%, transparent);
+	/* Lower: this red is sitting on paper, where it turns pink long before it
+	   turns strong. */
+	--pi-field-wash: color-mix(in srgb, var(--pi-accent) 10%, transparent);
+	/* Inverted, as every light on this site is: white cannot rise off white,
+	   so on paper the same gesture is the sheet deepening toward the edge. */
+	--pi-split-wash: rgba(0, 0, 0, 0.07);
 }
 
 :root .main-pane:has(.hero) {
