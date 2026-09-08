@@ -2,7 +2,7 @@
 title: Frameworks
 description: How frameworks extend the compiler with modules, adapters, and custom sigils.
 sidebar:
-  order: 1
+  order: 3
 ---
 
 Frameworks are a construct within a Piton project that allow the inclusion of
