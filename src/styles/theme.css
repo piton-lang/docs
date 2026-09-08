@@ -252,9 +252,6 @@
 	color: var(--pi-ink);
 	line-height: var(--sl-line-height-headings);
 	text-wrap: balance;
-	scroll-margin-top: calc(
-		var(--sl-nav-height) + var(--sl-mobile-toc-height) + var(--pi-unit) * 2
-	);
 }
 
 /*
@@ -1686,4 +1683,32 @@
 }
 :root .sl-markdown-content .starlight-aside__content {
 	color: var(--pi-ink);
+}
+
+
+/* ---- copy button --------------------------------------------------------- */
+
+/*
+ * Expressive Code places the button from its own UI variables (--button-spacing
+ * and --ec-uiPadInl), which sat it ~7px from the top and ~9px from the right —
+ * adrift in the 32px code gutter rather than aligned to anything.
+ *
+ * Positioning it from the SAME variables as the code padding lines it up with
+ * the first line of code and the right-hand gutter, and keeps it in step if the
+ * padding is ever changed. EC already reserves room on the first line
+ * (padding-inline-end: 2rem + --ec-codePadInl), so it cannot collide.
+ */
+:root .expressive-code .copy {
+	inset-block-start: var(--ec-codePadBlk);
+	inset-inline-end: var(--ec-codePadInl);
+}
+
+/*
+ * "Copied" tooltip. EC's own greens are dark (#168659 / #208638) with white
+ * text; on this mint the white would sit at 1.40:1, so the foreground flips to
+ * near-black at 13.45:1.
+ */
+:root .expressive-code {
+	--ec-frm-tooltipSuccessBg: #4bf3c8;
+	--ec-frm-tooltipSuccessFg: #111111;
 }
