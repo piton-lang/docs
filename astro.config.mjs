@@ -29,6 +29,11 @@ export default defineConfig({
         // Starlight keeps it as screen-reader text.
         replacesTitle: true,
       },
+      // Generated from piton-favicon.svg by scripts/logo.mjs, which npm runs
+      // before dev and build. Stated rather than left to Starlight's default —
+      // which is this same path — so the generated file has something pointing
+      // at it from the config a reader actually opens.
+      favicon: "/favicon.svg",
       expressiveCode: {
         // Bundled Shiki themes. Houston is dark-only, so a bundled light
         // theme partners it for the light scheme.
