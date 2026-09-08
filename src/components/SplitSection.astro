@@ -1,0 +1,72 @@
+---
+/**
+ * Homepage split section — the lede and the listing, side by side.
+ *
+ * A full-bleed band of two equal columns: prose on one side, a code listing on
+ * the other, divided by a hairline rather than by space.
+ *
+ * Styling stays in `src/styles/theme.css` with the rest of the homepage bands —
+ * these are `.sl-markdown-content .pi-split*` rules, and the section is one
+ * material among several that have to stay in step with each other.
+ *
+ * ```mdx
+ * <SplitSection
+ *   label="The compile step"
+ *   title={['You write the shape.', 'The agent builds the software.']}
+ *   cta={{ href: '/belay/', text: 'The Belay framework' }}
+ * >
+ *   Prose paragraphs go here, as ordinary Markdown.
+ *
+ *   <Fragment slot="example">
+ *   ```piton
+ *   use @piton/belay
+ *   ```
+ *   </Fragment>
+ * </SplitSection>
+ * ```
+ *
+ * `Fragment` is Astro's own built-in — it carries the `slot` attribute without
+ * adding an element to the page. It is not a name this component chose and not
+ * a thing to rename; the alternative is a real wrapper element (`<div
+ * slot="example">`), which would put a stray div inside the listing pane.
+ */
+interface Props {
+	/** Micro-label above the title — the section's name, set in the accent. */
+	label: string;
+	/** The display heading. An array breaks the line between its entries. */
+	title: string | string[];
+	/** The link at the foot of the lede. Omitted, the lede ends on its prose. */
+	cta?: { href: string; text: string };
+	/**
+	 * Put the listing on the LEFT.
+	 *
+	 * Swapped with `order` in CSS rather than here, so source order stays
+	 * lede-first either way: stacked on a narrow viewport, every section reads
+	 * prose before code. A reversed section that put the listing first in the
+	 * markup would be reversing the reading order, not the layout.
+	 */
+	reverse?: boolean;
+}
+
+const { label, title, cta, reverse = false } = Astro.props;
+
+const lines = Array.isArray(title) ? title : [title];
+---
+
+<div class:list={['pi-split', 'not-content', { 'pi-split--reverse': reverse }]}>
+	<div class="pi-split__lede">
+		<p class="pi-split__label">{label}</p>
+
+		<h2 class="pi-split__title">
+			{lines.map((line, i) => (<>{i > 0 && <br />}{line}</>))}
+		</h2>
+
+		<div class="pi-split__body"><slot /></div>
+
+		{cta && <a class="pi-split__cta" href={cta.href}>{cta.text}</a>}
+	</div>
+
+	<div class="pi-split__example">
+		<slot name="example" />
+	</div>
+</div>

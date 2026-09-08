@@ -1,5 +1,5 @@
 ---
-title: Project Config
+title: piton.config.pi
 description: Configuring entry points, roots, and frameworks with piton.config.pi.
 sidebar:
   order: 2

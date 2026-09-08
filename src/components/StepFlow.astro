@@ -1,0 +1,49 @@
+---
+/**
+ * Step flow — numbered stages in a row, with arrows between them.
+ *
+ * A figure, not a list: CSS draws the index on each stage, the arrow in each
+ * gap, and the turn both make when the row wraps or stacks. All of that comes
+ * off the markup's own order, so the component takes any number of stages and
+ * needs nothing said about the count.
+ *
+ * Styling is in `src/styles/theme.css` under `.pi-steps*`.
+ *
+ * ```astro
+ * <StepFlow
+ *   steps={[
+ *     { name: 'Specification', body: 'Structure and prose in one document.' },
+ *     { name: 'Compilation', body: 'Belay lowers the spec into agentic Markdown.' },
+ *   ]}
+ * />
+ * ```
+ */
+interface Props {
+	/** The stages, in order. */
+	steps: { name: string; body: string }[];
+	/**
+	 * How many across at full width. Defaults to one column per stage, to a
+	 * maximum of four — beyond that the row wraps onto a second line rather
+	 * than squeezing every stage into the same measure.
+	 *
+	 * The narrow breakpoints override this to two columns and then one, so it
+	 * only ever sets the widest case.
+	 */
+	columns?: number;
+}
+
+const { steps, columns } = Astro.props;
+
+const across = columns ?? Math.min(steps.length, 4);
+---
+
+<ol class="pi-steps" style={`--pi-steps-columns: ${across}`}>
+	{
+		steps.map((step) => (
+			<li class="pi-steps__step">
+				<p class="pi-steps__name">{step.name}</p>
+				<p class="pi-steps__body">{step.body}</p>
+			</li>
+		))
+	}
+</ol>

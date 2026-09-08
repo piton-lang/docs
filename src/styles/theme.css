@@ -156,6 +156,26 @@
 	--pi-logo-aspect: 213.56628 / 58.608826;
 	--pi-logo-ratio: 3.6439; /* the same figure, for calc() */
 	--pi-panel-pad-x: calc(var(--pi-unit) * 2.5);
+	/*
+	 * The measure, and the gutter that holds content to it.
+	 *
+	 * Every band on the landing page bleeds to the viewport edge. On a very
+	 * wide screen that sets a line of text two thousand pixels long and parks
+	 * the hero copy in the far corner of the room. So the BACKGROUNDS keep
+	 * bleeding — the burst, the glass, the paper panel all still reach the
+	 * edge — and only the content stops, pushed in by whichever is larger: the
+	 * panel's own gutter, or half of whatever the viewport has over the cap.
+	 *
+	 * Sections cap themselves with this rather than with a max-width on an
+	 * inner wrapper, because most of them have no inner wrapper to hang it on:
+	 * the columns ARE the section, and a wrapper would cut their backgrounds
+	 * off mid-band.
+	 */
+	--pi-content-max: 80rem;
+	--pi-bleed-pad: max(
+		var(--pi-panel-pad-x),
+		calc((100vw - var(--pi-content-max)) / 2)
+	);
 	--pi-gutter: 1.5rem; /* one gutter for header, sidebar and content */
 	--sl-nav-pad-x: var(--pi-gutter);
 	--sl-sidebar-pad-x: var(--pi-gutter);
@@ -976,7 +996,8 @@
 :root .hero {
 	width: 100vw;
 	margin-inline: calc(50% - 50vw);
-	padding-inline: var(--pi-panel-pad-x);
+	/* Ground to the edge, copy to the measure. */
+	padding-inline: var(--pi-bleed-pad);
 	background-color: var(--pi-title-block);
 	background-image: var(--pi-burst);
 	border-bottom: 1px solid var(--pi-rule);
@@ -1252,6 +1273,34 @@
 	margin-top: 0;
 }
 
+/*
+ * The text column is centred in its container, and EVERY full-bleed section on
+ * the page depends on it.
+ *
+ * .sl-markdown-content is capped at --sl-content-width; the container holding
+ * it is not. Past about 1364px the column stops growing, and left-aligned it
+ * parks against the container's leading edge with all the slack on its right.
+ * Everything in here that bleeds to the page edge does it with
+ * `margin-inline: calc(50% - 50vw)`, which is only the right number when the
+ * box being escaped is centred in the viewport — off-centre, the same
+ * calculation drags the section sideways by however far off-centre it is (at
+ * 1600px: 118px off the left edge of the screen).
+ *
+ * The hero and the footer never showed it because they are children of the
+ * container itself, which is centred; only the sections inside the markdown
+ * column were pulled over.
+ */
+:root .sl-container > .sl-markdown-content {
+	/*
+	 * .sl-container is a flex column, so this is `align-self`, not `margin:
+	 * auto` — auto cross-axis margins did not resolve here, and centring a
+	 * flex item is the flex property's own job. The width is restated because
+	 * an item that is not stretched is sized by its contents.
+	 */
+	align-self: center;
+	width: 100%;
+}
+
 :root .sl-markdown-content .card-grid {
 	/* to the page edge: .sl-container caps children at --sl-content-width */
 	width: 100vw;
@@ -1290,8 +1339,32 @@
 	box-shadow: none;
 	margin: 0;
 	/* Equal on all four sides, not the panel gutter horizontally. */
-	padding: 64px;
+	--pi-quad-pad: 64px;
+	padding: var(--pi-quad-pad);
 	transition: background-color 160ms ease-out;
+}
+
+/*
+ * The pane spans the viewport; the cards inside it stop at the measure.
+ *
+ * Only the OUTER edge of each column takes the gutter, so the cut between the
+ * two stays on the centre line of the screen and the glass, its sheen and its
+ * grain are unbroken to both edges. The card's own padding is the floor —
+ * below the cap the gutter is smaller than it, and the quadrants should not
+ * get tighter than they already are.
+ */
+:root .sl-markdown-content .card:nth-child(odd) {
+	padding-inline-start: max(var(--pi-quad-pad), var(--pi-bleed-pad));
+}
+:root .sl-markdown-content .card:nth-child(even) {
+	padding-inline-end: max(var(--pi-quad-pad), var(--pi-bleed-pad));
+}
+
+/* Stacked, every card is both edges. */
+@media (width < 46rem) {
+	:root .sl-markdown-content .card {
+		padding-inline: max(var(--pi-quad-pad), var(--pi-bleed-pad));
+	}
 }
 
 /*
@@ -1456,11 +1529,35 @@
  * stack as one grid rather than as two sections that happen to touch.
  */
 :root .sl-markdown-content .pi-split > * {
+	--pi-split-pad: 64px;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	padding: 64px;
+	padding: var(--pi-split-pad);
 	min-width: 0; /* the code column must be allowed to scroll, not push */
+}
+
+/*
+ * Same bargain as the quadrants: the two panes still meet on the centre line
+ * of the screen and still run to both edges, and it is their content that
+ * stops at the measure.
+ *
+ * --reverse turns the panes around with `order`, so the outer edges turn with
+ * them: the pane that is second in the markup is the one on the left.
+ */
+:root .sl-markdown-content .pi-split > :first-child {
+	padding-inline-start: max(var(--pi-split-pad), var(--pi-bleed-pad));
+}
+:root .sl-markdown-content .pi-split > :last-child {
+	padding-inline-end: max(var(--pi-split-pad), var(--pi-bleed-pad));
+}
+:root .sl-markdown-content .pi-split--reverse > :first-child {
+	padding-inline-start: var(--pi-split-pad);
+	padding-inline-end: max(var(--pi-split-pad), var(--pi-bleed-pad));
+}
+:root .sl-markdown-content .pi-split--reverse > :last-child {
+	padding-inline-end: var(--pi-split-pad);
+	padding-inline-start: max(var(--pi-split-pad), var(--pi-bleed-pad));
 }
 
 /*
@@ -1516,7 +1613,7 @@
 
 /* The same micro-label as the sidebar, the tables and the footer groups. */
 :root .sl-markdown-content .pi-split__label,
-:root .sl-markdown-content .pi-cycle__label {
+:root .sl-markdown-content .pi-card__label {
 	margin: 0 0 calc(var(--pi-unit) * 1.25);
 	font-size: var(--sl-text-xs);
 	font-weight: 600;
@@ -1541,11 +1638,21 @@
 	text-wrap: balance;
 }
 
-:root .sl-markdown-content .pi-split__body {
+/*
+ * A wrapper, not a class on each paragraph: the prose comes in through the
+ * component's default slot as ordinary Markdown, so there is nothing to hang a
+ * class on. Everything the slot renders is lede prose, so the rules apply to
+ * whatever paragraphs the author writes.
+ */
+:root .sl-markdown-content .pi-split__body p {
 	margin: 0 0 calc(var(--pi-unit) * 1.25);
 	max-width: 34rem;
 	color: var(--pi-ink-muted);
 	text-wrap: pretty;
+}
+/* The last one's margin is the gap before the link; the wrapper adds none. */
+:root .sl-markdown-content .pi-split__body {
+	margin: 0;
 }
 
 /*
@@ -1612,16 +1719,16 @@
 }
 
 /* ============================================================================
- * HOMEPAGE LIFECYCLE — a raised card on the field
+ * RAISED CARD — a card standing off the graph field
  *
- * The third homepage section, and the one that has to look unlike the other
- * two. Both of those are edge-to-edge and flush with the sheet; this one is
- * inset, so the ground shows around it, and the ground is the graph field.
+ * The section that has to look unlike the bands around it. Those are
+ * edge-to-edge and flush with the sheet; this one is inset, so the ground
+ * shows around it, and the ground is the graph field.
  *
  * The field is otherwise reserved for figures — it appears under code blocks
  * and nowhere else, on the reasoning that the manual prints its drawings on
- * squared paper and its prose on plain. A diagram of the build lifecycle is a
- * drawing, so it gets the same treatment.
+ * squared paper and its prose on plain. What this card carries is a diagram,
+ * so it gets the same treatment.
  *
  * NOTHING here casts a shadow. Elevation in this design is the anodized
  * vocabulary from the sidebar: light gathering at the head of a face, shade at
@@ -1629,7 +1736,7 @@
  * behind it. A drop shadow would be the only one on the site.
  * ==========================================================================*/
 
-:root .sl-markdown-content .pi-cycle {
+:root .sl-markdown-content .pi-card {
 	width: 100vw;
 	margin-inline: calc(50% - 50vw);
 	margin-block: 0;
@@ -1668,7 +1775,7 @@
 		);
 }
 
-:root .sl-markdown-content .pi-cycle__card {
+:root .sl-markdown-content .pi-card__sheet {
 	max-width: 68rem;
 	margin-inline: auto;
 	padding: 64px;
@@ -1686,7 +1793,7 @@
 	box-shadow: inset 0 1px 0 var(--pi-anodized-edge);
 }
 
-:root .sl-markdown-content .pi-cycle__title {
+:root .sl-markdown-content .pi-card__title {
 	margin: 0 0 calc(var(--pi-unit) * 1.25);
 	font-size: var(--sl-text-2xl);
 	font-weight: 600;
@@ -1696,45 +1803,64 @@
 	text-wrap: balance;
 }
 
-:root .sl-markdown-content .pi-cycle__lede {
+/*
+ * A wrapper, not a class on the paragraph: the lede comes in through the
+ * component's default slot as ordinary Markdown, so there is nothing to hang a
+ * class on. Colour and measure sit on the wrapper and inherit; the margins go
+ * on whatever paragraphs the author writes.
+ */
+:root .sl-markdown-content .pi-card__lede {
 	margin: 0;
 	max-width: 44rem;
 	color: var(--pi-ink-muted);
 	text-wrap: pretty;
 }
+:root .sl-markdown-content .pi-card__lede p {
+	margin: 0;
+}
+:root .sl-markdown-content .pi-card__lede p + p {
+	margin-top: calc(var(--pi-unit) * 1);
+}
 
-/* ---- the four stages ---------------------------------------------------- */
+/* ---- STEP FLOW — numbered stages with arrows between them ---------------- */
 
 /*
+ * Its own block, and its own component: a numbered row of stages is a figure
+ * in its own right, not a feature of the card that happens to hold this one.
+ *
  * Gapped rather than cut. The quadrants and the splits divide with hairlines
- * because those are one surface scored into parts; these are four separate
- * states with something passing between them, and the arrows need somewhere
- * to sit.
+ * because those are one surface scored into parts; these are separate states
+ * with something passing between them, and the arrows need somewhere to sit.
  */
-:root .sl-markdown-content .pi-cycle__steps {
-	--pi-cycle-gap: calc(var(--pi-unit) * 2.5);
+:root .sl-markdown-content .pi-steps {
+	--pi-steps-gap: calc(var(--pi-unit) * 2.5);
 
-	counter-reset: pi-cycle;
+	counter-reset: pi-steps;
 	list-style: none;
 	margin: calc(var(--pi-unit) * 3) 0 0;
 	padding: 0;
 	display: grid;
-	grid-template-columns: repeat(4, minmax(0, 1fr));
-	gap: var(--pi-cycle-gap);
+	/*
+	 * Set by the component from the number of stages, capped at four. The
+	 * fallback is here so the rule still reads on its own and so markup that
+	 * sets no variable lands on the design's own count.
+	 */
+	grid-template-columns: repeat(var(--pi-steps-columns, 4), minmax(0, 1fr));
+	gap: var(--pi-steps-gap);
 	border-top: 1px solid var(--pi-rule);
 	padding-top: calc(var(--pi-unit) * 2);
 }
 
-:root .sl-markdown-content .pi-cycle__step {
-	counter-increment: pi-cycle;
+:root .sl-markdown-content .pi-steps__step {
+	counter-increment: pi-steps;
 	position: relative;
 	margin: 0;
 	min-width: 0;
 }
 
 /* The index, in the same mono tabular accent as every other counter here. */
-:root .sl-markdown-content .pi-cycle__step::after {
-	content: '0' counter(pi-cycle);
+:root .sl-markdown-content .pi-steps__step::after {
+	content: '0' counter(pi-steps);
 	display: block;
 	margin-bottom: calc(var(--pi-unit) * 0.6);
 	order: -1;
@@ -1744,7 +1870,7 @@
 	color: var(--pi-accent);
 }
 
-:root .sl-markdown-content .pi-cycle__step {
+:root .sl-markdown-content .pi-steps__step {
 	display: flex;
 	flex-direction: column;
 }
@@ -1754,10 +1880,10 @@
  * between two stages rather than to either one. Generated, so it is never
  * selected with the text and never read out as a word.
  */
-:root .sl-markdown-content .pi-cycle__step + .pi-cycle__step::before {
+:root .sl-markdown-content .pi-steps__step + .pi-steps__step::before {
 	content: '\2192';
 	position: absolute;
-	inset-inline-start: calc(var(--pi-cycle-gap) / -2);
+	inset-inline-start: calc(var(--pi-steps-gap) / -2);
 	inset-block-start: 0;
 	transform: translateX(-50%);
 	color: var(--pi-accent);
@@ -1766,14 +1892,14 @@
 	pointer-events: none;
 }
 
-:root .sl-markdown-content .pi-cycle__step-name {
+:root .sl-markdown-content .pi-steps__name {
 	margin: 0 0 calc(var(--pi-unit) * 0.5);
 	font-size: var(--sl-text-base);
 	font-weight: 600;
 	color: var(--pi-ink);
 }
 
-:root .sl-markdown-content .pi-cycle__step-body {
+:root .sl-markdown-content .pi-steps__body {
 	margin: 0;
 	font-size: var(--sl-text-sm);
 	color: var(--pi-ink-muted);
@@ -1781,10 +1907,11 @@
 }
 
 /*
- * The closing line is what makes the row a cycle rather than a pipeline: the
- * fourth stage returns to the first. The arrow points back to say so.
+ * The closing note under the row, opened by a return arrow — what says the
+ * last stage comes back to the first rather than stopping. A section whose
+ * steps genuinely end simply leaves it out.
  */
-:root .sl-markdown-content .pi-cycle__return {
+:root .sl-markdown-content .pi-card__note {
 	margin: calc(var(--pi-unit) * 2) 0 0;
 	padding-top: calc(var(--pi-unit) * 1.25);
 	border-top: 1px solid var(--pi-rule);
@@ -1792,7 +1919,7 @@
 	color: var(--pi-ink-muted);
 	text-wrap: pretty;
 }
-:root .sl-markdown-content .pi-cycle__return::before {
+:root .sl-markdown-content .pi-card__note::before {
 	content: '\21ba\2002';
 	color: var(--pi-accent);
 }
@@ -1801,33 +1928,33 @@
 
 /* Two across before one, so the row does not go from four to a long column. */
 @media (width < 72rem) {
-	:root .sl-markdown-content .pi-cycle__steps {
+	:root .sl-markdown-content .pi-steps {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		row-gap: calc(var(--pi-unit) * 2.5);
 	}
 	/* The arrow only reads across a row; at the wrap it would point at a
 	   margin. Kept on the second column, dropped where a row begins. */
-	:root .sl-markdown-content .pi-cycle__step:nth-child(odd)::before {
+	:root .sl-markdown-content .pi-steps__step:nth-child(odd)::before {
 		content: none;
 	}
 }
 
 @media (width < 46rem) {
-	:root .sl-markdown-content .pi-cycle {
+	:root .sl-markdown-content .pi-card {
 		padding: calc(var(--pi-unit) * 3) var(--pi-panel-pad-x);
 	}
-	:root .sl-markdown-content .pi-cycle__card {
+	:root .sl-markdown-content .pi-card__sheet {
 		padding: calc(var(--pi-unit) * 2.5) var(--pi-panel-pad-x);
 	}
-	:root .sl-markdown-content .pi-cycle__steps {
+	:root .sl-markdown-content .pi-steps {
 		grid-template-columns: minmax(0, 1fr);
 	}
 	/* Stacked, the arrow turns down and sits above the stage it points into. */
-	:root .sl-markdown-content .pi-cycle__step::before,
-	:root .sl-markdown-content .pi-cycle__step:nth-child(odd)::before {
+	:root .sl-markdown-content .pi-steps__step::before,
+	:root .sl-markdown-content .pi-steps__step:nth-child(odd)::before {
 		content: none;
 	}
-	:root .sl-markdown-content .pi-cycle__step + .pi-cycle__step::before {
+	:root .sl-markdown-content .pi-steps__step + .pi-steps__step::before {
 		content: '\2193';
 		position: static;
 		display: block;
@@ -2024,7 +2151,19 @@
 	position: relative;
 	z-index: 2;
 	display: grid;
-	grid-template-columns: 2fr 1fr;
+	/*
+	 * Two thirds and one third OF THE MEASURE, not of the screen.
+	 *
+	 * A plain `2fr 1fr` divides the whole viewport, and then the outer gutters
+	 * come out of the columns — which on a wide screen leaves the aside's
+	 * third almost entirely gutter, with a sliver of text down the edge. So
+	 * the ratio is taken on the content width and each column keeps the gutter
+	 * beyond it, which is what holds the panels' own grounds out to the edges.
+	 */
+	--pi-end-content: calc(100vw - 2 * var(--pi-bleed-pad));
+	grid-template-columns:
+		calc(var(--pi-bleed-pad) + var(--pi-end-content) * 2 / 3)
+		1fr;
 	gap: 0;
 	align-items: stretch;
 }
@@ -2032,6 +2171,20 @@
 :root .sl-markdown-content .pi-end__grid > * {
 	min-width: 0;
 	padding: 112px var(--pi-panel-pad-x);
+}
+
+/*
+ * The band's outer edges; the inner two keep the panel gutter.
+ *
+ * After the shorthand above, not before it — same specificity, so the
+ * shorthand's `padding-inline` would otherwise win on source order and throw
+ * these away.
+ */
+:root .sl-markdown-content .pi-end__primary {
+	padding-inline-start: var(--pi-bleed-pad);
+}
+:root .sl-markdown-content .pi-end__aside {
+	padding-inline-end: var(--pi-bleed-pad);
 }
 
 /*
@@ -2459,6 +2612,27 @@
 	max-width: 24rem;
 }
 
+/*
+ * Starlight draws a hairline after the social icons to divide them from the
+ * scheme switch that follows. The landing page has no switch — it is pinned
+ * dark, see ThemeSelect.astro — so on that page the line divides the icons
+ * from nothing and reads as a stray mark at the end of the header.
+ *
+ * Keyed to what is in the group rather than to the page: the divider exists to
+ * separate the icons from the pickers, so it goes when there are no pickers.
+ * `:last-child` was the obvious way to say that and the wrong one — Astro
+ * leaves a <script> in the group, so the icons are never the last child.
+ *
+ * The rule is unlayered and Starlight's is in `@layer starlight.core`, so this
+ * wins regardless of specificity.
+ */
+:root
+	header.header
+	.right-group:not(:has(starlight-theme-select, starlight-lang-select))
+	.social-icons::after {
+	content: none;
+}
+
 /* ---- logo ---------------------------------------------------------------- */
 
 /*
@@ -2478,15 +2652,31 @@
  */
 :root header.header .site-title {
 	--pi-logo-height: 1.6rem;
-	display: block;
+	display: flex;
+	align-items: center;
 	width: calc(var(--pi-logo-height) * var(--pi-logo-ratio));
 	height: var(--pi-logo-height);
 	gap: 0;
 	line-height: 0;
 }
 
+/*
+ * Sizing ONLY — no `display`, which is why the box above is flex.
+ *
+ * Starlight ships a logo per scheme and hides the other with `display: none`
+ * from `@layer starlight.utils`, and unlayered CSS beats a layer at ANY
+ * specificity. A `display: block` here therefore overrode the hiding and put
+ * both marks in a box sized for one: in the dark scheme the visible one
+ * happened to be first and the black one spilled below unseen, while in the
+ * light scheme the invisible white one took the top slot and pushed the black
+ * mark out of the header.
+ *
+ * Leaving the display off entirely is what keeps the hiding working, and the
+ * flex container is what then makes the remaining mark fill the box —
+ * blockified as a flex item, rather than an inline image hung off a baseline
+ * in a line-height: 0 line box, which lifts it clean out of the header.
+ */
 :root header.header .site-title img {
-	display: block;
 	width: 100%;
 	height: 100%;
 }
@@ -2864,6 +3054,21 @@
 	padding: calc(var(--pi-unit) * 3) var(--pi-panel-pad-x)
 		calc(var(--pi-unit) * 2);
 	border-top: 1px solid var(--pi-rule);
+}
+
+/*
+ * The footer holds the measure with a cap on its content rather than with
+ * --pi-bleed-pad, because it is the one band that does NOT always run the
+ * width of the viewport: on a documentation page it is inside the main pane,
+ * beside a sidebar and a contents rail. A gutter measured off 100vw there is
+ * wider than the footer itself, which left the copyright line breaking one
+ * word per line. A max-width binds only when there is more room than the
+ * measure, which is exactly the condition this is for.
+ */
+:root .pi-footer__index,
+:root .pi-footer__end {
+	max-width: var(--pi-content-max);
+	margin-inline: auto;
 }
 
 :root .pi-footer__index {

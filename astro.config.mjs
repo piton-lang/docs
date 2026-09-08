@@ -38,6 +38,10 @@ export default defineConfig({
         // Adds a site index, the wordmark and a copyright line below
         // Starlight's own footer content.
         Footer: "./src/components/Footer.astro",
+        // The landing page is pinned to the dark scheme — it has no light
+        // version — and drops the scheme switch along with it.
+        ThemeProvider: "./src/components/ThemeProvider.astro",
+        ThemeSelect: "./src/components/ThemeSelect.astro",
       },
       head: [
         {
@@ -75,8 +79,8 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: "Introduction",
-          items: [{ autogenerate: { directory: "introduction" } }],
+          label: "Founding Thesis",
+          items: [{ autogenerate: { directory: "thesis" } }],
         },
         {
           label: "Getting Started",

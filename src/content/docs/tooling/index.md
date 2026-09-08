@@ -1,5 +1,5 @@
 ---
-title: CLI Compiler
+title: CLI
 description: Compiling, checking, building, and formatting Piton from the command line.
 sidebar:
   order: 1

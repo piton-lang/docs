@@ -1,0 +1,14 @@
+---
+/**
+ * Starlight ThemeSelect override — no scheme switch on the landing page.
+ *
+ * The page is pinned dark (see ThemeProvider.astro), so a control offering
+ * light would either lie or break it. Removed rather than disabled: a switch
+ * that cannot switch is worse than no switch.
+ */
+import Default from '@astrojs/starlight/components/ThemeSelect.astro';
+
+const isLanding = Astro.locals.starlightRoute.entry.data.template === 'splash';
+---
+
+{!isLanding && <Default><slot /></Default>}

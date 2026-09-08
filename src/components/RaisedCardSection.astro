@@ -1,0 +1,60 @@
+---
+/**
+ * Raised card section — a card standing off the graph field.
+ *
+ * The section that breaks the run of full-bleed bands: inset, so the ground
+ * shows around it, with a label, a heading, a lede, and whatever figure the
+ * card is built to carry.
+ *
+ * Steps are the figure it usually carries, so `steps` is a shortcut for the
+ * common case — pass it and the card renders a `<StepFlow>` for you. Anything
+ * else goes in the `figure` slot; a card with neither is just a card.
+ *
+ * Styling is in `src/styles/theme.css` under `.pi-card*`.
+ *
+ * ```mdx
+ * <RaisedCardSection
+ *   label="The lifecycle"
+ *   title="The specification is the source."
+ *   steps={[{ name: 'Specification', body: 'Structure and prose in one document.' }]}
+ *   note="A change starts at the specification, never in what it produced."
+ * >
+ *   The lede prose goes here, as ordinary Markdown.
+ * </RaisedCardSection>
+ * ```
+ */
+import StepFlow from './StepFlow.astro';
+
+interface Props {
+	/** Micro-label above the title — the section's name, set in the accent. */
+	label: string;
+	/** The card's heading. */
+	title: string;
+	/** Stages for the card's step flow. Omit to supply your own figure. */
+	steps?: { name: string; body: string }[];
+	/**
+	 * The closing line under the figure, opened by a return arrow.
+	 *
+	 * It is what says the last step comes back to the first rather than
+	 * stopping, so a sequence that genuinely ends leaves it out.
+	 */
+	note?: string;
+}
+
+const { label, title, steps, note } = Astro.props;
+---
+
+<div class="pi-card not-content">
+	<div class="pi-card__sheet">
+		<p class="pi-card__label">{label}</p>
+
+		<h2 class="pi-card__title">{title}</h2>
+
+		<div class="pi-card__lede"><slot /></div>
+
+		{steps && <StepFlow steps={steps} />}
+		<slot name="figure" />
+
+		{note && <p class="pi-card__note">{note}</p>}
+	</div>
+</div>

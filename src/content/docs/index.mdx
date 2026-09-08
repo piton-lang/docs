@@ -9,7 +9,7 @@ hero:
       link: /getting-started/
       icon: right-arrow
     - text: Why Piton Exists
-      link: /introduction/
+      link: /thesis/
       icon: open-book
       variant: minimal
     - text: Language Reference
@@ -19,6 +19,8 @@ hero:
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
+import SplitSection from "../../components/SplitSection.astro";
+import RaisedCardSection from "../../components/RaisedCardSection.astro";
 
 <CardGrid>
   <Card title="Structure and Prose as First-Class Peers" icon="document">
@@ -42,128 +44,105 @@ import { Card, CardGrid } from "@astrojs/starlight/components";
   </Card>
 </CardGrid>
 
-<div class="pi-split not-content">
-<div class="pi-split__lede">
+<SplitSection
+    label="The compile step"
+    title={["You write the shape.", "The agent builds the software."]}
+    cta={{ href: "/belay/", text: "The Belay framework" }}
+>
 
-<p class="pi-split__label">The compile step</p>
+    A Piton source is one document: the structure a machine can check, and the
+    prose only a person can write, in the same file. Belay compiles it into the
+    agentic Markdown your tools already read — skills, commands, instructions and
+    agents.
 
-<h2 class="pi-split__title">You write the shape.<br />The agent builds the software.</h2>
+    What you maintain is the specification. Everything downstream of it is build
+    output, and build output cannot drift from the thing that generated it.
 
-<p class="pi-split__body">A Piton source is one document: the structure a machine can check, and the
-prose only a person can write, in the same file. Belay compiles it into the
-agentic Markdown your tools already read — skills, commands, instructions and
-agents.</p>
+    <Fragment slot="example">
+        ```piton
+        use @piton/belay
 
-<p class="pi-split__body">What you maintain is the specification. Everything downstream of it is build
-output, and build output cannot drift from the thing that generated it.</p>
+        skill ReviewDiff:
+            description: Reviews a change for correctness and reuse.
+            useWhen: the user asks for a review of the current diff
 
-<a class="pi-split__cta" href="/belay/">The Belay framework</a>
+            prompt:
+                Read the diff, not the whole tree. Report a finding only when
+                you can name the input that breaks it, and say plainly what
+                the failure looks like.
 
-</div>
-<div class="pi-split__example">
+            checks:
+                - correctness
+                - reuse
+                - efficiency
+        ```
+    </Fragment>
+</SplitSection>
 
-```piton
-use @piton/belay
+<SplitSection
+    label="The language"
+    title="The prose inherits too."
+    cta={{ href: "/language/", text: "The language reference" }}
+    reverse
+>
 
-skill ReviewDiff:
-    description: Reviews a change for correctness and reuse.
-    useWhen: the user asks for a review of the current diff
+    An anchor is the one user-defined type: a named declaration that takes part in
+    inheritance, typing, exports and composition. A type constraint holds a
+    paragraph to the same contract it holds a number to, and a child extends a
+    sentence the way it extends any other property.
 
-    prompt:
-        Read the diff, not the whole tree. Report a finding only when
-        you can name the input that breaks it, and say plainly what
-        the failure looks like.
+    So the paragraph you wrote once has a single home. Everything that needs it
+    refers to it, and there is no second copy left to fall out of date.
 
-    checks:
-        - correctness
-        - reuse
-        - efficiency
-```
+    <Fragment slot="example">
+        ```piton
+        abstract anchor Component as component:
+            description:: string
+            accessibility:: string
 
-</div>
-</div>
+        component Button:
+            description: A single action, labelled with a verb.
 
-<div class="pi-split pi-split--reverse not-content">
-<div class="pi-split__lede">
+            accessibility:
+                Reachable by keyboard. The label is the accessible
+                name; never let an icon alone carry it.
 
-<p class="pi-split__label">The language</p>
+        anchor IconButton extends Button:
+            description:
+                + {super.description}
+                The label moves to a tooltip; the icon is decorative.
+        ```
+    </Fragment>
+</SplitSection>
 
-<h2 class="pi-split__title">The prose inherits too.</h2>
-
-<p class="pi-split__body">An anchor is the one user-defined type: a named declaration that takes part in
-inheritance, typing, exports and composition. A type constraint holds a
-paragraph to the same contract it holds a number to, and a child extends a
-sentence the way it extends any other property.</p>
-
-<p class="pi-split__body">So the paragraph you wrote once has a single home. Everything that needs it
-refers to it, and there is no second copy left to fall out of date.</p>
-
-<a class="pi-split__cta" href="/language/">The language reference</a>
-
-</div>
-<div class="pi-split__example">
-
-```piton
-abstract anchor Component as component:
-    description:: string
-    accessibility:: string
-
-component Button:
-    description: A single action, labelled with a verb.
-
-    accessibility:
-        Reachable by keyboard. The label is the accessible
-        name; never let an icon alone carry it.
-
-anchor IconButton extends Button:
-    description:
-        + {super.description}
-        The label moves to a tooltip; the icon is decorative.
-```
-
-</div>
-</div>
-
-<div class="pi-cycle not-content">
-<div class="pi-cycle__card">
-
-<p class="pi-cycle__label">The lifecycle</p>
-
-<h2 class="pi-cycle__title">The specification is the source. Everything else is output.</h2>
-
-<p class="pi-cycle__lede">Piton treats the agent as the compiler. What you keep is a document a machine
-can check and a person can read; what the agent produces is a build. The
-distinction matters because only one of the two is worth arguing about in
-review.</p>
-
-<ol class="pi-cycle__steps">
-<li class="pi-cycle__step">
-<p class="pi-cycle__step-name">Specification</p>
-<p class="pi-cycle__step-body">Structure and prose in one document. Anchors, inheritance and type constraints
-hold the parts a compiler can verify against the parts only a person can write.</p>
-</li>
-<li class="pi-cycle__step">
-<p class="pi-cycle__step-name">Compilation</p>
-<p class="pi-cycle__step-body">Belay lowers the spec into agentic Markdown. The agent reads that and does the
-work — it is the compiler, and the specification is its input.</p>
-</li>
-<li class="pi-cycle__step">
-<p class="pi-cycle__step-name">Software</p>
-<p class="pi-cycle__step-body">The application, its configuration, its documentation. Build artefacts:
-regenerate them and nothing of record has been lost.</p>
-</li>
-<li class="pi-cycle__step">
-<p class="pi-cycle__step-name">The team</p>
-<p class="pi-cycle__step-body">Read it, disagree with it, decide against it. The spec is the one artefact
-small enough to hold in your head and exact enough to be wrong.</p>
-</li>
-</ol>
-
-<p class="pi-cycle__return">A change starts at the specification, never in what it produced — which is what
-makes this a lifecycle and not a hand-off.</p>
-
-</div>
-</div>
+<RaisedCardSection
+    label="The lifecycle"
+    title="The specification is the source. Everything else is output."
+    steps={[
+        {
+            name: "Specification",
+            body: "Structure and prose in one document. Anchors, inheritance and type constraints hold the parts a compiler can verify against the parts only a person can write.",
+        },
+        {
+            name: "Compilation",
+            body: "Belay lowers the spec into agentic Markdown. The agent reads that and does the work — it is the compiler, and the specification is its input.",
+        },
+        {
+            name: "Software",
+            body: "The application, its configuration, its documentation. Build artefacts: regenerate them and nothing of record has been lost.",
+        },
+        {
+            name: "The team",
+            body: "Read it, disagree with it, decide against it. The spec is the one artefact small enough to hold in your head and exact enough to be wrong.",
+        },
+    ]}
+    note="A change starts at the specification, never in what it produced — which is what makes this a lifecycle and not a hand-off."
+>
+    Piton treats the agent as the compiler. What you keep is a document a machine
+    can check and a person can read; what the agent produces is a build. The
+    distinction matters because only one of the two is worth arguing about in
+    review.
+</RaisedCardSection>
 
 <div class="pi-versus not-content">
 <div class="pi-versus__grid">
@@ -249,7 +228,7 @@ else. Write one anchor, compile it, and read what comes out the other side.</p>
 itself, what it means to treat an agent as the compiler, and why the
 specification is the thing worth keeping.</p>
 
-<a class="pi-end__cta" href="/introduction/">Founding Thesis</a>
+<a class="pi-end__cta" href="/thesis/">Founding Thesis</a>
 
 </div>
 

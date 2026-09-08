@@ -1,0 +1,32 @@
+---
+/**
+ * Starlight ThemeProvider override — the landing page is dark, always.
+ *
+ * The homepage is a designed object rather than a document: black bands, a red
+ * burst, a paper panel inside one of them, all of it built on a ground that is
+ * dark in both schemes. There is no light version of it to switch to, so the
+ * scheme is pinned here and the switch itself is removed from this page (see
+ * ThemeSelect.astro). Documentation pages are unaffected.
+ *
+ * Starlight's own provider still runs: it defines window.StarlightThemeProvider
+ * and reads the stored preference, and this only overrides the attribute it set
+ * — so nothing is written to localStorage and a reader who keeps the docs in
+ * light mode still finds them in light mode when they leave this page.
+ *
+ * Inline and immediately after the default, for the reason Starlight's own
+ * script is inline: any later and the page would paint light first.
+ */
+import Default from '@astrojs/starlight/components/ThemeProvider.astro';
+
+const isLanding = Astro.locals.starlightRoute.entry.data.template === 'splash';
+---
+
+<Default><slot /></Default>
+
+{
+	isLanding && (
+		<script is:inline>
+			document.documentElement.dataset.theme = 'dark';
+		</script>
+	)
+}

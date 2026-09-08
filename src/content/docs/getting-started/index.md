@@ -5,6 +5,8 @@ sidebar:
   order: 1
 ---
 
+## Clone and Install
+
 Piton is built from source with a recent stable Rust toolchain, and needs
 nothing else.
 
@@ -25,7 +27,7 @@ piton --version
 
 If that fails, the binary is not on your `PATH`.
 
-## Installing elsewhere
+## Installing Elsewhere
 
 `cargo xtask install --dest DIR` puts the binary somewhere else, and
 `cargo xtask uninstall` removes it.
