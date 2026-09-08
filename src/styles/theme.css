@@ -606,6 +606,20 @@
 	/* Film grain: single-octave turbulence at high frequency reads as
 	   emulsion; multi-octave fractal noise reads as smoke. */
 	--pi-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.6'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+	/*
+	 * An 8x8 ordered (Bayer) threshold map — the classic dither matrix, one
+	 * cell per pixel, as an 8x8 PNG rather than an SVG so that "one cell" is
+	 * literal and nothing is ever interpolated.
+	 *
+	 * This does the job random grain was being asked to do. Noise fights
+	 * banding statistically: it has to be loud enough that its variance
+	 * swamps the step, which is why it kept reading as noise long before it
+	 * stopped reading as bands. An ordered map breaks the same edges
+	 * deterministically — every band boundary is crossed by the same regular
+	 * pattern — so it works at a fraction of the amplitude, low enough to be
+	 * invisible as texture.
+	 */
+	--pi-dither: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAAAAADhZOFXAAAAU0lEQVR42gFIALf/AAKBIqEKiSqpAMFC4WLJSulqADKxEpE6uRqZAPFy0VL5etlaAA6NLq0GhSalAM1O7W7FRuVmAD69Hp02tRaVAP1+3V71dtVWPQQf4Q2/KDkAAAAASUVORK5CYII=');
 	--pi-grid-ink: rgba(244, 243, 239, 0.045);
 }
 :root:root[data-theme='light'] {
@@ -1133,12 +1147,22 @@
 	/*
 	 * The source behind the sheet, at the top centre — the same direction the
 	 * sheen's 158deg is lit from, so the pane has one light on it rather than
-	 * two. It is that sheen concentrated into one place rather than a colour
-	 * laid over the glass, which is why it is achromatic: the mint wash
-	 * crosses the same pane, and anything with a hue of its own muddies where
-	 * they meet.
+	 * two. Achromatic on purpose: the mint wash crosses the same pane, and
+	 * anything with a hue of its own muddies where they meet.
+	 *
+	 * One gradient, two stops. A layered version with a hot core was tried and
+	 * abandoned: stacking three ramps multiplies the number of places the
+	 * slope can change, and every one of those is somewhere the eye can find
+	 * an edge. A single wide ramp is the smoothest thing available here.
+	 *
+	 * It is still a big, low-contrast gradient on a dark ground, which is the
+	 * textbook case for 8-bit banding — there are only so many distinct values
+	 * between #050505 and #2e2e2e, and the ramp is hundreds of pixels long. The
+	 * ordered dither is what breaks those steps up; see --pi-dither, which is
+	 * masked to this same shape for exactly that reason.
 	 */
 	--pi-glass-source: rgba(255, 255, 255, 0.18);
+
 	--pi-glass-sheen: linear-gradient(
 		158deg,
 		rgba(255, 255, 255, 0.045) 0%,
@@ -1154,6 +1178,15 @@
 	 */
 	--pi-glass-grain: 0.2;
 	--pi-glass-grain-blend: overlay;
+	/*
+	 * How hard the dither pushes. One value serves both schemes: the map is
+	 * composited normally rather than through a blend mode, so its light cells
+	 * lift a dark ground and its dark cells sink a light one without being
+	 * told which it is on. At 0.022 the swing is about five code values —
+	 * several quantisation steps, which is what it takes to smear a band edge,
+	 * and far below where an 8px pattern becomes visible as a pattern.
+	 */
+	--pi-glass-dither: 0.022;
 }
 
 :root:root[data-theme='light'] {
@@ -1177,10 +1210,13 @@
 	/*
 	 * White light cannot brighten a white sheet, so the source inverts with
 	 * the material like everything else here: the pane reads as shaded from
-	 * above rather than as lit from behind. Lower than the
-	 * dark scheme's 0.12 because a light ground shows darkening more readily
-	 * than a dark ground shows light. At its peak it takes the muted text's
-	 * 7.5:1 down to 6.0:1, which is the floor for this pane.
+	 * above rather than as lit from behind.
+	 *
+	 * Weaker than the dark scheme because a light ground shows darkening far
+	 * more readily than a dark ground shows light. This and the two multiply
+	 * grain plates all darken the same place, and together they take the muted
+	 * text from 7.5:1 to about 5.1:1 at the top of the pane, which is the
+	 * floor here. Raising any of the three eats the same budget.
 	 */
 	--pi-glass-source: rgba(0, 0, 0, 0.1);
 	/*
@@ -1339,6 +1375,47 @@
 	background-size: 140px 140px;
 	mix-blend-mode: var(--pi-glass-grain-blend);
 	opacity: var(--pi-glass-grain);
+}
+
+/*
+ * The dither plate. ::before rather than a second ::after; it is absolutely
+ * positioned for the same reason, so it does not become a grid item, and it
+ * paints before ::after so the pane's grain still crosses it.
+ *
+ * NO mix-blend-mode. A dither wants to offset a value, and the blend modes
+ * available here scale it instead — overlay multiplies against the ground, so
+ * its effect collapses toward black exactly where this ramp is darkest and
+ * bands worst. Composited normally, a light cell lifts and a dark cell sinks
+ * by the same small amount whatever the ground is doing.
+ *
+ * `pixelated` because the map is only a dither while its cells stay square
+ * and hard-edged; smoothed, it is just another soft gradient with the same
+ * banding problem. 8px tile, 8x8 matrix — one cell per CSS pixel.
+ *
+ * The mask follows the source's own 90% 120% ellipse and outlasts it — the
+ * ramp is gone by 68%, the dither by 82% — so it never stops while there is
+ * still a ramp under it, which would trade banding for a visible edge where
+ * the dithering ends.
+ */
+:root .sl-markdown-content .card-grid::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background-image: var(--pi-dither);
+	background-size: 8px 8px;
+	image-rendering: pixelated;
+	opacity: var(--pi-glass-dither);
+	--pi-dither-mask: radial-gradient(
+		90% 120% at 50% 0%,
+		rgba(0, 0, 0, 1) 0%,
+		rgba(0, 0, 0, 0.55) 34%,
+		rgba(0, 0, 0, 0.18) 55%,
+		rgba(0, 0, 0, 0) 82%
+	);
+	-webkit-mask-image: var(--pi-dither-mask);
+	mask-image: var(--pi-dither-mask);
 }
 
 :root .sl-markdown-content .card {
