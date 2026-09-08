@@ -827,7 +827,39 @@
  * fading to black. `farthest-corner` sizes the gradient to reach the opposite
  * corner, so it stretches across the whole container at any width.
  */
-:root main > .content-panel:first-of-type {
+/*
+ * The title banner. On docs pages that is the first content panel; on the
+ * splash it is .hero itself (see below) — the splash panel is excluded because
+ * it ALSO contains the markdown content, so painting it would run the banner
+ * behind the quadrants.
+ *
+ * Both carry the same black ground and the same red burst from the
+ * bottom-right corner.
+ */
+:root main > .content-panel:first-of-type:not(:has(.hero)) {
+	background-color: var(--pi-title-block);
+	background-image: radial-gradient(
+		farthest-corner at 100% 100%,
+		var(--pi-accent) 0%,
+		color-mix(in srgb, var(--pi-accent) 45%, #000) 34%,
+		#000 78%
+	);
+	border-bottom: 1px solid var(--pi-rule);
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+}
+
+/*
+ * The hero is its own band: black, with the red burst from the bottom-right.
+ * It bleeds the full viewport width so the band spans the page, while its
+ * padding keeps the content inset. Everything below it — the quadrants — sits
+ * on the paper sheet as normal.
+ */
+:root .hero {
+	width: 100vw;
+	margin-inline: calc(50% - 50vw);
+	padding-inline: var(--pi-panel-pad-x);
 	background-color: var(--pi-title-block);
 	background-image: radial-gradient(
 		farthest-corner at 100% 100%,
@@ -853,7 +885,8 @@
  * multi-octave fractal noise reads as smoke. Overlay keeps it luminance-only,
  * so it grains the red and the black alike.
  */
-:root main > .content-panel:first-of-type::after {
+:root main > .content-panel:first-of-type:not(:has(.hero))::after,
+:root .hero::after {
 	content: '';
 	position: absolute;
 	inset: 0;
@@ -876,7 +909,8 @@
  * scheme's ink (#111) and go dark-on-dark — they inherit from tokens, not from
  * a colour set here, so overriding `color` alone does not reach them.
  */
-:root main > .content-panel:first-of-type {
+:root main > .content-panel:first-of-type:not(:has(.hero)),
+:root .hero {
 	--sl-color-white: #f4f3ef;
 	--sl-color-text: #e8e8e9;
 	--sl-color-text-accent: #f4f3ef;
@@ -909,7 +943,8 @@
 
 /* The burst is decoration; it must not survive into print or high-contrast. */
 @media print, (prefers-contrast: more) {
-	:root main > .content-panel:first-of-type::before {
+	:root main > .content-panel:first-of-type:not(:has(.hero))::after,
+	:root .hero::after {
 		display: none;
 	}
 }
@@ -996,6 +1031,14 @@
 	--pi-obsidian-grain: 0.2;
 }
 
+/*
+ * Starlight puts `margin-top: 1.5rem` between siblings in .sl-container, which
+ * opened a gap between the hero band and the quadrants. They should meet.
+ */
+:root .sl-container > .hero + .sl-markdown-content {
+	margin-top: 0;
+}
+
 :root .sl-markdown-content .card-grid {
 	/* to the page edge: .sl-container caps children at --sl-content-width */
 	width: 100vw;
@@ -1005,8 +1048,18 @@
 	gap: 0;
 
 	background-color: var(--pi-obsidian);
-	/* sheen: light crossing the pane, not a glow */
-	background-image: var(--pi-obsidian-sheen);
+	/*
+	 * Two layers: a golden wash rising from the bottom centre, over the sheen
+	 * that crosses the pane. The gold is listed first so it sits above the
+	 * sheen and reads as light coming up through the glass.
+	 */
+	background-image:
+		radial-gradient(
+			90% 120% at 50% 100%,
+			var(--pi-glow-gold) 0%,
+			transparent 68%
+		),
+		var(--pi-obsidian-sheen);
 	border-block: 1px solid var(--pi-rule);
 	color: var(--pi-obsidian-muted);
 }
@@ -1247,8 +1300,28 @@
 :root .content-panel:has(footer) > .sl-container {
 	flex: 1 1 auto;
 }
+/*
+ * This theme overrides Starlight's Footer component, and Astro scopes styles
+ * per component — so `footer:where(.astro-ddtxxk7k)` no longer matches and the
+ * layout it provided (column direction, gap, the .meta block) has to be
+ * restated here. Without it the footer falls back to `display: flex` in row
+ * direction and lays the meta, pagination and index out side by side.
+ */
 :root footer.sl-flex {
+	flex-direction: column;
+	gap: calc(var(--pi-unit) * 1.5);
 	margin-block-start: auto;
+}
+:root footer.sl-flex > .meta {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: calc(var(--pi-unit) * 0.5) calc(var(--pi-unit) * 2);
+	font-size: var(--sl-text-sm);
+	color: var(--pi-ink-muted);
+}
+:root footer.sl-flex > .meta:empty {
+	display: none;
 }
 
 /* Override the variable, not the longhand: `padding-bottom: 0` is an initial
@@ -1282,7 +1355,13 @@
 }
 :root .content-panel:has(footer) > .sl-container > .sl-markdown-content {
 	max-width: var(--sl-content-width);
-	margin-inline: var(--sl-content-margin-inline, auto);
+	/*
+	 * Flush left, not `--sl-content-margin-inline` (which is `auto 0` at wide
+	 * widths). Full-bleed children — code blocks, section bands, pagination —
+	 * pull back by the panel padding from THIS box, so if the column is
+	 * centred they stop short of the panel's left edge on a wide screen.
+	 */
+	margin-inline: 0;
 	width: 100%;
 }
 
@@ -1303,92 +1382,38 @@
 	font-weight: 600;
 }
 
-/* ---- header: search aligned to the content's left edge ------------------ */
+/* ---- header layout ------------------------------------------------------ */
 
 /*
- * Starlight sizes the header's first column from --sl-content-pad-x, on the
- * assumption that the content starts at
+ * Three parts: the logo at natural width, a growing middle that holds the
+ * search, and the right group (theme switch, GitHub) at natural width.
  *
- *     --sl-content-inline-start + --sl-content-pad-x
- *
- * This theme pads .content-panel with --pi-panel-pad-x instead, which is much
- * wider, so the search box stopped short of the actual text edge.
- *
- * The search begins at: header padding + column 1 + the grid gap. Solving for
- * column 1 so that lands on the content edge:
- *
- *     col1 = sidebar + panel-pad - nav-pad - gap
- *
- * and since --sl-nav-pad-x and --sl-nav-gap both resolve to --pi-gutter here,
- * that is sidebar + panel-pad - 2 * gutter.
+ * Starlight lays the header out as a grid whose first column is computed from
+ * --sl-content-pad-x, to line the search up with the content column. This
+ * theme pads the content panel with a different variable, so that computation
+ * never matched and the columns came out wrong. Flex is simpler and needs no
+ * arithmetic: the middle takes whatever is left.
  */
-@media (width >= 50rem) {
-	:root[data-has-sidebar] header.header > .header {
-		grid-template-columns:
-			minmax(
-				calc(
-					var(--sl-sidebar-width) + var(--pi-panel-pad-x) - 2 *
-						var(--pi-gutter)
-				),
-				auto
-			)
-			1fr
-			auto;
-	}
+:root header.header > .header {
+	display: flex;
+	align-items: center;
+	gap: var(--pi-gutter);
 }
 
-/* ---- no terminal chrome ------------------------------------------------- */
-
-/*
- * Expressive Code renders shell languages as a "terminal" frame: a title bar
- * with three macOS-style traffic-light dots drawn by .header::before. Nothing
- * else in this design imitates an application window, so the header is removed
- * and terminal blocks render as plain plates like every other code block.
- */
-:root .expressive-code .frame.is-terminal .header {
-	display: none;
-}
-:root .expressive-code .frame.is-terminal {
-	--ec-frm-trmBg: transparent;
-	--code-background: transparent;
-}
-:root .expressive-code .frame.is-terminal pre,
-:root .expressive-code .frame.is-terminal code {
-	border-top: 0;
+:root header.header > .header > .title-wrapper,
+:root header.header > .header > .right-group {
+	flex: 0 0 auto;
 }
 
-/* ---- page title face ---------------------------------------------------- */
-
-/* h1#_top is the page title on docs pages and the hero title on the splash. */
-:root h1#_top {
-	font-family: var(--pi-display);
-	text-transform: uppercase;
-	/* Condensed caps set tight; open the tracking back up so they breathe. */
-	letter-spacing: 0.02em;
+/* The middle grows; the search inside it does not fill the whole of it. */
+:root header.header > .header > div:has(site-search) {
+	flex: 1 1 auto;
+	min-width: 0;
 }
-
-/* ---- on-this-page: reachable end, legible current item ------------------ */
-
-/*
- * The panel is `position: fixed; height: 100vh; padding-top: var(--sl-nav-height)`,
- * so a long list ends flush against the viewport edge with nothing below it.
- * Bottom padding gives the last entries somewhere to scroll to.
- */
-:root .right-sidebar-panel {
-	padding-block-end: calc(var(--pi-unit) * 6);
-}
-
-/*
- * The current heading was marked only by --sl-color-text-accent, which this
- * theme maps to the ink — nearly the same value as an inactive entry, so it
- * read as no tracking at all. Mark it with the accent and weight instead.
- */
-:root .right-sidebar-panel a[aria-current='true'] {
-	color: var(--pi-ink);
-	font-weight: 600;
-}
-:root .right-sidebar-panel a[aria-current='true']::after {
-	color: var(--pi-accent);
+:root header.header site-search {
+	display: block;
+	width: 100%;
+	max-width: 24rem;
 }
 
 /* ---- logo ---------------------------------------------------------------- */
@@ -1453,30 +1478,75 @@
  */
 :root .hero .actions {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: repeat(3, 1fr);
 	gap: 0;
-	width: min(100%, 26rem);
+	width: min(100%, 40rem);
 	margin: 0;
 	/* One frame around the pair, not around each button — the division
 	   between them is the carved cut, not a second border. */
 	border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
+/*
+ * Starlight's `.minimal` variant sets `padding-inline: 0` and its own font
+ * size, so every property that matters is restated here rather than relying on
+ * the shorthand surviving. The icon is brought down from its 1.5rem default,
+ * which is larger than the label beside it.
+ */
 :root .hero .sl-link-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5em;
+	width: 100%;
+	min-width: 0;
+	margin: 0;
 	border: 0;
 	border-radius: 0;
-	margin: 0;
-	justify-content: center;
-	padding: calc(var(--pi-unit) * 1.4) calc(var(--pi-unit) * 1.2);
-	font-size: var(--sl-text-base);
+	padding-block: calc(var(--pi-unit) * 1.4);
+	padding-inline: calc(var(--pi-unit) * 1.2);
+	font-size: var(--sl-text-sm);
 	font-weight: 600;
+	line-height: 1.2;
+	text-align: center;
+	text-decoration: none;
+}
+
+:root .hero .sl-link-button svg {
+	--sl-icon-size: 1em;
+	width: 1em;
+	height: 1em;
+}
+
+/*
+ * The cut falls between every pair: the button before each division draws the
+ * dark wall, the one after it draws the lit lip.
+ */
+:root .hero .sl-link-button:not(:last-child) {
+	border-inline-end: 1px solid var(--pi-obsidian-cut);
+}
+:root .hero .sl-link-button:not(:first-child) {
+	box-shadow: inset 1px 0 0 var(--pi-obsidian-lip);
+}
+
+/* Below 46rem three across is unreadable; stack them and turn the cuts. */
+@media (width < 46rem) {
+	:root .hero .actions {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	:root .hero .sl-link-button:not(:last-child) {
+		border-inline-end: 0;
+		border-block-end: 1px solid var(--pi-obsidian-cut);
+	}
+	:root .hero .sl-link-button:not(:first-child) {
+		box-shadow: inset 0 1px 0 var(--pi-obsidian-lip);
+	}
 }
 
 /* Primary: the contrast is white, dark text on it (17.01:1). */
 :root .hero .sl-link-button.primary {
 	background: #f4f3ef;
 	color: #111111;
-	border-inline-end: 1px solid var(--pi-obsidian-cut);
 }
 :root .hero .sl-link-button.primary:hover {
 	background: #ffffff;
@@ -1491,7 +1561,6 @@
 :root .hero .sl-link-button:not(.primary) {
 	background: rgba(255, 255, 255, 0.07);
 	color: var(--pi-obsidian-ink);
-	box-shadow: inset 1px 0 0 var(--pi-obsidian-lip);
 }
 :root .hero .sl-link-button:not(.primary):hover {
 	background: rgba(255, 255, 255, 0.13);
@@ -1711,4 +1780,141 @@
 :root .expressive-code {
 	--ec-frm-tooltipSuccessBg: #4bf3c8;
 	--ec-frm-tooltipSuccessFg: #111111;
+}
+
+/* ============================================================================
+ * FOOTER — site index, wordmark, copyright
+ *
+ * A contents page at the foot of every document: the sidebar's own groups set
+ * in columns, then the mark and the copyright on one hairline-separated row.
+ * Bleeds to the container edge like the pagination above it.
+ * ==========================================================================*/
+
+:root .pi-footer {
+	margin-inline: calc(-1 * var(--pi-panel-pad-x));
+	padding: calc(var(--pi-unit) * 3) var(--pi-panel-pad-x)
+		calc(var(--pi-unit) * 2);
+	border-top: 1px solid var(--pi-rule);
+}
+
+:root .pi-footer__index {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+	gap: calc(var(--pi-unit) * 2) calc(var(--pi-unit) * 2.5);
+}
+
+/* Group labels use the same micro-label treatment as the sidebar and tables. */
+:root .pi-footer__group h2 {
+	margin: 0 0 calc(var(--pi-unit) * 0.75);
+	padding-bottom: calc(var(--pi-unit) * 0.4);
+	border-bottom: 1px solid var(--pi-rule);
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pi-ink-muted);
+}
+
+:root .pi-footer__group ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+:root .pi-footer__group li + li {
+	margin-top: calc(var(--pi-unit) * 0.35);
+}
+:root .pi-footer__group a {
+	color: var(--pi-ink);
+	font-size: var(--sl-text-sm);
+	text-decoration: none;
+}
+:root .pi-footer__group a:hover {
+	text-decoration: underline;
+	text-decoration-color: var(--pi-accent);
+	text-underline-offset: 0.18em;
+}
+
+/* Mark and copyright, separated from the index by a rule. */
+:root .pi-footer__end {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: calc(var(--pi-unit) * 1.5);
+	flex-wrap: wrap;
+	margin-top: calc(var(--pi-unit) * 3);
+	padding-top: calc(var(--pi-unit) * 1.5);
+	border-top: 1px solid var(--pi-rule);
+}
+
+/* Masked, so the mark takes the sheet's ink in either scheme. */
+:root .pi-footer__mark {
+	display: block;
+	width: 7rem;
+	aspect-ratio: 213.56628 / 58.608307;
+	background-color: currentColor;
+	color: var(--pi-ink);
+	-webkit-mask: url('/logo.svg') no-repeat left center / contain;
+	mask: url('/logo.svg') no-repeat left center / contain;
+}
+
+:root .pi-footer__copy {
+	margin: 0;
+	font-size: var(--sl-text-xs);
+	color: var(--pi-ink-muted);
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---- no frame header, ever ---------------------------------------------- */
+
+/*
+ * Expressive Code wraps every block in <figure class="frame"> with a
+ * <figcaption class="header">. Code blocks in this design carry no caption or
+ * title bar of any kind — not for terminals, not for titled blocks, not empty.
+ * Do not reintroduce one.
+ */
+:root .expressive-code figcaption,
+:root .expressive-code .frame .header,
+:root .expressive-code .frame .title {
+	display: none !important;
+}
+
+/* ---- homepage glow ------------------------------------------------------ */
+
+/*
+ * A wash from the bottom-left across the whole homepage, in the same mint as
+ * the "Copied" tooltip — the one cool note in a palette that is otherwise ink,
+ * paper and red. It sits on the sheet, so the hero's black band covers it at
+ * the top and the semi-transparent quadrants let it through below.
+ *
+ * `farthest-corner` reaches the opposite corner at any size, and the fixed
+ * attachment anchors it to the viewport so it reads as a property of the page
+ * rather than of the scrolling content.
+ *
+ * Scoped with :has(.hero) — the homepage only.
+ */
+:root:root {
+	--pi-glow: color-mix(in srgb, #4bf3c8 16%, transparent);
+	/* The panes are obsidian in both schemes, so one value serves both. */
+	--pi-glow-gold: color-mix(in srgb, #ffc247 20%, transparent);
+}
+:root:root[data-theme='light'] {
+	--pi-glow: color-mix(in srgb, #4bf3c8 32%, transparent);
+}
+
+:root .main-pane:has(.hero) {
+	background-image: radial-gradient(
+		farthest-corner at 0% 100%,
+		var(--pi-glow) 0%,
+		transparent 62%
+	);
+	background-attachment: fixed;
+}
+
+/* Documentation pages keep the copyright only: no index, no mark, and no rule
+   above a row that now holds a single line. */
+:root .pi-footer--minimal .pi-footer__end {
+	margin-top: 0;
+	padding-top: 0;
+	border-top: 0;
+	justify-content: flex-start;
 }

@@ -35,6 +35,11 @@ export default defineConfig({
 				// theme partners it for the light scheme.
 				themes: ['houston', 'github-light'],
 			},
+			components: {
+				// Adds a site index, the wordmark and a copyright line below
+				// Starlight's own footer content.
+				Footer: './src/components/Footer.astro',
+			},
 			head: [
 				{
 					// Adds tail distribution and click intent to the on-this-page

@@ -1,0 +1,72 @@
+---
+/**
+ * Starlight Footer override.
+ *
+ * Keeps everything Starlight puts here (edit link, last updated, pagination)
+ * and adds a contents-style site index, the wordmark, and a copyright line.
+ *
+ * The index is built from `starlightRoute.sidebar`, so it is the same tree as
+ * the sidebar and cannot drift from it — adding a page or a group updates the
+ * footer with no edit here.
+ */
+import EditLink from 'virtual:starlight/components/EditLink';
+import LastUpdated from 'virtual:starlight/components/LastUpdated';
+import Pagination from 'virtual:starlight/components/Pagination';
+
+const route = Astro.locals.starlightRoute;
+const sidebar = route.sidebar;
+
+/*
+ * The site index and the wordmark are a landing-page footer. Documentation
+ * pages already carry the sidebar and the prev/next block, so they keep the
+ * copyright alone.
+ */
+const isLanding = route.entry.data.template === 'splash';
+
+/** Flatten a group's entries to plain links, one level deep. */
+const linksOf = (entry: any): { label: string; href: string }[] => {
+	if (!entry) return [];
+	if (entry.type === 'link') return [{ label: entry.label, href: entry.href }];
+	return (entry.entries ?? []).flatMap(linksOf);
+};
+
+const groups = sidebar
+	.filter((entry: any) => entry.type === 'group')
+	.map((group: any) => ({ label: group.label, links: linksOf(group) }));
+
+const year = new Date().getFullYear();
+---
+
+<footer class="sl-flex">
+	<div class="meta sl-flex">
+		<EditLink />
+		<LastUpdated />
+	</div>
+	<Pagination />
+
+	<div class:list={['pi-footer', { 'pi-footer--minimal': !isLanding }]}>
+		{isLanding && (
+		<nav class="pi-footer__index" aria-label="Site index">
+			{
+				groups.map((group: any) => (
+					<div class="pi-footer__group">
+						<h2>{group.label}</h2>
+						<ul>
+							{group.links.map((link: any) => (
+								<li>
+									<a href={link.href}>{link.label}</a>
+								</li>
+							))}
+						</ul>
+					</div>
+				))
+			}
+		</nav>
+		)}
+
+		<div class="pi-footer__end">
+			{isLanding && <span class="pi-footer__mark" aria-hidden="true" />}
+			<p class="pi-footer__copy">&copy; {year} McTavish Dynamics</p>
+		</div>
+	</div>
+</footer>
