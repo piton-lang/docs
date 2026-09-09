@@ -17,7 +17,12 @@ than only the keystrokes.
   specification into `agent`, `concept`, `lib`, and `shape`, and write scoped
   skills whose `useWhen` field does the routing.
 
-They are meant to be read in order; the second assumes the first.
+- [Specifying an Existing Codebase](/tutorials/existing-codebase/) — the other
+  direction: use `piton claude` to give Claude the language, then drive it
+  through writing a specification for code you already have.
+
+The first two are meant to be read in order; the second assumes the first, and
+the third assumes both.
 
 If you do not have the compiler yet, start with
 [Installation](/getting-started/).

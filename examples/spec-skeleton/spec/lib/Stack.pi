@@ -1,0 +1,6 @@
+export abstract anchor Stack as stack:
+    name:: string
+    language:: string
+    build:: string
+    entryPoint:: string
+    conventions:: string[]

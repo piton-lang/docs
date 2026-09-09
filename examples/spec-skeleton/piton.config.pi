@@ -1,0 +1,22 @@
+use @piton/config
+use @piton/belay
+
+from @piton/belay import ClaudeAdapter
+
+export piton-config Config:
+    root: ./spec
+    entry: ./spec/index.pi
+
+    frameworks:
+        - {BelayFrameworkConfig}
+
+belay-config BelayFrameworkConfig:
+    // The codebase you are describing. Point this at the source you already
+    // have. This config also declares a shapeRoot, which mirrors codeRoot
+    // directory for directory — that is what makes an instruction compile
+    // next to the code it describes.
+    codeRoot: ./src/
+    shapeRoot: ./spec/shape/
+
+    adapters:
+        - {ClaudeAdapter}

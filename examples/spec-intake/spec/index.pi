@@ -1,0 +1,4 @@
+// The entry point. Only what is reachable from here is compiled, so every
+// file the agent writes has to end up exported from this file.
+//
+// Empty for now — it compiles, and it writes nothing.

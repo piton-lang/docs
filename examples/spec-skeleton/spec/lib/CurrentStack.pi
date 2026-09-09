@@ -1,0 +1,12 @@
+use /lib/Stack
+
+// Replace these with the stack the codebase actually uses. Everything else in
+// the specification refers to it as `Stack`, never by name.
+export stack Current:
+    name: TypeScript
+    language: TypeScript
+    build: Vite
+    entryPoint: src/main.ts
+
+    conventions:
+        - Describe a convention the code already follows, not one you wish it did.
