@@ -47,6 +47,9 @@ export default defineConfig({
         // version — and drops the scheme switch along with it.
         ThemeProvider: "./src/components/ThemeProvider.astro",
         ThemeSelect: "./src/components/ThemeSelect.astro",
+        // Splits the sidebar into sections behind a vertical tab strip; the
+        // menu below the strip is the selected section's.
+        Sidebar: "./src/components/Sidebar.astro",
       },
       head: [
         {
@@ -82,26 +85,64 @@ export default defineConfig({
           href: "https://github.com/piton-lang/piton-rs",
         },
       ],
+      // The sidebar is a set of SECTIONS, one per top-level group. The
+      // Sidebar override (src/components/Sidebar.astro) turns these into a
+      // vertical tab strip and shows one section's menu at a time, so every
+      // top-level entry here must be a group — it is a tab.
+      //
+      // Inside a section, the groups are what Starlight renders as collapsible
+      // <details>, so a section's items must be groups too, never bare
+      // autogenerate: a section built straight from a directory produces a
+      // flat list with nothing to collapse.
       sidebar: [
         {
-          label: "Founding Thesis",
-          items: [{ autogenerate: { directory: "thesis" } }],
+          label: "Introduction",
+          items: [
+            {
+              label: "Founding Thesis",
+              items: [{ autogenerate: { directory: "thesis" } }],
+            },
+          ],
         },
         {
           label: "Getting Started",
-          items: [{ autogenerate: { directory: "getting-started" } }],
+          items: [
+            {
+              label: "Setup",
+              items: [{ autogenerate: { directory: "getting-started" } }],
+            },
+          ],
         },
         {
-          label: "The Language",
-          items: [{ autogenerate: { directory: "language" } }],
+          label: "Belay Framework",
+          items: [
+            {
+              label: "Belay",
+              items: [{ autogenerate: { directory: "belay" } }],
+            },
+          ],
         },
         {
-          label: "Tooling",
-          items: [{ autogenerate: { directory: "tooling" } }],
+          label: "Reference",
+          items: [
+            {
+              label: "The Language",
+              items: [{ autogenerate: { directory: "language" } }],
+            },
+            {
+              label: "Tooling",
+              items: [{ autogenerate: { directory: "tooling" } }],
+            },
+          ],
         },
         {
-          label: "Belay",
-          items: [{ autogenerate: { directory: "belay" } }],
+          label: "Tutorials",
+          items: [
+            {
+              label: "Guides",
+              items: [{ autogenerate: { directory: "tutorials" } }],
+            },
+          ],
         },
       ],
     }),

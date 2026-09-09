@@ -30,9 +30,20 @@ const linksOf = (entry: any): { label: string; href: string }[] => {
 	return (entry.entries ?? []).flatMap(linksOf);
 };
 
-const groups = sidebar
-	.filter((entry: any) => entry.type === 'group')
-	.map((group: any) => ({ label: group.label, links: linksOf(group) }));
+/*
+ * One column per smallest group. The sidebar's top level is now sections, and
+ * a section that is wholly divided into groups (Introduction) contributes
+ * those groups rather than one long column of everything beneath it. A section
+ * that also holds loose pages stays a single column, so nothing is dropped.
+ */
+const columnsOf = (entry: any): { label: string; links: ReturnType<typeof linksOf> }[] => {
+	const children = entry.entries ?? [];
+	return children.length > 0 && children.every((child: any) => child.type === 'group')
+		? children.flatMap(columnsOf)
+		: [{ label: entry.label, links: linksOf(entry) }];
+};
+
+const groups = sidebar.filter((entry: any) => entry.type === 'group').flatMap(columnsOf);
 
 const year = new Date().getFullYear();
 ---

@@ -1,0 +1,129 @@
+---
+/*
+ * SECTION TABS — an override of Starlight's Sidebar.
+ *
+ * The docs are split into sections (Introduction, Getting Started, Reference,
+ * Tutorials, Examples). Rather than stacking every section's menu in one long
+ * column, the panel shows a vertical tab strip at the top and one section's
+ * menu below it.
+ *
+ * The sections ARE the top-level entries of `sidebar` in astro.config.mjs —
+ * there is no second list to keep in step. Every top-level entry must be a
+ * group; a bare link there would have no menu to show.
+ *
+ * Starlight's own <Tabs> is not used here: it derives its panels by
+ * post-processing rendered slot HTML, is laid out horizontally, keys on
+ * ArrowLeft/ArrowRight, and always opens on the first tab. A sidebar needs to
+ * open on the section holding the current page, which is what `activeIndex`
+ * below does. The ARIA roles are the standard ones either way.
+ */
+import MobileMenuFooter from 'virtual:starlight/components/MobileMenuFooter';
+import SidebarPersister from '@astrojs/starlight/components/SidebarPersister.astro';
+import SidebarSublist from '@astrojs/starlight/components/SidebarSublist.astro';
+
+const { sidebar } = Astro.locals.starlightRoute;
+
+/** @type {(entry: (typeof sidebar)[number]) => boolean} */
+const holdsCurrentPage = (entry) =>
+	entry.type === 'link' ? entry.isCurrent : entry.entries.some(holdsCurrentPage);
+
+const sections = sidebar.filter((entry) => entry.type === 'group');
+
+// The section holding the current page opens on load. The splash page is in no
+// section, and `findIndex` returns -1 there, so the first section is the floor.
+const activeIndex = Math.max(0, sections.findIndex(holdsCurrentPage));
+---
+
+<pi-section-tabs>
+	<nav class="pi-section-tabs" aria-label="Documentation sections">
+		<ul role="tablist" aria-orientation="vertical">
+			{
+				sections.map((section, i) => (
+					<li role="presentation">
+						<button
+							type="button"
+							role="tab"
+							id={`pi-section-tab-${i}`}
+							aria-controls={`pi-section-panel-${i}`}
+							aria-selected={i === activeIndex ? 'true' : 'false'}
+							tabindex={i === activeIndex ? 0 : -1}
+						>
+							<span class="pi-section-index">{String(i + 1).padStart(2, '0')}</span>
+							<span class="pi-section-name">{section.label}</span>
+						</button>
+					</li>
+				))
+			}
+		</ul>
+	</nav>
+
+	{/*
+	  Every section's menu is rendered and the inactive ones are `hidden`, so
+	  switching tabs costs no request. `hidden` also takes them out of the tab
+	  order and the accessibility tree, so the links in a closed section are
+	  not reachable by keyboard.
+	*/}
+	<SidebarPersister>
+		{
+			sections.map((section, i) => (
+				<div
+					role="tabpanel"
+					id={`pi-section-panel-${i}`}
+					aria-labelledby={`pi-section-tab-${i}`}
+					hidden={i !== activeIndex}
+				>
+					<SidebarSublist sublist={section.entries} />
+				</div>
+			))
+		}
+	</SidebarPersister>
+</pi-section-tabs>
+
+<div class="md:sl-hidden">
+	<MobileMenuFooter />
+</div>
+
+<script>
+	class PiSectionTabs extends HTMLElement {
+		connectedCallback() {
+			const tabs = [...this.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+			const panels = [...this.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+
+			const select = (index: number, moveFocus: boolean) => {
+				tabs.forEach((tab, i) => {
+					const selected = i === index;
+					tab.setAttribute('aria-selected', String(selected));
+					tab.tabIndex = selected ? 0 : -1;
+					const panel = panels[i];
+					if (panel) panel.hidden = !selected;
+				});
+				if (moveFocus) tabs[index]?.focus();
+			};
+
+			tabs.forEach((tab, i) => {
+				tab.addEventListener('click', () => select(i, false));
+
+				// A vertical tablist moves on the vertical arrows, and wraps.
+				tab.addEventListener('keydown', (event) => {
+					const step =
+						event.key === 'ArrowUp'
+							? i - 1
+							: event.key === 'ArrowDown'
+								? i + 1
+								: event.key === 'Home'
+									? 0
+									: event.key === 'End'
+										? tabs.length - 1
+										: null;
+					if (step === null) return;
+					event.preventDefault();
+					select((step + tabs.length) % tabs.length, true);
+				});
+			});
+		}
+	}
+
+	if (!customElements.get('pi-section-tabs')) {
+		customElements.define('pi-section-tabs', PiSectionTabs);
+	}
+</script>

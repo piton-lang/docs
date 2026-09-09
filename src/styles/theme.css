@@ -31,12 +31,13 @@
 /* Reversed spread (Starlight's dark scheme). */
 :root:root {
 	--pi-paper: #191919; /* the sheet */
-	--pi-chrome: #0d0d0d; /* header sits below the sheet in value */
+	--pi-chrome: #000000; /* the header band, bottom of the value ladder */
 	--pi-anodized: #1e1f21; /* sidebar panel, a touch cooler than the sheet */
 	--pi-anodized-grain: rgba(255, 255, 255, 0.014);
 	--pi-anodized-sheen: rgba(255, 255, 255, 0.045);
 	--pi-anodized-shade: rgba(0, 0, 0, 0.16);
 	--pi-anodized-edge: rgba(255, 255, 255, 0.07);
+	--pi-well: #121314; /* recessed ground: the section tab strip */
 	--pi-title-block: #000000; /* the banner ground, both schemes */
 	--pi-burst-hue: var(--pi-accent); /* the burst colour, both schemes */
 	--pi-paper-raised: #222222; /* data blocks: tables, code */
@@ -78,6 +79,7 @@
 	--pi-anodized-sheen: rgba(255, 255, 255, 0.55);
 	--pi-anodized-shade: rgba(0, 0, 0, 0.05);
 	--pi-anodized-edge: rgba(255, 255, 255, 0.6);
+	--pi-well: #d7d8da; /* recessed ground: the section tab strip */
 
 	--pi-paper-raised: #ffffff;
 	--pi-ink: #111111; /* 17.01:1 */
@@ -845,7 +847,6 @@
 :root .sidebar-content .top-level > li li > a::after {
 	content: counter(pi-nav-group) '.' counter(pi-nav-item);
 }
-
 /* ---- contents: on this page -------------------------------------------- */
 
 /*
@@ -3314,4 +3315,120 @@
 	padding-top: 0;
 	border-top: 0;
 	justify-content: flex-start;
+}
+
+/* ============================================================================
+ * SECTION TABS — the head of the sidebar
+ *
+ * Five sections, one shown at a time. The manual's plate index is a stacked
+ * list of numbered section names with the live one marked — not a row of
+ * shaped tabs with shoulders and corners — so this is that list: one row per
+ * section, hairline-separated, indexed in mono.
+ *
+ * The strip is a WELL: a ground recessed below the anodized panel, so the
+ * unselected rows sit under the surface. Selection is then a hole cut in that
+ * well rather than a mark laid on it — the live row carries no ground of its
+ * own, so the panel itself shows through, grain and sheen included, and the
+ * row reads as continuous with the menu it opens. The accent runs down its
+ * inline-end edge.
+ *
+ * That edge is the inverse of the current-page marker on the entries below,
+ * which sits inline-start. Two markers on opposite edges cannot be confused
+ * for each other: one names the section, one names the page inside it.
+ * ==========================================================================*/
+
+/*
+ * The strip is flush with the panel — full-bleed to the top and both edges —
+ * so the well runs the sidebar's whole width and meets the header without a
+ * margin. Starlight pads `.sidebar-content` by 1rem block-start and one gutter
+ * inline. The block-start padding is moved off the container entirely (the
+ * strip's own bottom margin spaces the menu below it) rather than pulled back
+ * with a negative margin: the pane is the scroll container, and anything
+ * sitting above its content edge would be clipped. The inline padding is
+ * cancelled here, which overflows nothing because the two exactly cancel.
+ */
+:root .sidebar-content {
+	padding-top: 0;
+}
+:root .pi-section-tabs {
+	margin-inline: calc(var(--sl-sidebar-pad-x) * -1);
+	margin-bottom: calc(var(--pi-unit) * 1.25);
+	/*
+	 * No rule along the top: the fixed header draws one directly above, and
+	 * two hairlines meeting would read as a single heavy one.
+	 */
+	border-bottom: 1px solid var(--pi-rule-strong);
+}
+:root .pi-section-tabs ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+/*
+ * The separators are on the list items, not the rows, so they are drawn over
+ * the panel where a row has been cut away rather than over the well.
+ */
+:root .pi-section-tabs li + li {
+	border-top: 1px solid var(--pi-rule);
+}
+
+/*
+ * The ground is per-row, not on the strip, so an unselected row is filled and
+ * the selected one is simply not — see the note above about the hole in the
+ * well. The marker is reserved on every row, so selecting one shifts nothing.
+ */
+:root .pi-section-tabs [role='tab'] {
+	display: flex;
+	align-items: baseline;
+	column-gap: 0.7em;
+	width: 100%;
+	appearance: none;
+	background: var(--pi-well);
+	border: 0;
+	border-inline-end: 3px solid transparent;
+	border-radius: 0;
+	/*
+	 * The row is full-bleed but its text is not: the inline padding restores
+	 * the gutter, plus the 2px the entries below reserve for their own marker,
+	 * so the index sits on the same left edge as the menu and the whole panel
+	 * reads off one margin.
+	 */
+	padding-block: calc(var(--pi-unit) * 0.55);
+	padding-inline: calc(var(--sl-sidebar-pad-x) + 2px + var(--pi-unit) * 0.6)
+		var(--sl-sidebar-pad-x);
+	font-family: inherit;
+	font-size: var(--sl-text-xs);
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	text-align: start;
+	color: var(--pi-ink-muted);
+	cursor: pointer;
+}
+/* Ink only, as everywhere else in the panel — no hover ground. */
+:root .pi-section-tabs [role='tab']:hover {
+	color: var(--pi-ink);
+}
+:root .pi-section-tabs [role='tab'][aria-selected='true'] {
+	background: none;
+	border-inline-end-color: var(--pi-accent);
+	color: var(--pi-ink);
+	font-weight: 600;
+}
+
+/*
+ * Indices, as everywhere else: mono, tabular. Section indices in the manual
+ * are always accent, but five red numerals stacked in the well would read as
+ * five markers, so here only the live one takes it.
+ */
+:root .pi-section-tabs .pi-section-index {
+	flex: none;
+	font-family: var(--pi-mono);
+	font-size: var(--sl-text-2xs);
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0;
+	color: var(--pi-ink-muted);
+}
+:root .pi-section-tabs [role='tab'][aria-selected='true'] .pi-section-index {
+	color: var(--pi-accent);
 }
