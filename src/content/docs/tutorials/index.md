@@ -6,8 +6,12 @@ sidebar:
 ---
 
 Tutorials are guided walkthroughs. Each one starts from an empty directory and
-ends with something that runs, explaining the reasoning at each step rather
+ends with something that compiles, explaining the reasoning at each step rather
 than only the keystrokes.
 
-This section is being written. To get a toolchain in place in the meantime, see
-[Getting Started](/getting-started/).
+- [Hello, World](/tutorials/hello-world/) — describe an application with Belay,
+  compile it to agent instructions, then move it from React to Rust and egui by
+  changing one line.
+
+If you do not have the compiler yet, start with
+[Installation](/getting-started/).
