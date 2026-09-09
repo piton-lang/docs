@@ -26,3 +26,6 @@ pnpm-debug.log*
 # what `piton build` writes inside an example project
 examples/*/.claude/
 examples/*/src/
+
+# a `npm run examples` run that died before it could swap its output into place
+generated.staging-*

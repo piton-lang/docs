@@ -5,22 +5,24 @@ import starlight from "@astrojs/starlight";
 import { satteri } from "@astrojs/markdown-satteri";
 
 // Fills `from=` code blocks in the tutorials from the projects under
-// examples/, which are also what the .zip downloads are packed from.
+// examples/ — which are also what the .zip downloads are packed from — and
+// from generated/, the compiler output `npm run examples` writes out of them.
 import { codeFromFile } from "./plugins/code-from-file.mjs";
-import { exampleFiles } from "./plugins/examples-digest.mjs";
+import { includableFiles } from "./plugins/examples-digest.mjs";
 
 /**
- * Tells the dev server that the tutorials depend on examples/.
+ * Tells the dev server that the tutorials depend on examples/ and generated/.
  *
  * A `from=` code block reads a file Astro never sees, so without this an
- * example edit changes nothing on screen until the server is restarted. The
- * matching fix for `astro build` is the digest salt in src/content.config.ts.
+ * example edit — or a run of `npm run examples` — changes nothing on screen
+ * until the server is restarted. The matching fix for `astro build` is the
+ * digest salt in src/content.config.ts.
  */
 const watchExamples = {
   name: "watch-examples",
   hooks: {
     "astro:config:setup": ({ addWatchFile }) => {
-      for (const file of exampleFiles()) addWatchFile(file);
+      for (const file of includableFiles()) addWatchFile(file);
     },
   },
 };

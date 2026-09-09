@@ -211,13 +211,7 @@ directory in the finished application probably deserves its own skill.
 `useWhen` is not documentation. Look at what Belay does with it — this is the
 compiled `.claude/skills/build-toolbar/SKILL.md`:
 
-```markdown
----
-name: build-toolbar
-description: Builds the toolbar row, its two action groups, and the divider. Use when the toolbar, the file actions, the clipboard actions, or the divider between them is being created or changed
----
-
-Build the toolbar to @../../reference/shape/toolbar/ToolbarShape.md, with the actions listed in @../../reference/concept/Toolbar.md. Build the buttons with the toolbar button skill.
+```markdown from=generated/markdown-editor/react/.claude/skills/build-toolbar/SKILL.md
 ```
 
 `description` and `useWhen` are concatenated into the one `description` field
@@ -366,28 +360,7 @@ Your folder names survive into the output — `reference/concept/`,
 
 The concept compiles to prose an agent can read directly:
 
-```markdown
-# Toolbar
-
-## Purpose
-
-Gives the file and clipboard actions a fixed home along the top of the window.
-
-## File Actions
-
-- New File
-- Open File
-- Save File
-
-## Clipboard Actions
-
-- Cut
-- Copy
-- Paste
-
-## Divider
-
-A single vertical divider separates the file actions from the clipboard actions.
+```markdown from=generated/markdown-editor/react/.claude/reference/concept/Toolbar.md
 ```
 
 Property names are split into words, so `fileActions` became `## File Actions`.
@@ -395,12 +368,7 @@ Anchor names are split too: `MarkdownEditor` becomes `# Markdown Editor`.
 
 `KeyboardAccess` serializes differently, and the difference is instructive:
 
-```markdown
-# Keyboard Access
-
-focusOrder: Every control is reachable with Tab, in the order it appears on screen.
-focusVisible: The focused control draws a visible focus ring. It is never removed without a replacement of equal contrast.
-labels: Every icon-only control carries an accessible name matching its tooltip text.
+```markdown from=generated/markdown-editor/react/.claude/reference/lib/KeyboardAccess.md
 ```
 
 Headers in one, `key: value` lines in the other. `Toolbar` mixes prose, lists,
@@ -459,24 +427,7 @@ from /lib/Egui import Egui Stack
 piton build
 ```
 
-```markdown
-# App Shell
-
-The application window, its layout, and the stack it is built on.
-
-Build the application described in @../.claude/reference/concept/MarkdownEditor.md. Build the toolbar and the editor with their own skills; this instruction owns the window and the column only.
-
-## Stack
-
-Build it with egui on Rust. The entry point is src/main.rs. Full stack definition: @../.claude/reference/lib/Egui.md.
-
-## Layout
-
-One window, one column, no chrome beyond the toolbar. The toolbar keeps its height; the editor takes the rest and scrolls on its own.
-
-## Window
-
-Minimum size 480 by 320. The title is the open file's name, or Untitled, followed by a bullet when there are unsaved changes.
+```markdown from=generated/markdown-editor/egui/src/AGENTS.md
 ```
 
 Seventeen other files did not change. The toolbar still has New, Open, Save, a

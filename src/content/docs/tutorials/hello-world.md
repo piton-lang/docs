@@ -141,55 +141,28 @@ wrote 4 files
 `src/CLAUDE.md` is a single line, `@AGENTS.md`, which imports the file beside
 it. `src/AGENTS.md` is your specification, serialized:
 
-```markdown
-# App
-
-A Hello World application.
-
-Build a single screen that displays the text Hello, World! and nothing else.
-
-## Stack
-
-Build it with React on TypeScript. The full stack definition is at @../.claude/reference/stack/React.md.
+```markdown from=generated/hello-piton/react/src/AGENTS.md
 ```
 
 The property name `stack` became the heading `## Stack` — Belay serializes
 anchor properties as headers by depth, and splits names into words, so
 `myProperty` would have become `My Property`.
 
-And `@{Stack}` became a path. The `React` anchor was reached, so Belay wrote it
-out to `.claude/reference/stack/React.md` — mirroring its source directory —
-and rewrote the reference to point there:
+The last line is Belay's rather than yours. It is appended to any instruction
+that came out holding a link, so that an agent reading the file knows the links
+are worth following.
 
-```markdown
-# React
+And `@{Stack}` became a Markdown link. The `React` anchor was reached, so Belay
+wrote it out to `.claude/reference/stack/React.md` — mirroring its source
+directory — and rewrote the reference to point there:
 
-## Name
-
-React
-
-## Language
-
-TypeScript
-
-## Build
-
-Vite
-
-## Entry Point
-
-src/main.tsx
-
-## Conventions
-
-- Function components only, never classes.
-- One component per file, named after the file.
+```markdown from=generated/hello-piton/react/.claude/reference/stack/React.md
 ```
 
 That file is written once and referenced from anywhere. The reference is
 resolved per output location, so the copy of `App.md` under
-`.claude/reference/shape/` points at `@../stack/React.md` instead — same
-target, correct relative path.
+`.claude/reference/shape/` points at `../stack/React.md` instead — same target,
+correct relative path.
 
 ## Switch the stack
 
@@ -213,16 +186,7 @@ was never a fact about React.
 piton build
 ```
 
-```markdown
-# App
-
-A Hello World application.
-
-Build a single screen that displays the text Hello, World! and nothing else.
-
-## Stack
-
-Build it with egui on Rust. The full stack definition is at @../.claude/reference/stack/Egui.md.
+```markdown from=generated/hello-piton/egui/src/AGENTS.md
 ```
 
 Because both stacks implement `Stack`, the swap is checked rather than hoped

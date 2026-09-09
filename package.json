@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "logo": "node scripts/logo.mjs",
+    "examples": "node scripts/build-examples.mjs",
     "predev": "npm run logo",
     "dev": "astro dev",
     "prestart": "npm run logo",

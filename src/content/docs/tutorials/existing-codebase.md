@@ -53,14 +53,7 @@ documentation someone forgot to update. Read it with
 `piton claude --print-prompt`; it is about 140 lines of syntax, types,
 framework constructs, and the rules that are easy to get wrong:
 
-```markdown
-## Rules worth memorising
-
-- A value is an expression only when the *whole* value parses as one over
-  literal atoms. `1 + 2` is `3`; `a + b` is the string `a + b`; use `{a + b}`
-  to reference names.
-- `+` on lists concatenates and deduplicates, right operand winning:
-  `[1,2,3,4] + [1,2,3]` is `[4,1,2,3]`. `++` keeps duplicates.
+```markdown from=generated/piton-brief/.claude/skills/piton/SKILL.md section="## Rules worth memorising"
 ```
 
 A system prompt lasts one session. If this job will not, install the fluency
@@ -77,11 +70,7 @@ piton claude --install
 Same brief, written as a Claude Code skill in the repository rather than in
 your shell history:
 
-```markdown
----
-name: piton
-description: Write, read, and compile Piton (.pi) source. Use when working with .pi files, piton.config.pi, anchors, or Piton frameworks. Also use for the `agent`, `belay-adapter`, `belay-agent-adapter`, `belay-config`, `command`, `instruction`, `skill` keywords.
----
+```markdown from=generated/piton-brief/.claude/skills/piton/SKILL.md section=frontmatter
 ```
 
 That `description` is the same trick the Markdown Editor tutorial spends a
@@ -231,21 +220,7 @@ is writing more of this specification:
 It compiles to `.claude/skills/write-spec/SKILL.md`, and its `useWhen` is
 written so the agent reaches for it exactly when the question comes up:
 
-```markdown
----
-name: write-spec
-description: Writes and extends the Piton specification for this codebase. Use when the specification is being written or extended, a part of the codebase needs describing, or you are deciding whether something belongs in concept, shape, lib, or agent
----
-
-Extend the specification under spec/, following the split below. Read the code before writing, and describe what it does rather than how it is written.
-
-# Concept
-
-What the application is and what its parts are, in the words a person would use out loud. Stack-agnostic: no file names, no framework names, no measurements. Start from @../../reference/concept/App.md.
-
-# Shape
-
-How each part is built: layout, spacing, states, accessibility, error handling. One file per part, in a directory mirroring the source tree, so instructions compile next to the code they describe.
+```markdown from=generated/spec-skeleton/.claude/skills/write-spec/SKILL.md
 ```
 
 ### The prompt
