@@ -1,0 +1,14 @@
+use @piton/belay
+
+from /stack/React import React Stack
+
+export instruction App:
+    description: A Hello World application.
+
+    prompt:
+        Build a single screen that displays the text Hello, World! and nothing
+        else.
+
+    stack:
+        Build it with ${Stack.name} on ${Stack.language}. The full stack
+        definition is at @{Stack}.

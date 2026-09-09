@@ -1,0 +1,15 @@
+from /concept/Editor import Editor
+from /concept/Toolbar import Toolbar
+
+export anchor MarkdownEditor:
+    purpose:
+        A single-window editor for one Markdown file at a time.
+
+    parts:
+        The window is one column. @{Toolbar} sits along the top and @{Editor}
+        fills the rest.
+
+    outOfScope:
+        - No tabs; one file is open at a time.
+        - No preview pane; the editor styles its own text.
+        - No settings, themes, or plugins.

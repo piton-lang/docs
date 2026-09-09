@@ -1,0 +1,14 @@
+use @piton/belay
+
+from /shape/AppShell import AppShell
+
+export skill BuildAppShell:
+    description: Builds the application window, its layout, and its entry point.
+
+    useWhen:
+        the application shell, the window, the entry point, or the overall
+        layout is being created or changed
+
+    prompt:
+        Build the shell to @{AppShell}. The toolbar and the editor have their
+        own skills; use them rather than building those parts here.

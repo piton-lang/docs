@@ -1,0 +1,11 @@
+from ./Stack import Stack
+
+export anchor Egui extends Stack:
+    name: egui
+    language: Rust
+    build: Cargo
+    entryPoint: src/main.rs
+
+    conventions:
+        - One `eframe::App` implementation, kept in the entry point.
+        - Lay the UI out immediately in `update`; hold no widget objects.

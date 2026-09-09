@@ -1,0 +1,11 @@
+use /lib/Part
+
+export part Editor:
+    purpose:
+        The body of the window: one text field holding the Markdown source of
+        the open file.
+
+    formatting:
+        Headings, bold, italic, inline code, links, and bullet lists are
+        styled in place as the user types. The source characters stay
+        visible; this is not a rendered preview.

@@ -1,0 +1,12 @@
+use /lib/Stack
+
+export stack Egui:
+    name: egui
+    language: Rust
+    build: Cargo
+    entryPoint: src/main.rs
+
+    conventions:
+        - One `eframe::App` implementation holding the document state.
+        - Lay the UI out immediately in `update`; hold no widget objects.
+        - One module per part, named after the part.

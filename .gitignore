@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # wrangler
 .wrangler/
+
+# what `piton build` writes inside an example project
+examples/*/.claude/
+examples/*/src/

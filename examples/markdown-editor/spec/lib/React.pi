@@ -1,0 +1,12 @@
+use /lib/Stack
+
+export stack React:
+    name: React
+    language: TypeScript
+    build: Vite
+    entryPoint: src/main.tsx
+
+    conventions:
+        - Function components only, never classes.
+        - One component per file, named after the file.
+        - Component state with hooks; no external state library.

@@ -1,0 +1,20 @@
+use /lib/Part
+
+export part Toolbar:
+    purpose:
+        Gives the file and clipboard actions a fixed home along the top of
+        the window.
+
+    fileActions:: string[]:
+        - New File
+        - Open File
+        - Save File
+
+    clipboardActions:: string[]:
+        - Cut
+        - Copy
+        - Paste
+
+    divider:
+        A single vertical divider separates the file actions from the
+        clipboard actions.

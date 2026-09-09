@@ -1,0 +1,31 @@
+use @piton/belay
+
+from /concept/App import MarkdownEditor
+
+export command Build:
+    description: Build the whole application from the specification, in dependency order.
+
+    prompt:
+        Build the application described in @{MarkdownEditor}. Read the whole
+        concept before writing any code, then work through the parts in the
+        order below, using the skill that owns each one.
+
+    order:: string[]:
+        - The shell, with the build-app-shell skill, so the other parts have somewhere to live.
+        - The toolbar button, with the build-toolbar-button skill.
+        - The toolbar, with the build-toolbar skill, using the button you just built.
+        - The editing surface, with the build-markdown-editor skill.
+
+    rules:
+        - Every part has a skill. Use it rather than working from this prompt.
+        - Anything the concept lists as out of scope stays unbuilt. Do not add tabs, a preview pane, or settings.
+        - Where the shape and your own judgement disagree, the shape wins. Say so rather than quietly improving it.
+        - Do not invent a measurement. If the shape does not give one, ask.
+
+    afterEachPart:
+        Re-read the shape file for the part you just built and check your work
+        against it property by property before moving on.
+
+    whenDone:
+        Report which parts you built, and list anything in the shape you could
+        not satisfy.

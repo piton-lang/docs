@@ -1,0 +1,24 @@
+use @piton/belay
+
+from /concept/App import MarkdownEditor
+from /lib/React import React Stack
+
+export instruction AppShell:
+    description: The application window, its layout, and the stack it is built on.
+
+    prompt:
+        Build the application described in @{MarkdownEditor}. Build the
+        toolbar and the editor with their own skills; this instruction owns
+        the window and the column only.
+
+    stack:
+        Build it with ${Stack.name} on ${Stack.language}. The entry point is
+        ${Stack.entryPoint}. Full stack definition: @{Stack}.
+
+    layout:
+        One window, one column, no chrome beyond the toolbar. The toolbar
+        keeps its height; the editor takes the rest and scrolls on its own.
+
+    window:
+        Minimum size 480 by 320. The title is the open file's name, or
+        Untitled, followed by a bullet when there are unsaved changes.

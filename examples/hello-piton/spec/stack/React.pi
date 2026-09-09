@@ -1,0 +1,11 @@
+from ./Stack import Stack
+
+export anchor React extends Stack:
+    name: React
+    language: TypeScript
+    build: Vite
+    entryPoint: src/main.tsx
+
+    conventions:
+        - Function components only, never classes.
+        - One component per file, named after the file.

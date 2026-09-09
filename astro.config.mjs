@@ -2,6 +2,29 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
+import { satteri } from "@astrojs/markdown-satteri";
+
+// Fills `from=` code blocks in the tutorials from the projects under
+// examples/, which are also what the .zip downloads are packed from.
+import { codeFromFile } from "./plugins/code-from-file.mjs";
+import { exampleFiles } from "./plugins/examples-digest.mjs";
+
+/**
+ * Tells the dev server that the tutorials depend on examples/.
+ *
+ * A `from=` code block reads a file Astro never sees, so without this an
+ * example edit changes nothing on screen until the server is restarted. The
+ * matching fix for `astro build` is the digest salt in src/content.config.ts.
+ */
+const watchExamples = {
+  name: "watch-examples",
+  hooks: {
+    "astro:config:setup": ({ addWatchFile }) => {
+      for (const file of exampleFiles()) addWatchFile(file);
+    },
+  },
+};
+
 // Piton's own TextMate grammar, vendored from the compiler repo.
 // See src/grammars/README.md for provenance and how to update it.
 import pitonGrammar from "./src/grammars/piton.tmLanguage.json" with { type: "json" };
@@ -9,11 +32,16 @@ import pitonGrammar from "./src/grammars/piton.tmLanguage.json" with { type: "js
 // https://astro.build/config
 export default defineConfig({
   markdown: {
+    // Astro's own default processor, plus one plugin. Expressive Code finds
+    // this object and appends its hast plugin to it, so code blocks are still
+    // rendered by Expressive Code — see plugins/code-from-file.mjs.
+    processor: satteri({ mdastPlugins: [codeFromFile()] }),
     shikiConfig: {
       langs: [{ ...pitonGrammar, name: "piton", aliases: ["pi"] }],
     },
   },
   integrations: [
+    watchExamples,
     starlight({
       title: "Piton",
       logo: {

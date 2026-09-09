@@ -13,5 +13,11 @@ than only the keystrokes.
   compile it to agent instructions, then move it from React to Rust and egui by
   changing one line.
 
+- [A Markdown Editor](/tutorials/markdown-editor/) — structure a larger
+  specification into `agent`, `concept`, `lib`, and `shape`, and write scoped
+  skills whose `useWhen` field does the routing.
+
+They are meant to be read in order; the second assumes the first.
+
 If you do not have the compiler yet, start with
 [Installation](/getting-started/).

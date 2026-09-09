@@ -1,0 +1,15 @@
+use @piton/belay
+
+from /concept/Toolbar import Toolbar
+from /shape/toolbar/Toolbar import ToolbarShape
+
+export skill BuildToolbar:
+    description: Builds the toolbar row, its two action groups, and the divider.
+
+    useWhen:
+        the toolbar, the file actions, the clipboard actions, or the divider
+        between them is being created or changed
+
+    prompt:
+        Build the toolbar to @{ToolbarShape}, with the actions listed in
+        @{Toolbar}. Build the buttons with the toolbar button skill.

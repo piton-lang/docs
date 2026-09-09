@@ -32,25 +32,7 @@ cd hello-piton
 Everything you write goes under `spec/`, and everything the compiler writes for
 your application goes under `src/`. Create `piton.config.pi`:
 
-```piton
-use @piton/config
-use @piton/belay
-
-from @piton/belay import ClaudeAdapter
-
-export piton-config Config:
-    root: ./spec
-    entry: ./spec/index.pi
-
-    frameworks:
-        - {BelayFrameworkConfig}
-
-belay-config BelayFrameworkConfig:
-    codeRoot: ./src/
-    shapeRoot: ./spec/shape/
-
-    adapters:
-        - {ClaudeAdapter}
+```piton from=examples/hello-piton/piton.config.pi
 ```
 
 Four things are being said here.
@@ -81,13 +63,7 @@ must be implemented by something concrete.
 
 `spec/stack/Stack.pi`:
 
-```piton
-export abstract anchor Stack:
-    name:: string
-    language:: string
-    build:: string
-    entryPoint:: string
-    conventions:: string[]
+```piton from=examples/hello-piton/spec/stack/Stack.pi
 ```
 
 The `::` is a type constraint, and `string[]` is a list of strings. None of
@@ -101,18 +77,7 @@ stack swap at the end safe rather than hopeful.
 
 Now implement it. `spec/stack/React.pi`:
 
-```piton
-from ./Stack import Stack
-
-export anchor React extends Stack:
-    name: React
-    language: TypeScript
-    build: Vite
-    entryPoint: src/main.tsx
-
-    conventions:
-        - Function components only, never classes.
-        - One component per file, named after the file.
+```piton from=examples/hello-piton/spec/stack/React.pi
 ```
 
 Strings are unquoted, so `name: React` is the string "React". The `conventions`
@@ -123,21 +88,7 @@ list is a plain Markdown-style list, and because `Stack` constrained it to
 
 Here is the actual specification. `spec/shape/App.pi`:
 
-```piton
-use @piton/belay
-
-from /stack/React import React Stack
-
-export instruction App:
-    description: A Hello World application.
-
-    prompt:
-        Build a single screen that displays the text Hello, World! and nothing
-        else.
-
-    stack:
-        Build it with ${Stack.name} on ${Stack.language}. The full stack
-        definition is at @{Stack}.
+```piton from=examples/hello-piton/spec/shape/App.pi
 ```
 
 Three things here are worth slowing down for.
@@ -167,8 +118,7 @@ serialized along with everything else.
 
 The compiler starts at one file. `spec/index.pi`:
 
-```piton
-from ./shape/App export App
+```piton from=examples/hello-piton/spec/index.pi
 ```
 
 That is the concise form of importing `App` and immediately re-exporting it.
@@ -246,18 +196,7 @@ target, correct relative path.
 Now the part that matters. Describe egui the same way you described React.
 `spec/stack/Egui.pi`:
 
-```piton
-from ./Stack import Stack
-
-export anchor Egui extends Stack:
-    name: egui
-    language: Rust
-    build: Cargo
-    entryPoint: src/main.rs
-
-    conventions:
-        - One `eframe::App` implementation, kept in the entry point.
-        - Lay the UI out immediately in `update`; hold no widget objects.
+```piton from=examples/hello-piton/spec/stack/Egui.pi
 ```
 
 Then change one line in `spec/shape/App.pi`:
@@ -332,7 +271,55 @@ build. It is stale output, not a live reference — nothing points at it. Delete
 it by hand if it bothers you.
 :::
 
+## Now build it
+
+Everything so far has produced instructions, not an application. Compile once
+more so the output matches whichever stack you settled on:
+
+```sh
+piton build
+```
+
+Then start Claude Code in the project directory:
+
+```sh
+claude
+```
+
+And ask for the thing:
+
+```
+build it
+```
+
+That is the entire prompt. It works because `piton build` put `CLAUDE.md` at
+the top of `src/`, which Claude Code reads on its own, and that file imports
+the specification you wrote. The agent does not need to be told where the spec
+is or what the application does — it is already holding both.
+
+There is also `piton claude`, which starts the same session with a briefing on
+the language and Belay preloaded. Nothing here needs it — the compiled output
+is ordinary Markdown, and reading it takes no special knowledge. It earns its
+keep when you want the agent to *write* Piton rather than build from it.
+
+:::note
+The agent will build whatever the spec describes, which at this size is a
+single screen saying Hello, World. The interesting part is that swapping the
+import in the last section and rerunning these two commands gets you the same
+application in Rust, from the same description.
+:::
+
+## The finished project
+
+<a href="/downloads/hello-piton.zip" download>Download hello-piton.zip</a>
+
+The complete specification — both stacks, with React wired up so you can do the
+swap yourself. Unpack it, `piton build`, and you are at the end of this page.
+
 ## Where to go next
+
+[A Markdown Editor](/tutorials/markdown-editor/) takes the same approach to a
+specification too big for five files, and covers how to organise one.
 
 The specification you wrote is one `instruction`. Belay has three more
 constructs — `agent`, `skill`, and `command` — described in

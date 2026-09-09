@@ -1,0 +1,13 @@
+use @piton/belay
+
+from /shape/editor/MarkdownEditor import EditorShape
+
+export skill BuildMarkdownEditor:
+    description: Builds the Markdown editing surface.
+
+    useWhen:
+        the editing surface, its typography, or its in-place Markdown
+        formatting is being created or changed
+
+    prompt:
+        Build the editor to @{EditorShape}.

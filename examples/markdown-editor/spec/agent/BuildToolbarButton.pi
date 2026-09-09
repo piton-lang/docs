@@ -1,0 +1,13 @@
+use @piton/belay
+
+from /shape/toolbar/ToolbarButton import ToolbarButtonShape
+
+export skill BuildToolbarButton:
+    description: Builds the single reusable toolbar button component.
+
+    useWhen:
+        a toolbar button is being created or changed, or a button icon,
+        tooltip, or hover, pressed, or disabled state needs adjusting
+
+    prompt:
+        Build the button to @{ToolbarButtonShape}.

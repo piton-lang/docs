@@ -1,0 +1,25 @@
+use @piton/belay
+
+from /concept/Toolbar import Toolbar
+from /lib/Keyboard import KeyboardAccess
+
+export instruction ToolbarShape:
+    description: Layout, spacing, and divider treatment for the toolbar row.
+
+    prompt:
+        Build the toolbar described in @{Toolbar}. Build the buttons
+        themselves with the toolbar button skill.
+
+    layout:
+        A single row 40px tall, full width, with 8px of padding at each end
+        and 4px between buttons.
+
+    divider:
+        A 1px vertical rule between the two groups, inset 8px from the top
+        and bottom of the row, with 8px of space on either side.
+
+    narrowWindows:
+        The row keeps its height and its buttons never wrap to a second
+        line. It clips instead.
+
+    accessibility: @{KeyboardAccess}
