@@ -3433,9 +3433,11 @@
 	margin-bottom: calc(var(--pi-unit) * 1.25);
 	/*
 	 * No rule along the top: the fixed header draws one directly above, and
-	 * two hairlines meeting would read as a single heavy one.
+	 * two hairlines meeting would read as a single heavy one. The closing rule
+	 * is the same weight as the separators between the rows, so the strip is
+	 * ruled throughout by one line.
 	 */
-	border-bottom: 1px solid var(--pi-rule-strong);
+	border-bottom: 1px solid var(--pi-rule);
 }
 :root .pi-section-tabs ul {
 	list-style: none;
