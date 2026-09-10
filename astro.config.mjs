@@ -10,6 +10,15 @@ import { satteri } from "@astrojs/markdown-satteri";
 import { codeFromFile } from "./plugins/code-from-file.mjs";
 import { includableFiles } from "./plugins/examples-digest.mjs";
 
+// Moves the horizontal scrolling off the table and onto a wrapper, so the
+// table can lay out as a table and fill the column. See plugins/wrap-tables.mjs.
+import { wrapTables } from "./plugins/wrap-tables.mjs";
+
+// The documentation's own shape — sections, groups, and the content directory
+// behind each. Shared with the single-file export at /spec.md, which builds
+// from the same list. See src/config/sections.mjs.
+import { sections } from "./src/config/sections.mjs";
+
 /**
  * Tells the dev server that the tutorials depend on examples/ and generated/.
  *
@@ -34,10 +43,14 @@ import pitonGrammar from "./src/grammars/piton.tmLanguage.json" with { type: "js
 // https://astro.build/config
 export default defineConfig({
   markdown: {
-    // Astro's own default processor, plus one plugin. Expressive Code finds
-    // this object and appends its hast plugin to it, so code blocks are still
-    // rendered by Expressive Code — see plugins/code-from-file.mjs.
-    processor: satteri({ mdastPlugins: [codeFromFile()] }),
+    // Astro's own default processor, plus two plugins — one on each tree.
+    // Expressive Code finds this object and appends its own hast plugin to it,
+    // so code blocks are still rendered by Expressive Code — see the ordering
+    // note in plugins/code-from-file.mjs.
+    processor: satteri({
+      mdastPlugins: [codeFromFile()],
+      hastPlugins: [wrapTables()],
+    }),
     shikiConfig: {
       langs: [{ ...pitonGrammar, name: "piton", aliases: ["pi"] }],
     },
@@ -121,60 +134,19 @@ export default defineConfig({
       // top-level entry here must be a group — it is a tab.
       //
       // Inside a section, the groups are what Starlight renders as collapsible
-      // <details>, so a section's items must be groups too, never bare
+      // <details>, so a section's items must be groups too, never a bare
       // autogenerate: a section built straight from a directory produces a
       // flat list with nothing to collapse.
-      sidebar: [
-        {
-          label: "Introduction",
-          items: [
-            {
-              label: "Founding Thesis",
-              items: [{ autogenerate: { directory: "thesis" } }],
-            },
-          ],
-        },
-        {
-          label: "Getting Started",
-          items: [
-            {
-              label: "Setup",
-              items: [{ autogenerate: { directory: "getting-started" } }],
-            },
-          ],
-        },
-        {
-          label: "Belay Framework",
-          items: [
-            {
-              label: "Belay",
-              items: [{ autogenerate: { directory: "belay" } }],
-            },
-          ],
-        },
-        {
-          label: "Reference",
-          items: [
-            {
-              label: "The Language",
-              items: [{ autogenerate: { directory: "language" } }],
-            },
-            {
-              label: "Tooling",
-              items: [{ autogenerate: { directory: "tooling" } }],
-            },
-          ],
-        },
-        {
-          label: "Tutorials",
-          items: [
-            {
-              label: "Guides",
-              items: [{ autogenerate: { directory: "tutorials" } }],
-            },
-          ],
-        },
-      ],
+      //
+      // The sections themselves live in src/config/sections.mjs, because
+      // /spec.md is built from the same list.
+      sidebar: sections.map(({ label, groups }) => ({
+        label,
+        items: groups.map((group) => ({
+          label: group.label,
+          items: [{ autogenerate: { directory: group.directory } }],
+        })),
+      })),
     }),
   ],
 });

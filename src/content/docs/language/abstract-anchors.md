@@ -22,9 +22,11 @@ anchor ConcreteSkill extends Skill:
 We'll introduce a new bit of terminology here in that a concrete anchor that
 extends an abstract anchor is said to be "implementing" the abstract anchor.
 
-A concrete anchor can only extend a single abstract anchor. It is in fact good
-practice to export an abstract anchor as a keyword to enforce this
-ergonomically.
+A concrete anchor can only implement a single abstract anchor. It is in fact
+good practice to export an abstract anchor as a keyword to enforce this
+ergonomically. The constraint here is that Piton does not do unions on abstract
+anchors. You are still free to extend other concrete anchors in addition to
+basing off an abstract.
 
 In the case of multiple inheritance on abstracts, type constraint conflicts will
 throw a compiler error.

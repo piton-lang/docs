@@ -163,6 +163,20 @@ concatenation. Deduplication on lists is shallow.
 
 Merging on dictionaries is shallow with `+` and deep with `++`.
 
+### Concatenation Table
+
+| Left Type    | Operator | Right Type   | Result                                                              |
+| ------------ | -------- | ------------ | ------------------------------------------------------------------- |
+| `number`     | `+`      | `number`     | Arithmetic addition                                                 |
+| `string`     | `+`      | `string`     | String concatenation                                                |
+| `string`     | `+`      | `number`     | Number is cast to string, then concatenated                         |
+| `simple`     | `+`      | `complex`    | Mixed list containing both operands                                 |
+| `complex`    | `+`      | `simple`     | Mixed list containing both operands                                 |
+| `list`       | `+`      | `list`       | Concatenated list with shallow deduplication; right-hand values win |
+| `list`       | `++`     | `list`       | Concatenated list preserving duplicates                             |
+| `dictionary` | `+`      | `dictionary` | Shallow merge; right-hand values win                                |
+| `dictionary` | `++`     | `dictionary` | Deep merge; right-hand values win                                   |
+
 ## Additional Notes on Operator Behaviour
 
 - Concatenation operators `+` and `++` have the same precedence and associate

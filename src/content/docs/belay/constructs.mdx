@@ -1,0 +1,225 @@
+---
+title: Belay Constructs
+description: The agent, skill, command, and instruction anchors and what they compile to.
+sidebar:
+  order: 2
+---
+
+import { FileTree } from "@astrojs/starlight/components";
+
+Belay provides four constructs: `agent`, `skill`, `command`, and `instruction`.
+Here we'll talk about their functional purpose, and in a later section we'll
+discuss the roles they play and how to structure them when building out a
+complex application.
+
+## Skill
+
+A skill is a triggerable set of instructions that the agent can load to perform
+specific things. In a large application, it is conceivable to have tens to even
+several hundred skills that target specific aspects of the application.
+
+Rather than loading all skills into the active context, agentic platforms will
+use the description to determine when the skill is needed. That's why Belay
+makes `useWhen` a mandatory property of a skill anchor:
+
+```piton
+abstract anchor Skill as skill:
+    description:: string
+    prompt:: string
+    useWhen:: string
+```
+
+A skill will compile into the correct skill directory and format for whichever
+adapters are configured in the project.
+
+```markdown
+---
+name: { anchor name }
+description: { description } Use when { useWhen }
+---
+
+{prompt}
+{string serialized version of the skill}
+```
+
+As you can see in the example, the `useWhen` is appended to the frontmatter
+description of the Markdown file.
+
+Additional properties and and types and string interpolations will be rendered
+according to the [serialization rules](/belay/serialization).
+
+## Instruction
+
+Instructions are a special construct. They look like:
+
+```piton
+abstract anchor Instruction as instruction:
+    description:: string
+    prompt:: string
+```
+
+Which at first doesn't look very unique at all. However, it's the way they're
+compiled that carries a lot of the weight. It'll end up making a lot more sense
+when we start talking about best practices and strategies for structuring a
+specification.
+
+The purpose of an instruction is primarily to be compiled into the correct
+`codeRoot` directory as the equivalent of an `AGENTS.md` file according to what
+each adapter/agentic platform supports. In Belay, we have a concept of a
+`codeRoot` directory, as well as a `shapeRoot` directory; `shapeRoot` is
+supposed to be an approximate mirror of the generated `codeRoot` structure. So
+for example, if you have a `codeRoot` that looks like:
+
+<FileTree>
+- src
+    - components
+        - button
+        - index.tsx
+    - input
+        - index.tsx
+</FileTree>
+
+The expectation is that your `shapeRoot` will mirror this structure:
+
+<FileTree>
+- spec
+    - shape
+        - components
+            - button
+                - Button.pi
+            - input
+                - Input.pi
+                - InputDesign.pi
+</FileTree>
+
+When compiled, the `Button.pi` file will be transformed into
+`src/components/button/AGENTS.md` while the `Input.pi` and `InputDesign.pi` files
+will be transformed into `src/components/input/AGENTS.md`. The specific note
+there is that files at the same scope will be concatenated into the same output
+file. Structurally this is fine because it's all just Markdown and prose.
+
+<FileTree>
+- src
+    - components
+    - button
+        - index.tsx
+        - **AGENTS.md**
+    - input
+        - index.tsx
+        - **AGENTS.md**
+</FileTree>
+
+If the `codeRoot` structure does not match the `shapeRoot` structure, the
+instructions will be concatenated to the next level up that does match,
+terminating at a `codeRoot/AGENTS.md` file.
+
+<FileTree>
+- spec
+    - shape
+        - components
+            - **nonexistentComponent**
+                - Component.pi
+</FileTree>
+
+goes into
+
+<FileTree>
+- src
+    - components
+        - **AGENTS.md**
+</FileTree>
+
+In addition to this, all instructions contained under `shapeRoot` will be
+compiled into the agent directory (`.claude` for example) under the
+`reference/shape` directory maintaining their relative structure.
+
+Additional properties and and types and string interpolations will be rendered
+according to the [serialization rules](/belay/serialization).
+
+### Special `__BELAY_SHAPE__` Variable
+
+Belay exports a special `__BELAY_SHAPE__` variable that contains the compiled
+shape root directory -- what we previously referenced in an example as
+`.claude/reference/shape`.
+
+We can import that to write specific skills:
+
+```piton
+use @piton/belay
+
+from @piton/belay import __BELAY_SHAPE__
+
+// Intentionally minimal just for the sake of example
+export skill BuildSpec:
+    description: Build what's in the specification
+    useWhen: You're about to ${self.description}
+    prompt:
+        Build following the structure outlined in ${__BELAY_SHAPE__}
+```
+
+`__BELAY_SHAPE__` will always be relative to the file in which it's being used.
+It's a compile time directive.
+
+## Command
+
+A command is used to trigger prompts, skills, and generally serve as known entry
+points into the agent.
+
+```piton
+abstract anchor Command as command:
+    description:: string
+    prompt:: string
+```
+
+And it will output into the correct agent directory for commands:
+
+```markdown
+---
+description: { description }
+allowed-tools: If provided, list
+model: If provided, list
+---
+
+{prompt}
+{string serialized version of the command}
+```
+
+Note that commands get the `x-` prefix. Because many agentic platforms provide
+access to commands and skills both through a `/` command, prefixing with `x-`
+adds some clarity to what's a skill and what's a command.
+
+Additional properties and and types and string interpolations will be rendered
+according to the [serialization rules](/belay/serialization).
+
+## Agent
+
+Belay exports the `agent` keyword and this is used to define agents.
+
+The shape of an agent is:
+
+```piton
+abstract anchor Agent as agent:
+    description:: string
+    role:: string
+    prompt:: string
+```
+
+It will compile into the correct agents directory according to each configured
+adapter, and the minimal agent will compile as the following markdown:
+
+```markdown
+---
+name: { anchor name in kebab-case }
+description: { description }
+tools: if provided in the agent anchor, tools will list here
+model: if provided in the agent anchor, the model list here
+---
+
+You are a {role}
+
+{prompt}
+{string serialized version of the agent}
+```
+
+Additional properties and and types and string interpolations will be rendered
+according to the [serialization rules](/belay/serialization).

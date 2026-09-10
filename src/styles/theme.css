@@ -185,7 +185,10 @@
 }
 
 /* Flat. Printed matter has no corner radius. */
-:root :is(.card, .starlight-aside, .expressive-code .frame, pre, table, button, select, input) {
+:root :is(
+		.card, .starlight-aside, .expressive-code .frame, pre, table, button, select, input,
+		starlight-file-tree, starlight-file-tree .highlight
+	) {
 	border-radius: 0;
 }
 
@@ -367,7 +370,8 @@
 	max-width: none;
 }
 :root .sl-markdown-content > :is(
-		.expressive-code, pre, table, figure, .starlight-aside, .sl-heading-wrapper
+		.expressive-code, pre, table, figure, .starlight-aside, .sl-heading-wrapper,
+		starlight-file-tree
 	),
 :root .sl-markdown-content > * > table {
 	max-width: none;
@@ -387,7 +391,7 @@
 :root .sl-markdown-content li > :is(ul, ol) {
 	margin-block: calc(var(--pi-unit) * 0.5) 0;
 }
-:root .sl-markdown-content :is(.expressive-code, pre, table, figure) {
+:root .sl-markdown-content :is(.expressive-code, pre, .pi-table, figure, starlight-file-tree) {
 	margin-block: calc(var(--pi-unit) * 2);
 }
 
@@ -566,15 +570,34 @@
 /* ----------------------------------------------------------------- tables */
 
 /*
+ * The scroll container. Starlight makes the TABLE the thing that scrolls
+ * (`display: block; overflow: auto`), which keeps a wide table from blowing
+ * out the page but stops the element being a table box: its rows fall to an
+ * anonymous table, anonymous tables shrink-wrap, and nothing inside can be
+ * stretched. The panel painted the full column while the rules under the cells
+ * stopped where the text did.
+ *
+ * plugins/wrap-tables.mjs puts the scrolling on a wrapper instead, and the
+ * table goes back to being a table — full width, wrapping its text like any
+ * other, and scrolling only when its columns truly will not fit.
+ */
+:root .sl-markdown-content .pi-table {
+	overflow-x: auto;
+}
+/*
  * Horizontal rules only. The eye tracks columns by alignment; a full grid
  * competes with the data. Figures set in tabular numerals so columns align.
  */
 :root .sl-markdown-content table {
+	display: table;
 	border: 0;
 	border-collapse: collapse;
 	width: 100%;
 	font-variant-numeric: tabular-nums;
 	background: var(--pi-paper-raised);
+}
+:root .sl-markdown-content .pi-table > table {
+	margin-block: 0;
 }
 :root .sl-markdown-content :is(th, td) {
 	border: 0;
@@ -643,6 +666,61 @@
 :root :not(pre) > code {
 	border: 1px solid var(--pi-rule);
 	padding: 0.05em 0.32em;
+}
+
+/* -------------------------------------------------------------- file tree */
+
+/*
+ * A file tree is a data block, so it is the same block as a code listing: the
+ * same plate, the same hairline, the same padding, the same rhythm above and
+ * below (those last two come from the shared rules further up, which name
+ * `starlight-file-tree` alongside `pre`).
+ *
+ * Three of Starlight's own defaults do not survive the trip:
+ *
+ *   - THE INDENT. `--x-space` is 1.5rem and a nested `ul` adds 0.625rem of its
+ *     own, so every level costs 2.125rem. Four deep — which the shapeRoot tree
+ *     on this page is — pushes the leaf most of the way across the block, and
+ *     the eye loses the column it is supposed to be tracking. Two thirds of
+ *     that reads as an indent without shouting.
+ *
+ *   - THE HIGHLIGHT, the `**bold**` entry. Starlight paints it
+ *     `var(--sl-color-text-invert)` on `var(--sl-color-text-accent)`. This
+ *     theme points the accent at the ink, and text-invert resolves through
+ *     `--sl-color-accent-low` — that same ink at 14% — so it came out
+ *     near-white on near-white and could not be read at all. A ruled box says
+ *     the same thing without turning one filename into a field of red, and it
+ *     keeps the accent a mark, which is all it is anywhere else in this file.
+ *
+ *   - THE GUIDES. The `ul` rules are drawn in `--sl-color-gray-5`, which is
+ *     #2a2a2a against a #222222 plate. That is a line you cannot see.
+ */
+:root .sl-markdown-content starlight-file-tree {
+	--x-space: 0.75rem;
+
+	border: 1px solid var(--pi-rule);
+	padding: 32px;
+	background-color: var(--pi-paper-raised);
+	font-family: var(--pi-mono);
+	font-size: var(--sl-text-code);
+}
+:root .sl-markdown-content starlight-file-tree ul {
+	border-inline-start-color: var(--pi-rule);
+}
+/*
+ * `outline` rather than `border`, because an outline costs no layout: a border
+ * would push the entry a pixel out of the column its siblings line up in, and
+ * a file tree is nothing but columns. Starlight's own print stylesheet draws
+ * this box the same way, for the same reason.
+ */
+:root .sl-markdown-content starlight-file-tree .highlight {
+	outline: 1px solid var(--pi-accent);
+	outline-offset: 1px;
+	background-color: transparent;
+	color: var(--pi-ink);
+	/* The icon's own 0.25rem margin is the inset at the start of the box; this
+	 * is the end of it matching, in place of Starlight's roomier 0.5rem. */
+	padding-inline-end: 0.25rem;
 }
 
 /* --------------------------------------------------------- asides & cards */

@@ -85,41 +85,109 @@ function section(text, wanted, rel) {
 	return lines.slice(start, end).join('\n');
 }
 
+/**
+ * What a code fence's meta string asks for: the file's text, and the meta with
+ * `from=` and `section=` taken off it. `null` when there is no `from=`.
+ *
+ * Both attributes have to come off, so Expressive Code never sees an unknown
+ * one — it reads those as a frame title, and this theme never renders one.
+ *
+ * @param {string | null | undefined} meta
+ * @returns {{ value: string, meta: string | null } | null}
+ */
+function included(meta) {
+	const match = meta?.match(FROM);
+	if (!match) return null;
+
+	const rel = normalize(match[1]);
+	if (rel.startsWith('..')) {
+		throw new Error(`code-from-file: from= must stay inside the repository: ${match[1]}`);
+	}
+
+	let value;
+	try {
+		value = readFileSync(join(root, rel), 'utf8');
+	} catch (cause) {
+		// A bad path fails the build. Sourcing these from disk is only
+		// worth anything if a stale path cannot render as an empty block.
+		throw new Error(`code-from-file: cannot read ${rel}`, { cause });
+	}
+
+	const wanted = meta.match(SECTION);
+	if (wanted) value = section(value, wanted[1] ?? wanted[2], rel);
+
+	return {
+		// Trailing newlines are the file ending properly, not blank lines the
+		// reader should see at the bottom of the block.
+		value: value.replace(/\s+$/, ''),
+		meta: meta.replace(match[0], '').replace(wanted?.[0] ?? '', '').trim() || null,
+	};
+}
+
 export function codeFromFile() {
 	return {
 		name: 'code-from-file',
 		code(node, ctx) {
-			const match = node.meta?.match(FROM);
-			if (!match) return;
-
-			const rel = normalize(match[1]);
-			if (rel.startsWith('..')) {
-				throw new Error(`code-from-file: from= must stay inside the repository: ${match[1]}`);
-			}
-
-			let value;
-			try {
-				value = readFileSync(join(root, rel), 'utf8');
-			} catch (cause) {
-				// A bad path fails the build. Sourcing these from disk is only
-				// worth anything if a stale path cannot render as an empty block.
-				throw new Error(`code-from-file: cannot read ${rel}`, { cause });
-			}
-
-			const wanted = node.meta.match(SECTION);
-			if (wanted) value = section(value, wanted[1] ?? wanted[2], rel);
-
-			ctx.replaceNode(node, {
-				type: 'code',
-				lang: node.lang,
-				// Both attributes come off, so Expressive Code never sees an
-				// unknown one — it reads those as a frame title, and this theme
-				// never renders one.
-				meta: node.meta.replace(match[0], '').replace(wanted?.[0] ?? '', '').trim() || null,
-				// Trailing newlines are the file ending properly, not blank
-				// lines the reader should see at the bottom of the block.
-				value: value.replace(/\s+$/, ''),
-			});
+			const filled = included(node.meta);
+			if (!filled) return;
+			ctx.replaceNode(node, { type: 'code', lang: node.lang, meta: filled.meta, value: filled.value });
 		},
 	};
+}
+
+/**
+ * An opening or closing fence: indent, marker, and the info string after it.
+ *
+ * Exported because plugins/wrap-markdown.mjs has to find code blocks too, and
+ * two files disagreeing about what a fence is would mean one of them wrapping
+ * a line of somebody's program.
+ */
+export const FENCE = /^( {0,3})(`{3,}|~{3,})(.*)$/;
+
+/**
+ * The same substitution, over Markdown source text rather than a parsed tree.
+ *
+ * The single-file export (src/pages/spec.md.ts) concatenates page bodies
+ * straight off the content layer, which is Markdown that has been through no
+ * processor at all — so a `from=` fence would reach the reader as an empty
+ * block with a path in the info string. This fills those blocks the same way
+ * the mdast plugin does, from the same files, with the same errors.
+ *
+ * Scanning lines rather than matching a regex over the whole document is what
+ * keeps a fence inside a fence — a Markdown example containing a code block —
+ * from being read as a fence of its own: a block ends only at a marker of the
+ * same character, at least as long as the one that opened it.
+ *
+ * @param {string} markdown
+ * @returns {string}
+ */
+export function fillFromFile(markdown) {
+	const lines = markdown.split('\n');
+	const out = [];
+
+	for (let i = 0; i < lines.length; i++) {
+		const fence = lines[i].match(FENCE);
+		if (!fence) {
+			out.push(lines[i]);
+			continue;
+		}
+
+		const [, indent, marker, info] = fence;
+		const filled = included(info);
+		// `included` strips only the two attributes, so what comes back is the
+		// rest of the info string — here that still carries the language.
+		out.push(filled ? `${indent}${marker}${filled.meta ?? ''}` : lines[i]);
+		if (filled) out.push(...filled.value.split('\n').map((line) => indent + line));
+
+		// Everything to the closing fence. A block the include filled has its
+		// own body discarded — by convention it is empty, and the file is the
+		// thing the page meant to show either way.
+		const closes = new RegExp(`^ {0,3}\\${marker[0]}{${marker.length},} *$`);
+		while (++i < lines.length && !closes.test(lines[i])) {
+			if (!filled) out.push(lines[i]);
+		}
+		if (i < lines.length) out.push(lines[i]);
+	}
+
+	return out.join('\n');
 }

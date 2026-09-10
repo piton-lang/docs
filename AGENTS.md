@@ -34,6 +34,27 @@ under `examples/`:
 Both attributes are documented in `plugins/code-from-file.mjs`, including
 `section=` for taking one part of a long file.
 
+## The single-file export
+
+`/spec.md` is the documentation flattened into one linear Markdown document,
+prerendered to `dist/spec.md` by `src/pages/spec.md.ts`.
+
+What goes in it, and in what order, is `src/config/spec.mjs`:
+
+```js
+sections: ['Introduction', 'Reference', 'Belay Framework'],
+```
+
+Those labels name sections in `src/config/sections.mjs` — the documentation's
+structure, which `astro.config.mjs` also builds the sidebar from, so the export
+and the site cannot drift. Naming a section that does not exist fails the
+build. Adding a section to the export needs no change to the endpoint.
+
+The file is hard-wrapped to `columns` (80). A block is only reflowed if a line
+in it is too long, so the hand-wrapped pages keep their own line breaks; code
+blocks and tables are never wrapped, since a line break inside either one
+breaks it. See `plugins/wrap-markdown.mjs`.
+
 ## Documentation
 
 Full documentation: https://docs.astro.build

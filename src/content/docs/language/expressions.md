@@ -5,9 +5,9 @@ sidebar:
   order: 5
 ---
 
-An open question currently is what happens if a variable references another
-variable. We've hinted at this in a previous example where we added `A` and `B`
-but now let's be clear about it.
+A question you might currently have is what happens if a variable references
+another variable. We've hinted at this in a previous example where we added `A`
+and `B` but now let's be clear about it.
 
 Easy expression using literals:
 
