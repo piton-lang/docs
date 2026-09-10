@@ -3287,6 +3287,75 @@
 	text-underline-offset: 0.18em;
 }
 
+/* ---- a column's overflow ------------------------------------------------ */
+
+/*
+ * A column lists five pages. The rest are behind a trigger that floats the
+ * whole group — heading and every link — over the index: the sheet is out of
+ * flow, so opening one never lengthens a column, moves the columns beside it,
+ * or pushes the copyright row down the page.
+ *
+ * It is anchored to the BOTTOM of the column and grows upward, because the
+ * footer is the last thing on the page: a sheet opening downward would hang
+ * off the end of the document.
+ */
+:root .pi-footer__group {
+	position: relative;
+}
+
+:root .pi-footer__more {
+	margin-top: calc(var(--pi-unit) * 0.6);
+}
+
+/* The trigger is a micro-label, like the group heading it belongs to. */
+:root .pi-footer__more > summary {
+	display: inline-flex;
+	align-items: center;
+	gap: calc(var(--pi-unit) * 0.4);
+	list-style: none;
+	cursor: pointer;
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--pi-ink-muted);
+}
+:root .pi-footer__more > summary::-webkit-details-marker {
+	display: none;
+}
+:root .pi-footer__more > summary:hover {
+	color: var(--pi-ink);
+}
+
+/* A caret drawn from two borders, pointing down closed and up open. */
+:root .pi-footer__more > summary::after {
+	content: '';
+	width: 0.32em;
+	height: 0.32em;
+	border-inline-end: 1px solid currentColor;
+	border-block-end: 1px solid currentColor;
+	transform: translateY(-0.1em) rotate(45deg);
+}
+:root .pi-footer__more[open] > summary::after {
+	transform: translateY(0.1em) rotate(-135deg);
+}
+
+/* A sheet like the search panel: flat, hairline, paper — no shadow anywhere
+   in this design, so the rule and the raised paper do the lifting. */
+:root .pi-footer__sheet {
+	position: absolute;
+	z-index: 5;
+	inset-inline-start: calc(var(--pi-unit) * -1);
+	bottom: calc(var(--pi-unit) * -0.75);
+	min-width: calc(100% + var(--pi-unit) * 2);
+	max-width: 15rem;
+	max-height: min(24rem, 60vh);
+	overflow-y: auto;
+	padding: calc(var(--pi-unit) * 0.9) calc(var(--pi-unit) * 1);
+	background: var(--pi-paper-raised);
+	border: 1px solid var(--pi-rule-strong);
+}
+
 /* Mark and copyright, separated from the index by a rule. */
 :root .pi-footer__end {
 	display: flex;

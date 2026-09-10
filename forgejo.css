@@ -1,0 +1,976 @@
+/* ============================================================================
+ * PITON — a Forgejo theme.
+ *
+ * Derived from the Piton documentation site (src/styles/theme.css), which is
+ * itself after the NASA Graphics Standards Manual (Danne & Blackburn, 1976),
+ * with Braun/Rams restraint. The same five rules govern this file:
+ *
+ *   PAPER      A field of flat ink on paper. No bevel, no grain, no shadow,
+ *              no rounded card floating above a ground. Every box-shadow and
+ *              every corner radius in Forgejo is removed here.
+ *   ONE RULE   Hairline, one weight, one colour. Rules divide zones; they
+ *              never decorate. In Forgejo that colour is --color-secondary,
+ *              which is what every border in base.css reads.
+ *   ONE ACCENT NASA red #FC3D21, as a system marker ONLY — the current item's
+ *              edge, the focus ring, the form control's tick, an active
+ *              reaction. Never as a surface, never as running text. It clears
+ *              5.24:1 on the reversed spread and 3.24:1 on paper.
+ *   INDEXED    Position is always legible. Here: the current row, tab and
+ *              menu item each carry a 2px accent edge, and nothing else does.
+ *   GRID       One rhythm, one measure. Nothing floats.
+ *
+ * The primary colour is INK, not the accent — exactly as on the site, where
+ * the hero's primary call to action is white with dark text and the accent is
+ * held back for markers. So in Forgejo: primary buttons are ink on paper,
+ * links are ink, and hovering a link brings the red up under it.
+ *
+ * Dark ("the reversed spread") is the base state; paper is served under
+ * `prefers-color-scheme: light`, which is also what a browser reports when the
+ * reader has expressed no preference. To pin one scheme, delete the other.
+ *
+ * SYNTAX COLOURS are ported from the two Shiki themes the site's code blocks
+ * actually use: Houston for the reversed spread, GitHub Light for paper. The
+ * terminal/ANSI palette is built from the same Houston hues.
+ *
+ * SEMANTIC COLOURS (issue green, PR purple, danger red) are kept close to
+ * Forgejo's own. The manual has one accent because a manual has no merge
+ * states; a forge does, and a theme that greyed them out would be a worse
+ * tool. They are tuned to sit on these grounds, not replaced.
+ *
+ * INSTALL
+ *   1. Save as  custom/public/assets/css/theme-piton.css
+ *      (Forgejo discovers themes by the `theme-<name>.css` filename; a file
+ *      called forgejo.css will not be picked up.)
+ *   2. Restart Forgejo.
+ *   3. Choose "piton" under Settings -> Appearance.
+ *
+ * TYPE
+ *   The site sets Barlow Semi Condensed for text, Barlow Condensed for
+ *   display, and IBM Plex Mono for code. They are named first in the stacks
+ *   below, so a reader who has them installed gets them at no cost. To serve
+ *   them to everyone, either self-host the Fontsource files under
+ *   custom/public/assets/ and add the @font-face rules here, or uncomment the
+ *   single @import on the next line — which is the one and only external
+ *   request this file would make, to Google, on every page load, for every
+ *   reader. It is commented out on purpose.
+ * ==========================================================================*/
+
+/* @import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow+Semi+Condensed:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap"); */
+
+/* =========================================================== THE REVERSED
+ * SPREAD — the manual's dark state, and this theme's base.
+ * ==========================================================================*/
+
+:root {
+  /* ---- the value ladder, black to ink ---------------------------------- */
+  --pi-chrome:       #000000; /* the header band, bottom of the ladder */
+  --pi-well:         #121314; /* recessed ground: strips, footers */
+  --pi-paper:        #191919; /* the sheet */
+  --pi-anodized:     #1e1f21; /* panel, a touch cooler than the sheet */
+  --pi-raised:       #222222; /* data blocks: tables, code, boxes */
+  --pi-raised-2:     #2a2a2a;
+  --pi-wash:         #2d2d2c; /* ink at 9% over the sheet */
+  --pi-shade:        #383837;
+  --pi-rule:         #494948; /* ink at 22% over the sheet — THE hairline */
+  /* A control's boundary is information, not decoration: WCAG 1.4.11 wants
+     3:1 for it, which the hairline does not clear on either ground. This is
+     the one step up, used for input borders and nowhere else. */
+  --pi-rule-control: #706f6c; /* 3.50:1 on the sheet, 3.17:1 on a plate */
+  --pi-rule-strong:  #878684; /* ink at 50% */
+  --pi-ink-ghost:    #333333;
+  --pi-ink-faint:    #5f5f5e;
+  --pi-ink-dim:      #7a7a7a;
+  --pi-ink-muted:    #a0a0a0; /* 7.22:1 */
+  --pi-ink-soft:     #c8c7c3;
+  --pi-ink-near:     #d8d8d8;
+  --pi-ink:          #f4f3ef; /* 17.01:1 */
+  --pi-ink-full:     #ffffff;
+  --pi-accent:       #fc3d21; /* 5.24:1 — markers only */
+
+  --is-dark-theme: true;
+  color-scheme: dark;
+
+  /* ---- type ------------------------------------------------------------ */
+  --fonts-override: "Barlow Semi Condensed", "Barlow SemiCondensed";
+  --fonts-monospace: "IBM Plex Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace, var(--fonts-emoji);
+  --pi-display: "Barlow Condensed", "Barlow Semi Condensed", var(--fonts-regular);
+
+  /* ---- flat. Printed matter has no corner radius. ----------------------- */
+  --border-radius: 0;
+  --border-radius-medium: 0;
+  --border-radius-large: 0;
+  --border-radius-full: 0;
+
+  /* ---- primary: INK, not the accent ------------------------------------ */
+  --color-primary: var(--pi-ink);
+  --color-primary-contrast: #111111;
+  --color-primary-dark-1: var(--pi-ink-full);
+  --color-primary-dark-2: var(--pi-ink-full);
+  --color-primary-dark-3: var(--pi-ink-full);
+  --color-primary-dark-4: var(--pi-ink-full);
+  --color-primary-light-1: var(--pi-ink-near);
+  --color-primary-light-2: var(--pi-ink-soft);
+  --color-primary-light-3: var(--pi-ink-muted);
+  --color-primary-light-4: var(--pi-ink-dim);
+  --color-primary-light-5: var(--pi-ink-faint);
+  --color-primary-light-6: var(--pi-rule);
+  --color-primary-light-7: var(--pi-ink-ghost);
+  --color-primary-alpha-10: #f4f3ef19;
+  --color-primary-alpha-20: #f4f3ef33;
+  --color-primary-alpha-30: #f4f3ef4b;
+  --color-primary-alpha-40: #f4f3ef66;
+  --color-primary-alpha-50: #f4f3ef80;
+  --color-primary-alpha-60: #f4f3ef99;
+  --color-primary-alpha-70: #f4f3efb3;
+  --color-primary-alpha-80: #f4f3efcc;
+  --color-primary-alpha-90: #f4f3efe1;
+  /* The site's primary CTA goes #f4f3ef -> #ffffff on hover: brighter, never
+     dimmer. Forgejo's own themes step the other way; this one does not. */
+  --color-primary-hover: var(--pi-ink-full);
+  --color-primary-active: var(--pi-ink-near);
+
+  /* ---- secondary: the hairline. Every border in base.css reads this. ---- */
+  --color-secondary: var(--pi-rule);
+  --color-secondary-dark-1: #5a5a58;
+  --color-secondary-dark-2: #6b6a68;
+  --color-secondary-dark-3: var(--pi-ink-dim);
+  --color-secondary-dark-4: #8a8a87;
+  --color-secondary-dark-5: #9a9a97;
+  --color-secondary-dark-6: var(--pi-ink-muted);
+  --color-secondary-dark-7: #b4b3b0;
+  --color-secondary-dark-8: var(--pi-ink-soft);
+  --color-secondary-dark-9: var(--pi-ink-near);
+  --color-secondary-dark-10: var(--pi-ink);
+  --color-secondary-dark-11: var(--pi-ink);
+  --color-secondary-dark-12: var(--pi-ink);
+  --color-secondary-dark-13: var(--pi-ink);
+  --color-secondary-light-1: #565655;
+  --color-secondary-light-2: #3a3a39;
+  --color-secondary-light-3: var(--pi-raised-2);
+  --color-secondary-light-4: var(--pi-anodized);
+  --color-secondary-alpha-10: #49494819;
+  --color-secondary-alpha-20: #49494833;
+  --color-secondary-alpha-30: #4949484b;
+  --color-secondary-alpha-40: #49494866;
+  --color-secondary-alpha-50: #49494880;
+  --color-secondary-alpha-60: #49494899;
+  --color-secondary-alpha-70: #494948b3;
+  --color-secondary-alpha-80: #494948cc;
+  --color-secondary-alpha-90: #494948e1;
+  --color-secondary-hover: var(--color-secondary-light-1);
+  --color-secondary-active: var(--color-secondary-light-2);
+
+  /* ---- the console: the black band, set in Plex Mono ------------------- */
+  --color-console-fg: var(--pi-ink);
+  --color-console-fg-subtle: var(--pi-ink-muted);
+  --color-console-bg: var(--pi-chrome);
+  --color-console-border: var(--pi-rule);
+  --color-console-hover-bg: #ffffff14;
+  --color-console-active-bg: var(--pi-raised-2);
+  --color-console-menu-bg: var(--pi-anodized);
+  --color-console-menu-border: var(--pi-rule);
+
+  /* ---- semantic colours ------------------------------------------------ */
+  --color-red: #b91c1c;
+  --color-orange: #c2540b;
+  --color-yellow: #b07d05;
+  --color-olive: #7f8f11;
+  --color-green: #15803d;
+  --color-teal: #0d9488;
+  --color-blue: #2563eb;
+  --color-violet: #7c3aed;
+  --color-purple: #8b5cf6;
+  --color-pink: #db2777;
+  --color-brown: #a47252;
+  --color-grey: var(--pi-ink-dim);
+  --color-black: var(--pi-paper);
+
+  --color-red-light: #dc2626;
+  --color-orange-light: #ea580c;
+  --color-yellow-light: #d19a06;
+  --color-olive-light: #91a313;
+  --color-green-light: #16a34a;
+  --color-teal-light: #14b8a6;
+  --color-purple-light: #a855f7;
+  --color-pink-light: #db61a2;
+  --color-brown-light: #94674a;
+  --color-grey-light: var(--pi-ink-muted);
+  --color-black-light: var(--pi-anodized);
+
+  --color-red-dark-1: #a71919;
+  --color-orange-dark-1: #ab490a;
+  --color-yellow-dark-1: #9a6d04;
+  --color-olive-dark-1: #6f7d0f;
+  --color-green-dark-1: #137337;
+  --color-teal-dark-1: #0c857a;
+  --color-violet-dark-1: #6a1feb;
+  --color-purple-dark-1: #7c46f0;
+  --color-pink-dark-1: #c7216b;
+  --color-brown-dark-1: #94674a;
+  --color-black-dark-1: var(--pi-well);
+
+  --color-red-dark-2: #941616;
+  --color-orange-dark-2: #933f09;
+  --color-yellow-dark-2: #825c03;
+  --color-olive-dark-2: #5f6b0d;
+  --color-green-dark-2: #15803d;
+  --color-teal-dark-2: #0a766d;
+  --color-violet-dark-2: #5c14d8;
+  --color-purple-dark-2: #6d31e4;
+  --color-pink-dark-2: #b11d5f;
+  --color-brown-dark-2: #a47252;
+  --color-black-dark-2: var(--pi-chrome);
+
+  /* ---- ANSI, built from the Houston hues the site sets code in --------- */
+  --color-ansi-black: var(--pi-anodized);
+  --color-ansi-red: #e4573f;
+  --color-ansi-green: #6fbf8a;
+  --color-ansi-yellow: #ffd493;
+  --color-ansi-blue: #54b9ff;
+  --color-ansi-magenta: #acafff;
+  --color-ansi-cyan: #00daef;
+  --color-ansi-white: var(--pi-ink-muted);
+  --color-ansi-bright-black: var(--pi-rule);
+  --color-ansi-bright-red: #ff7540;
+  --color-ansi-bright-green: #4bf3c8;
+  --color-ansi-bright-yellow: #ffe3b8;
+  --color-ansi-bright-blue: #8ecfff;
+  --color-ansi-bright-magenta: #c9cbff;
+  --color-ansi-bright-cyan: #5ae9f6;
+  --color-ansi-bright-white: var(--pi-ink);
+
+  /* ---- other ----------------------------------------------------------- */
+  --color-gold: #b1983b;
+  --color-white: #ffffff;
+  --color-pure-black: #000000;
+
+  --color-diff-removed-word-bg: #6e2c22;
+  --color-diff-added-word-bg: #1f5138;
+  --color-diff-removed-row-bg: #3a1f1a;
+  --color-diff-moved-row-bg: #4a3a14;
+  --color-diff-added-row-bg: #17301f;
+  --color-diff-removed-row-border: #6e2c22;
+  --color-diff-moved-row-border: #8c6a1a;
+  --color-diff-added-row-border: #1f5138;
+  --color-diff-inactive: var(--pi-anodized);
+
+  --color-error-border: #7a2a1c;
+  --color-error-bg: #3d1a12;
+  --color-error-bg-active: #55241a;
+  --color-error-bg-hover: #55241a;
+  --color-error-text: #ffcfc4;
+  --color-success-border: #1f6e3c;
+  --color-success-bg: #17301f;
+  --color-success-text: #a9e8c0;
+  --color-warning-border: #8c6a1a;
+  --color-warning-bg: #3a2e12;
+  --color-warning-text: #ffe3b8;
+  --color-info-border: #2f4a7a;
+  --color-info-bg: #17222f;
+  --color-info-text: #cfe0f4;
+
+  --color-red-badge: #d0402a;
+  --color-red-badge-bg: #d0402a22;
+  --color-red-badge-hover-bg: #d0402a44;
+  --color-green-badge: #16a34a;
+  --color-green-badge-bg: #16a34a22;
+  --color-green-badge-hover-bg: #16a34a44;
+  --color-yellow-badge: #c9a227;
+  --color-yellow-badge-bg: #c9a22722;
+  --color-yellow-badge-hover-bg: #c9a22744;
+  --color-orange-badge: #ea580c;
+  --color-orange-badge-bg: #ea580c22;
+  --color-orange-badge-hover-bg: #ea580c44;
+
+  /* declarative thin/background colours */
+  --thin-lightness: 0.72;
+  --regular-chroma: 0.17;
+  --hue-green: 145deg;
+  --hue-red: 27deg;
+  --hue-purple: 298deg;
+  --hue-violet: 293deg;
+  --hue-orange: 41deg;
+  --hue-blue: 260deg;
+  --thin-lightness-highlight: 0.8;
+  --color-thin-red-highlight: oklch(var(--thin-lightness-highlight) var(--regular-chroma) 27deg);
+  --bg-lightness: 0.26;
+  --bg-chroma: 0.05;
+  --color-danger-bg: oklch(var(--bg-lightness) var(--bg-chroma) 27deg);
+
+  /* ---- target-based ---------------------------------------------------- */
+  --color-body: var(--pi-paper);
+  --color-box-header: var(--pi-anodized);
+  --color-box-body: var(--pi-raised);
+  --color-box-body-highlight: var(--pi-raised-2);
+  --color-text-dark: var(--pi-ink-full);
+  --color-text: var(--pi-ink);
+  --color-text-light: #cfcecb;
+  --color-text-light-1: #bdbcb9;
+  --color-text-light-2: var(--pi-ink-muted);
+  --color-text-light-3: #8a8a8a;
+  --color-footer: var(--pi-well);
+  --color-timeline: var(--pi-rule);
+  --color-input-text: var(--pi-ink);
+  --color-input-background: var(--pi-paper);
+  --color-input-toggle-background: var(--pi-shade);
+  --color-input-border: var(--pi-rule-control);
+  --color-input-border-hover: var(--pi-rule-strong);
+  --color-header-wrapper: var(--pi-chrome);
+  --color-header-wrapper-transparent: #00000000;
+  --color-light: #00000028;
+  --color-light-mimic-enabled: rgba(0, 0, 0, calc(40 / 255 * 222 / 255 / var(--opacity-disabled)));
+  --color-light-border: #f4f3ef38;
+  --color-hover: #262626;
+  --color-active: var(--pi-wash);
+  --color-menu: var(--pi-raised);
+  --color-card: var(--pi-raised);
+  --fancy-card-bg: var(--pi-anodized);
+  --fancy-card-border: var(--pi-rule);
+  /* Horizontal rules only. The eye tracks columns by alignment; a zebra
+     stripe competes with the data. */
+  --color-markup-table-row: transparent;
+  --color-markup-code-block: var(--pi-raised);
+  --color-markup-code-inline: var(--pi-wash);
+  --color-button: transparent;
+  --color-code-bg: var(--pi-raised);
+  /* Flat: nothing floats above the sheet. */
+  --color-shadow: transparent;
+  --color-secondary-bg: var(--pi-anodized);
+  --color-text-focus: var(--pi-ink-full);
+  --color-expand-button: var(--pi-wash);
+  --color-placeholder-text: var(--pi-ink-muted);
+  --color-editor-line-highlight: var(--pi-anodized);
+  --color-project-board-bg: var(--pi-anodized);
+  --color-project-board-dark-label: var(--pi-ink-muted);
+  --color-caret: var(--pi-accent);
+  --color-reaction-bg: #f4f3ef12;
+  --color-reaction-active-bg: #fc3d2140;
+  --color-reaction-hover-bg: #fc3d2126;
+  --color-tooltip-text: var(--pi-ink);
+  --color-tooltip-bg: #000000f2;
+  --color-nav-bg: var(--pi-chrome);
+  --color-nav-hover-bg: #222222;
+  --color-secondary-nav-bg: var(--pi-anodized);
+  --color-label-text: var(--pi-ink);
+  --color-label-bg: var(--pi-wash);
+  --color-label-hover-bg: var(--pi-shade);
+  --color-label-active-bg: var(--pi-rule);
+  --color-label-bg-alt: var(--pi-shade);
+  /* The one accent, as a marker: the tick in a checkbox, the fill of a
+     progress bar, the thing that says "here". */
+  --color-accent: var(--pi-accent);
+  --color-small-accent: #fc3d2140;
+  --color-highlight-fg: var(--pi-accent);
+  --color-highlight-bg: #fc3d2126;
+  --color-overlay-backdrop: #000000d0;
+  --color-selection-bg: var(--pi-ink);
+  --color-selection-fg: var(--pi-paper);
+  --checkerboard-color-1: var(--pi-raised-2);
+  --checkerboard-color-2: var(--pi-raised);
+  --color-indicator-offline: var(--pi-ink-dim);
+  --color-indicator-offline-20: #7a7a7a33;
+  --color-indicator-idle: #16a34a;
+  --color-indicator-idle-20: #16a34a33;
+  --color-indicator-active: var(--pi-accent);
+  --color-indicator-active-20: #fc3d2133;
+
+  accent-color: var(--color-accent);
+}
+
+/* ---------------------------------------------------------------------------
+ * SYNTAX — Houston, the Shiki theme the site's dark code blocks are set in.
+ *
+ *   #54b9ff  keyword, storage, tag        #ffd493  string, number, constant
+ *   #00daef  function, decorator          #acafff  type, class, namespace
+ *   #4bf3c8  variable, attribute          #eef0f9  operator, punctuation
+ * ------------------------------------------------------------------------- */
+
+.chroma .c, .chroma .c1, .chroma .ch, .chroma .cm { color: #8b8d99; font-style: italic; }
+.chroma .cs { color: #8b8d99; }
+.chroma .cp { color: #00daef; }
+.chroma .cpf { color: #ffd493; }
+.chroma .k, .chroma .kc, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr { color: #54b9ff; }
+.chroma .kt { color: #acafff; }
+.chroma .n, .chroma .nx { color: #eef0f9; }
+.chroma .na { color: #4bf3c8; }
+.chroma .nb, .chroma .bp { color: #acafff; }
+.chroma .nc, .chroma .nn { color: #acafff; }
+.chroma .nd, .chroma .nf, .chroma .fm { color: #00daef; }
+.chroma .ne, .chroma .nl, .chroma .nt { color: #54b9ff; }
+.chroma .ni, .chroma .no { color: #ffd493; }
+.chroma .nv, .chroma .vc, .chroma .vg, .chroma .vi, .chroma .vm { color: #4bf3c8; }
+.chroma .m, .chroma .mb, .chroma .mf, .chroma .mh, .chroma .mi, .chroma .mo, .chroma .il { color: #ffd493; }
+.chroma .s, .chroma .s1, .chroma .s2, .chroma .sa, .chroma .sb, .chroma .sc,
+.chroma .sd, .chroma .sh, .chroma .si, .chroma .ss, .chroma .sx, .chroma .dl { color: #ffd493; }
+.chroma .se, .chroma .sr { color: #eef0f9; }
+.chroma .o, .chroma .ow, .chroma .p { color: #eef0f9; }
+.chroma .l, .chroma .ld { color: #ffd493; }
+.chroma .err { color: #f44747; }
+.chroma .gd { color: #f4f3ef; background-color: #3a1f1a; }
+.chroma .gi { color: #f4f3ef; background-color: #17301f; }
+.chroma .ge { font-style: italic; }
+.chroma .gs { font-weight: 600; }
+.chroma .gl { text-decoration: underline; }
+.chroma .gh { color: #4bf3c8; }
+.chroma .gu { color: #acafff; }
+.chroma .gp { color: #a0a0a0; }
+.chroma .go { color: #a0a0a0; }
+.chroma .gr { color: #f44747; }
+.chroma .gt { color: #ff7540; }
+
+/* The in-page editor, kept on the same hues. */
+.CodeMirror.cm-s-default .cm-comment, .CodeMirror.cm-s-paper .cm-comment { color: #8b8d99; }
+.CodeMirror.cm-s-default .cm-keyword, .CodeMirror.cm-s-paper .cm-keyword { color: #54b9ff; }
+.CodeMirror.cm-s-default .cm-atom, .CodeMirror.cm-s-paper .cm-atom { color: #ffd493; }
+.CodeMirror.cm-s-default .cm-number, .CodeMirror.cm-s-paper .cm-number { color: #ffd493; }
+.CodeMirror.cm-s-default .cm-string, .CodeMirror.cm-s-paper .cm-string { color: #ffd493; }
+.CodeMirror.cm-s-default .cm-string-2, .CodeMirror.cm-s-paper .cm-string-2 { color: #ffd493; }
+.CodeMirror.cm-s-default .cm-def, .CodeMirror.cm-s-paper .cm-def { color: #00daef; }
+.CodeMirror.cm-s-default .cm-variable-2, .CodeMirror.cm-s-paper .cm-variable-2 { color: #4bf3c8; }
+.CodeMirror.cm-s-default .cm-variable-3, .CodeMirror.cm-s-paper .cm-variable-3 { color: #acafff; }
+.CodeMirror.cm-s-default .cm-property, .CodeMirror.cm-s-paper .cm-property { color: #4bf3c8; }
+.CodeMirror.cm-s-default .cm-builtin, .CodeMirror.cm-s-paper .cm-builtin { color: #acafff; }
+.CodeMirror.cm-s-default .cm-tag, .CodeMirror.cm-s-paper .cm-tag { color: #54b9ff; }
+.CodeMirror.cm-s-default .cm-attribute, .CodeMirror.cm-s-paper .cm-attribute { color: #4bf3c8; }
+.CodeMirror.cm-s-default .cm-meta, .CodeMirror.cm-s-paper .cm-meta,
+.CodeMirror.cm-s-default .cm-qualifier, .CodeMirror.cm-s-paper .cm-qualifier { color: #00daef; }
+.CodeMirror.cm-s-default .cm-bracket, .CodeMirror.cm-s-paper .cm-bracket { color: #eef0f9; }
+.CodeMirror.cm-s-default .cm-header, .CodeMirror.cm-s-paper .cm-header { color: #4bf3c8; }
+.CodeMirror.cm-s-default .cm-quote, .CodeMirror.cm-s-paper .cm-quote { color: #a0a0a0; }
+.CodeMirror.cm-s-default .cm-link, .CodeMirror.cm-s-paper .cm-link { color: #54b9ff; }
+.CodeMirror.cm-s-default .cm-url, .CodeMirror.cm-s-paper .cm-url { color: #8b8d99; }
+.CodeMirror.cm-s-default .cm-hr, .CodeMirror.cm-s-paper .cm-hr { color: #494948; }
+.CodeMirror.cm-s-default .cm-error, .CodeMirror.cm-s-paper .cm-error { color: #f44747; }
+
+/* Emojis that are drawn in black ink and vanish on the reversed spread. */
+@media (prefers-color-scheme: dark) {
+  .emoji[aria-label="check mark"],
+  .emoji[aria-label="currency exchange"],
+  .emoji[aria-label="TOP arrow"],
+  .emoji[aria-label="END arrow"],
+  .emoji[aria-label="ON! arrow"],
+  .emoji[aria-label="SOON arrow"],
+  .emoji[aria-label="heavy dollar sign"],
+  .emoji[aria-label="copyright"],
+  .emoji[aria-label="registered"],
+  .emoji[aria-label="trade mark"],
+  .emoji[aria-label="multiply"],
+  .emoji[aria-label="plus"],
+  .emoji[aria-label="minus"],
+  .emoji[aria-label="divide"],
+  .emoji[aria-label="curly loop"],
+  .emoji[aria-label="double curly loop"],
+  .emoji[aria-label="wavy dash"],
+  .emoji[aria-label="paw prints"],
+  .emoji[aria-label="musical note"],
+  .emoji[aria-label="musical notes"] {
+    filter: invert(100%) hue-rotate(180deg);
+  }
+}
+
+/* ============================================================================
+ * PAPER — the manual's primary state, and what a browser reports when the
+ * reader has expressed no preference. Only the value ladder and the tokens
+ * that cannot be expressed through it are restated; everything else above is
+ * already written in terms of --pi-*.
+ * ==========================================================================*/
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --pi-chrome:      #e8e7e2; /* the header band */
+    --pi-well:        #d7d8da; /* recessed ground: strips, footers */
+    --pi-paper:       #f7f6f2; /* the sheet */
+    --pi-anodized:    #e6e7e8; /* panel */
+    --pi-raised:      #ffffff; /* data blocks: tables, code, boxes */
+    --pi-raised-2:    #f2f1ed;
+    --pi-wash:        #e7e6e2; /* ink at 7% over the sheet */
+    --pi-shade:       #e0dfdb; /* ink at 10% */
+    --pi-rule:        #c4c4c1; /* ink at 22% — THE hairline */
+    --pi-rule-control: #8a8986; /* 3.23:1 on the sheet, 3.50:1 on a plate */
+    --pi-rule-strong: #797876; /* ink at 55% */
+    --pi-ink-ghost:   #dedcd8;
+    --pi-ink-faint:   #8a8a87;
+    --pi-ink-dim:     #6e6e6e;
+    --pi-ink-muted:   #5a5a5a; /* 6.21:1 */
+    --pi-ink-soft:    #3f3f3f;
+    --pi-ink-near:    #1f1f1f;
+    --pi-ink:         #111111; /* 17.01:1 */
+    --pi-ink-full:    #000000;
+    --pi-accent:      #fc3d21; /* 3.24:1 — markers only, never running text */
+
+    --is-dark-theme: false;
+    color-scheme: light;
+
+    --color-primary-contrast: var(--pi-paper);
+    --color-primary-alpha-10: #11111119;
+    --color-primary-alpha-20: #11111133;
+    --color-primary-alpha-30: #1111114b;
+    --color-primary-alpha-40: #11111166;
+    --color-primary-alpha-50: #11111180;
+    --color-primary-alpha-60: #11111199;
+    --color-primary-alpha-70: #111111b3;
+    --color-primary-alpha-80: #111111cc;
+    --color-primary-alpha-90: #111111e1;
+
+    --color-secondary-alpha-10: #c4c4c119;
+    --color-secondary-alpha-20: #c4c4c133;
+    --color-secondary-alpha-30: #c4c4c14b;
+    --color-secondary-alpha-40: #c4c4c166;
+    --color-secondary-alpha-50: #c4c4c180;
+    --color-secondary-alpha-60: #c4c4c199;
+    --color-secondary-alpha-70: #c4c4c1b3;
+    --color-secondary-alpha-80: #c4c4c1cc;
+    --color-secondary-alpha-90: #c4c4c1e1;
+    --color-secondary-light-1: #d3d2cf;
+    --color-secondary-light-2: #dedcd8;
+    --color-secondary-light-3: var(--pi-raised-2);
+    --color-secondary-light-4: var(--pi-raised);
+    --color-secondary-dark-1: #b3b3b0;
+    --color-secondary-dark-2: #a2a29f;
+    --color-secondary-dark-3: #91918e;
+    --color-secondary-dark-4: #80807d;
+    --color-secondary-dark-5: var(--pi-rule-strong);
+    --color-secondary-dark-6: var(--pi-ink-dim);
+    --color-secondary-dark-7: var(--pi-ink-muted);
+    --color-secondary-dark-8: #4a4a4a;
+    --color-secondary-dark-9: var(--pi-ink-soft);
+    --color-secondary-dark-10: #2f2f2f;
+    --color-secondary-dark-11: var(--pi-ink-near);
+    --color-secondary-dark-12: var(--pi-ink);
+    --color-secondary-dark-13: var(--pi-ink-full);
+
+    /* The console keeps its black band on paper too — a terminal is a
+       terminal, and the manual reverses a spread when the content asks. */
+    --color-console-fg: #f4f3ef;
+    --color-console-fg-subtle: #a0a0a0;
+    --color-console-bg: #191919;
+    --color-console-border: #494948;
+    --color-console-hover-bg: #ffffff14;
+    --color-console-active-bg: #2a2a2a;
+    --color-console-menu-bg: #1e1f21;
+    --color-console-menu-border: #494948;
+
+    --color-text-light: #333333;
+    --color-text-light-1: #454545;
+    --color-text-light-2: var(--pi-ink-muted);
+    --color-text-light-3: var(--pi-ink-dim);
+    --color-text-dark: var(--pi-ink-full);
+    --color-text-focus: var(--pi-ink-full);
+    --color-black: var(--pi-ink);
+    --color-black-light: var(--pi-ink-near);
+    --color-black-dark-1: var(--pi-ink-full);
+    --color-black-dark-2: var(--pi-ink-full);
+    --color-grey: var(--pi-ink-dim);
+    --color-grey-light: #9a9a97;
+
+    --color-light: #0000000f;
+    --color-light-border: #11111124;
+    --color-hover: var(--pi-wash);
+    --color-active: var(--pi-shade);
+    --color-input-toggle-background: var(--pi-shade);
+    --color-reaction-bg: #11111110;
+    --color-tooltip-text: var(--pi-paper);
+    --color-tooltip-bg: #111111f2;
+    --color-overlay-backdrop: #191919a0;
+    --color-selection-bg: var(--pi-ink);
+    --color-selection-fg: var(--pi-paper);
+    --color-nav-hover-bg: #dedcd8;
+    --color-indicator-offline-20: #6e6e6e26;
+    --color-indicator-idle: #15803d;
+    --color-indicator-idle-20: #15803d26;
+
+    --thin-lightness: 0.48;
+    --thin-lightness-highlight: 0.4;
+    --bg-lightness: 0.94;
+    --bg-chroma: 0.03;
+
+    /* semantic, on paper */
+    --color-purple: #7c3aed;
+    --color-violet: #6d28d9;
+    --color-blue: #1d4ed8;
+    --color-yellow: #a97a05;
+    --color-red-light: #b91c1c;
+    --color-orange-light: #c2540b;
+    --color-yellow-light: #a97a05;
+    --color-purple-light: #7c3aed;
+    --color-green-light: #15803d;
+    --color-teal-light: #0d9488;
+    --color-pink-light: #c2185b;
+    --color-brown-light: #8a5f42;
+
+    --color-diff-removed-word-bg: #ffc7bd;
+    --color-diff-added-word-bg: #b7e6c6;
+    --color-diff-removed-row-bg: #ffeeeb;
+    --color-diff-moved-row-bg: #fdf3d4;
+    --color-diff-added-row-bg: #eefaf1;
+    --color-diff-removed-row-border: #f0b3a8;
+    --color-diff-moved-row-border: #e3c96a;
+    --color-diff-added-row-border: #a7dcba;
+    --color-diff-inactive: var(--pi-raised-2);
+
+    --color-error-border: #f0b3a8;
+    --color-error-bg: #ffeeeb;
+    --color-error-bg-active: #ffddd6;
+    --color-error-bg-hover: #ffddd6;
+    --color-error-text: #8f1d0c;
+    --color-success-border: #a7dcba;
+    --color-success-bg: #eefaf1;
+    --color-success-text: #14532d;
+    --color-warning-border: #e3c96a;
+    --color-warning-bg: #fdf6e0;
+    --color-warning-text: #6b4c04;
+    --color-info-border: #b3c8ea;
+    --color-info-bg: #eef3fb;
+    --color-info-text: #1e3a63;
+
+    --color-red-badge: #b91c1c;
+    --color-red-badge-bg: #b91c1c1a;
+    --color-red-badge-hover-bg: #b91c1c33;
+    --color-green-badge: #15803d;
+    --color-green-badge-bg: #15803d1a;
+    --color-green-badge-hover-bg: #15803d33;
+    --color-yellow-badge: #a97a05;
+    --color-yellow-badge-bg: #a97a051a;
+    --color-yellow-badge-hover-bg: #a97a0533;
+    --color-orange-badge: #c2540b;
+    --color-orange-badge-bg: #c2540b1a;
+    --color-orange-badge-hover-bg: #c2540b33;
+
+    /* ANSI, on paper: the GitHub Light hues the site sets code in */
+    --color-ansi-black: #24292e;
+    --color-ansi-red: #d73a49;
+    --color-ansi-green: #22863a;
+    --color-ansi-yellow: #b08800;
+    --color-ansi-blue: #005cc5;
+    --color-ansi-magenta: #6f42c1;
+    --color-ansi-cyan: #0d8f88;
+    --color-ansi-white: #6a737d;
+    --color-ansi-bright-black: #57606a;
+    --color-ansi-bright-red: #b31d28;
+    --color-ansi-bright-green: #1a7f37;
+    --color-ansi-bright-yellow: #9a6700;
+    --color-ansi-bright-blue: #0550ae;
+    --color-ansi-bright-magenta: #8250df;
+    --color-ansi-bright-cyan: #0f7b74;
+    --color-ansi-bright-white: #24292e;
+
+    --color-reaction-active-bg: #fc3d2133;
+    --color-reaction-hover-bg: #fc3d211f;
+    --color-highlight-bg: #fc3d211f;
+    --color-small-accent: #fc3d2133;
+    --checkerboard-color-1: #e6e5e0;
+    --checkerboard-color-2: var(--pi-raised);
+  }
+
+  /* ---- syntax: GitHub Light, the site's paper code theme --------------- */
+  .chroma .c, .chroma .c1, .chroma .ch, .chroma .cm { color: #6a737d; font-style: italic; }
+  .chroma .cs { color: #6a737d; }
+  .chroma .cp { color: #d73a49; }
+  .chroma .cpf { color: #032f62; }
+  .chroma .k, .chroma .kc, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr { color: #d73a49; }
+  .chroma .kt { color: #6f42c1; }
+  .chroma .n, .chroma .nx { color: #24292e; }
+  .chroma .na { color: #6f42c1; }
+  .chroma .nb, .chroma .bp { color: #005cc5; }
+  .chroma .nc, .chroma .nn { color: #6f42c1; }
+  .chroma .nd, .chroma .nf, .chroma .fm { color: #6f42c1; }
+  .chroma .ne, .chroma .nl { color: #d73a49; }
+  .chroma .nt { color: #22863a; }
+  .chroma .ni, .chroma .no { color: #005cc5; }
+  .chroma .nv, .chroma .vc, .chroma .vg, .chroma .vi, .chroma .vm { color: #e36209; }
+  .chroma .m, .chroma .mb, .chroma .mf, .chroma .mh, .chroma .mi, .chroma .mo, .chroma .il { color: #005cc5; }
+  .chroma .s, .chroma .s1, .chroma .s2, .chroma .sa, .chroma .sb, .chroma .sc,
+  .chroma .sd, .chroma .sh, .chroma .si, .chroma .ss, .chroma .sx, .chroma .dl,
+  .chroma .sr { color: #032f62; }
+  .chroma .se { color: #22863a; }
+  .chroma .o, .chroma .ow, .chroma .p { color: #24292e; }
+  .chroma .l, .chroma .ld { color: #005cc5; }
+  .chroma .err { color: #b31d28; }
+  .chroma .gd { color: #24292e; background-color: #ffeeeb; }
+  .chroma .gi { color: #24292e; background-color: #eefaf1; }
+  .chroma .gh { color: #005cc5; }
+  .chroma .gu { color: #6f42c1; }
+  .chroma .gp { color: #6a737d; }
+  .chroma .go { color: #6a737d; }
+  .chroma .gr, .chroma .gt { color: #b31d28; }
+
+  .CodeMirror.cm-s-default .cm-comment, .CodeMirror.cm-s-paper .cm-comment { color: #6a737d; }
+  .CodeMirror.cm-s-default .cm-keyword, .CodeMirror.cm-s-paper .cm-keyword { color: #d73a49; }
+  .CodeMirror.cm-s-default .cm-atom, .CodeMirror.cm-s-paper .cm-atom { color: #005cc5; }
+  .CodeMirror.cm-s-default .cm-number, .CodeMirror.cm-s-paper .cm-number { color: #005cc5; }
+  .CodeMirror.cm-s-default .cm-string, .CodeMirror.cm-s-paper .cm-string { color: #032f62; }
+  .CodeMirror.cm-s-default .cm-string-2, .CodeMirror.cm-s-paper .cm-string-2 { color: #032f62; }
+  .CodeMirror.cm-s-default .cm-def, .CodeMirror.cm-s-paper .cm-def { color: #6f42c1; }
+  .CodeMirror.cm-s-default .cm-variable-2, .CodeMirror.cm-s-paper .cm-variable-2 { color: #e36209; }
+  .CodeMirror.cm-s-default .cm-variable-3, .CodeMirror.cm-s-paper .cm-variable-3 { color: #6f42c1; }
+  .CodeMirror.cm-s-default .cm-property, .CodeMirror.cm-s-paper .cm-property { color: #005cc5; }
+  .CodeMirror.cm-s-default .cm-builtin, .CodeMirror.cm-s-paper .cm-builtin { color: #005cc5; }
+  .CodeMirror.cm-s-default .cm-tag, .CodeMirror.cm-s-paper .cm-tag { color: #22863a; }
+  .CodeMirror.cm-s-default .cm-attribute, .CodeMirror.cm-s-paper .cm-attribute { color: #6f42c1; }
+  .CodeMirror.cm-s-default .cm-meta, .CodeMirror.cm-s-paper .cm-meta,
+  .CodeMirror.cm-s-default .cm-qualifier, .CodeMirror.cm-s-paper .cm-qualifier { color: #6f42c1; }
+  .CodeMirror.cm-s-default .cm-bracket, .CodeMirror.cm-s-paper .cm-bracket { color: #24292e; }
+  .CodeMirror.cm-s-default .cm-header, .CodeMirror.cm-s-paper .cm-header { color: #005cc5; }
+  .CodeMirror.cm-s-default .cm-quote, .CodeMirror.cm-s-paper .cm-quote { color: #22863a; }
+  .CodeMirror.cm-s-default .cm-link, .CodeMirror.cm-s-paper .cm-link { color: #005cc5; }
+  .CodeMirror.cm-s-default .cm-url, .CodeMirror.cm-s-paper .cm-url { color: #6a737d; }
+  .CodeMirror.cm-s-default .cm-hr, .CodeMirror.cm-s-paper .cm-hr { color: #c4c4c1; }
+  .CodeMirror.cm-s-default .cm-error, .CodeMirror.cm-s-paper .cm-error { color: #b31d28; }
+}
+
+/* ============================================================================
+ * FORM — the part of the style that is not colour.
+ *
+ * Everything below is the manual's construction rather than its palette: flat
+ * ink on paper, one hairline, one accent used only as a mark, and condensed
+ * type. These are the rules that make a Forgejo page read like a page of the
+ * standards manual rather than a recoloured Forgejo.
+ * ==========================================================================*/
+
+/* ---- flat: printed matter has no corner radius and casts no shadow ------ */
+
+/* --border-radius is already 0 above, which covers everything Forgejo draws
+   itself. These are the components that hardcode a radius in Fomantic. The
+   radio button is exempt: a round control is how a radio says it is a radio. */
+.ui.menu,
+.ui.dropdown > .menu,
+.ui.modal,
+.ui.popup,
+.ui.label,
+.ui.button,
+.ui.buttons,
+.ui.buttons > .button,
+.ui.input > input,
+.ui.segment,
+.ui.card,
+.ui.message,
+.ui.table,
+.ui.progress,
+.ui.progress .bar,
+.ui.secondary.vertical.menu,
+.ui.checkbox:not(.radio) label::before,
+.ui.checkbox:not(.radio) label::after {
+  border-radius: 0 !important;
+}
+
+.ui.segment,
+.ui.card,
+.ui.menu,
+.ui.dropdown > .menu,
+.ui.modal,
+.ui.popup,
+.ui.button,
+.ui.table {
+  box-shadow: none !important;
+}
+
+/* A dropdown, a popup and a modal are lifted off the sheet by a rule, since
+   they can no longer be lifted by a shadow. */
+.ui.dropdown > .menu,
+.ui.popup,
+.ui.modal {
+  border: 1px solid var(--color-secondary) !important;
+}
+
+/* ---- type -------------------------------------------------------------- */
+
+/* Barlow is narrow; 14px in it sets smaller than 14px in the system stack. */
+html,
+body {
+  font-size: 15px;
+}
+
+/* The display face — a full condensed cut, narrower than the semi-condensed
+   used everywhere else — is for titles only, exactly as on the site. */
+.repository .repo-header .repo-title,
+.page-content h1,
+.markup h1,
+.ui.header > .content > h1,
+h1.ui.header {
+  font-family: var(--pi-display);
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+/* Optical tracking: tightens as size grows. */
+h2, .ui.header, .markup h2 { letter-spacing: -0.012em; }
+h3, h4, .markup h3, .markup h4 { letter-spacing: -0.008em; }
+
+/* One treatment for every small structural label, so they read as one system:
+   the column heads of a table and the head of a box are the same object. */
+.ui.table thead th,
+.markup table th,
+.ui.attached.header .ui.header,
+.repository .diff-file-box .file-header .file-header-left .file-info {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--color-text-light-2);
+}
+
+/* Figures set in tabular numerals so columns align down the page. */
+.ui.table,
+.commit-list,
+.repo-file-table,
+.file-info,
+.blame-code,
+.lines-num {
+  font-variant-numeric: tabular-nums;
+}
+
+code, pre, kbd, samp, tt,
+.file-view, .CodeMirror, .monaco-editor, .console {
+  font-variant-ligatures: none;
+}
+
+/* ---- one rule: hairlines, never a filled box ---------------------------- */
+
+/* Horizontal rules only. The eye tracks columns by alignment; a full grid
+   competes with the data. */
+.markup table {
+  border: 0;
+  border-top: 1px solid var(--color-secondary);
+}
+.markup table th,
+.markup table td {
+  border-inline: 0;
+  border-top: 0;
+  border-bottom: 1px solid var(--color-secondary);
+}
+
+/* Code is a plate: one flat surface, one hairline, no field behind it. */
+.markup pre,
+.markup .code-block,
+.file-view.code-view,
+.ui.segment.code-view {
+  border: 1px solid var(--color-secondary);
+}
+.markup :not(pre) > code,
+.markup :not(pre) > tt {
+  border: 1px solid var(--color-secondary);
+  padding: 0.05em 0.32em;
+}
+
+/* A quotation is a rule and space, not a slab. */
+.markup blockquote {
+  border-inline-start: 1px solid var(--color-secondary-dark-2);
+  border-left-width: 1px;
+  color: var(--color-text-light-2);
+  font-style: italic;
+}
+
+/* Controls are transparent with a hairline, and lift on hover rather than
+   changing colour. */
+.button.secondary:hover,
+.button.secondary:focus {
+  background: var(--color-hover);
+}
+
+/* ---- one accent: markers only ------------------------------------------ */
+
+/* The focus ring is the accent's clearest job: it is pure "you are here". */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Every item reserves the marker, so marking one current shifts nothing —
+   which is why this is an inset shadow and not a border. */
+.ui.secondary.vertical.menu .item,
+.ui.tabular.menu .item,
+.overflow-menu .item {
+  box-shadow: none;
+}
+.ui.secondary.vertical.menu .item.active {
+  box-shadow: inset 2px 0 0 var(--color-accent) !important;
+  background: transparent !important;
+  color: var(--color-text) !important;
+  font-weight: var(--font-weight-semibold);
+}
+.ui.tabular.menu .item.active,
+.overflow-menu .item.active {
+  box-shadow: inset 0 -2px 0 var(--color-accent) !important;
+  color: var(--color-text) !important;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The unread count is the one badge that is genuinely a system marker. */
+.ui.red.label.notification_count {
+  background: var(--color-accent) !important;
+  color: #ffffff !important;
+}
+
+/* A link is ink; the red comes up under it on hover. In running prose it
+   carries a quiet rule at rest, the way it does on the site — everywhere else
+   Forgejo's own "underline on hover" is already the right restraint. */
+a:hover {
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+.markup a:not(.anchor):not(.button) {
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-secondary-dark-2);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+/* ---- carried over from Forgejo's own theme files ----------------------- */
+
+/* --color-shadow is transparent in this theme (nothing floats), so the
+   counter needs a ground of its own. */
+#review-box .review-comments-counter {
+  background-color: var(--color-secondary) !important;
+  color: var(--color-text) !important;
+  margin-inline-start: 0.5em;
+}
+
+.ui.secondary.vertical.menu {
+  overflow: hidden;
+}
+
+.ui.basic.primary.button.item {
+  background-color: var(--color-active) !important;
+  color: var(--color-text) !important;
+  box-shadow: none !important;
+}
+
+/* Primary here is ink, so a primary label is ink-on-paper, not a red chip. */
+.ui.primary.label,
+.ui.primary.labels .label {
+  background-color: var(--color-primary) !important;
+  color: var(--color-primary-contrast) !important;
+}
+
+.ui.basic.labels .primary.label,
+.ui.ui.ui.basic.primary.label {
+  color: var(--color-text) !important;
+}
+
+.ui.labeled.icon.buttons > .button > .icon,
+.ui.labeled.icon.button > .icon {
+  background-color: var(--color-light) !important;
+}
+
+.ui.yellow.label.pending-label {
+  color: var(--color-warning-text) !important;
+}
+
+.ui.basic.red.button {
+  background-color: var(--color-red);
+  color: var(--color-white);
+}
+.ui.basic.red.button:hover,
+.ui.basic.red.button:focus {
+  background-color: var(--color-red-dark-1);
+  color: var(--color-white);
+}
+.ui.basic.red.button:active {
+  background-color: var(--color-red-dark-2);
+  color: var(--color-white);
+}
+
+i.grey.icon.icon.icon.icon {
+  color: var(--color-text-light-3) !important;
+}

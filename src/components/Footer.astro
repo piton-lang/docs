@@ -43,7 +43,21 @@ const columnsOf = (entry: any): { label: string; links: ReturnType<typeof linksO
 		: [{ label: entry.label, links: linksOf(entry) }];
 };
 
-const groups = sidebar.filter((entry: any) => entry.type === 'group').flatMap(columnsOf);
+/*
+ * A column shows at most this many links; the rest are behind a trigger that
+ * floats the whole group over the index. Five keeps every column the same
+ * height whatever the section holds, so the row of columns stays a row.
+ */
+const COLUMN_LIMIT = 5;
+
+const groups = sidebar
+	.filter((entry: any) => entry.type === 'group')
+	.flatMap(columnsOf)
+	.map((group) => ({
+		...group,
+		shown: group.links.slice(0, COLUMN_LIMIT),
+		hidden: group.links.slice(COLUMN_LIMIT),
+	}));
 
 const year = new Date().getFullYear();
 ---
@@ -63,12 +77,37 @@ const year = new Date().getFullYear();
 					<div class="pi-footer__group">
 						<h2>{group.label}</h2>
 						<ul>
-							{group.links.map((link: any) => (
+							{group.shown.map((link: any) => (
 								<li>
 									<a href={link.href}>{link.label}</a>
 								</li>
 							))}
 						</ul>
+						{group.hidden.length > 0 && (
+							<pi-footer-more>
+								{/*
+								  A <details> so the rest of the group is reachable
+								  before the script runs; the element below only adds
+								  Escape and click-away. The sheet is taken out of flow,
+								  so opening one does not move the columns beside it.
+								*/}
+								<details class="pi-footer__more">
+									<summary aria-label={`Show all ${group.links.length} pages in ${group.label}`}>
+										{group.hidden.length} more
+									</summary>
+									<div class="pi-footer__sheet">
+										<h2>{group.label}</h2>
+										<ul>
+											{group.links.map((link: any) => (
+												<li>
+													<a href={link.href}>{link.label}</a>
+												</li>
+											))}
+										</ul>
+									</div>
+								</details>
+							</pi-footer-more>
+						)}
 					</div>
 				))
 			}
@@ -81,3 +120,41 @@ const year = new Date().getFullYear();
 		</div>
 	</div>
 </footer>
+
+<script>
+	/*
+	 * Click-away and Escape for a footer column's overflow sheet, and only one
+	 * sheet open at a time. The <details> itself does the opening and closing,
+	 * so with no script the sheet still works — it just stays open until the
+	 * summary is clicked again.
+	 */
+	class PiFooterMore extends HTMLElement {
+		connectedCallback() {
+			const details = this.querySelector('details');
+			if (!details) return;
+
+			details.addEventListener('toggle', () => {
+				if (!details.open) return;
+				for (const other of document.querySelectorAll('.pi-footer__more[open]')) {
+					if (other !== details) (other as HTMLDetailsElement).open = false;
+				}
+			});
+
+			this.addEventListener('keydown', (event) => {
+				if (event.key !== 'Escape' || !details.open) return;
+				details.open = false;
+				details.querySelector('summary')?.focus();
+			});
+
+			document.addEventListener('click', (event) => {
+				if (!details.open) return;
+				if (event.target instanceof Node && this.contains(event.target)) return;
+				details.open = false;
+			});
+		}
+	}
+
+	if (!customElements.get('pi-footer-more')) {
+		customElements.define('pi-footer-more', PiFooterMore);
+	}
+</script>
