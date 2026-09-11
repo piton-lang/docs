@@ -46,6 +46,33 @@ from ./FirstFile import pi SliceOf, MyAnchor MyAliasedAnchor
 Worth clarifying that `pi` will be imported as and only as `SliceOf` (i.e. `pi`
 will not be available in scope).
 
+### Circular Imports
+
+Circular imports are supported and will not throw a compiler error. Circular
+references are fine as well as long as it does not create something impossible
+to resolve.
+
+For example:
+
+```piton
+anchor A:
+    This anchor talks about ${B}
+
+anchor B:
+    This anchor talks about ${A}
+```
+
+Is perfectly fine because `${A}` and `${B}` both settle to a string.
+
+However
+
+```piton
+A: {B}
+B: {A}
+```
+
+Is a compile error because it simply cannot resolve.
+
 ## Use
 
 When you want to use a user-defined keyword, you'll need to apply the `use`
