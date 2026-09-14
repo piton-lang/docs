@@ -27,6 +27,12 @@ const { sidebar } = Astro.locals.starlightRoute;
 const holdsCurrentPage = (entry) =>
 	entry.type === 'link' ? entry.isCurrent : entry.entries.some(holdsCurrentPage);
 
+/** @type {(entry: (typeof sidebar)[number]) => string | undefined} */
+const firstHref = (entry) =>
+	entry.type === 'link'
+		? entry.href
+		: entry.entries.reduce((found, child) => found ?? firstHref(child), undefined);
+
 const sections = sidebar.filter((entry) => entry.type === 'group');
 
 // The section holding the current page opens on load. The splash page is in no
@@ -47,6 +53,7 @@ const activeIndex = Math.max(0, sections.findIndex(holdsCurrentPage));
 							aria-controls={`pi-section-panel-${i}`}
 							aria-selected={i === activeIndex ? 'true' : 'false'}
 							tabindex={i === activeIndex ? 0 : -1}
+							data-href={firstHref(section)}
 						>
 							<span class="pi-section-index">{String(i + 1).padStart(2, '0')}</span>
 							<span class="pi-section-name">{section.label}</span>
@@ -101,7 +108,11 @@ const activeIndex = Math.max(0, sections.findIndex(holdsCurrentPage));
 			};
 
 			tabs.forEach((tab, i) => {
-				tab.addEventListener('click', () => select(i, false));
+				// Clicking a section opens its first page.
+				tab.addEventListener('click', () => {
+					select(i, false);
+					if (tab.dataset.href) window.location.href = tab.dataset.href;
+				});
 
 				// A vertical tablist moves on the vertical arrows, and wraps.
 				tab.addEventListener('keydown', (event) => {
