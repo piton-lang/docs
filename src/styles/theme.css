@@ -3386,6 +3386,40 @@
 	font-variant-numeric: tabular-nums;
 }
 
+/* Copyright and the contact/repository links: a pair, not one run-on line. */
+:root .pi-footer__meta {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: calc(var(--pi-unit) * 0.5) calc(var(--pi-unit) * 1.5);
+}
+
+:root .pi-footer__links {
+	display: flex;
+	align-items: center;
+	gap: var(--pi-unit);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: var(--sl-text-xs);
+}
+:root .pi-footer__links li {
+	margin: 0;
+}
+
+:root .pi-footer__links a {
+	display: inline-flex;
+	align-items: center;
+	color: var(--pi-ink-muted);
+	text-decoration: none;
+}
+:root .pi-footer__links a:hover {
+	color: var(--pi-ink);
+	text-decoration: underline;
+	text-decoration-color: var(--pi-accent);
+	text-underline-offset: 0.18em;
+}
+
 /* ---- no frame header, ever ---------------------------------------------- */
 
 /*
@@ -3462,6 +3496,12 @@
 	padding-top: 0;
 	border-top: 0;
 	justify-content: flex-start;
+}
+
+/* With no mark to answer, the copyright takes the left and the links the right. */
+:root .pi-footer--minimal .pi-footer__meta {
+	flex: 1;
+	justify-content: space-between;
 }
 
 /* ============================================================================

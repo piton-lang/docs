@@ -3,7 +3,8 @@
  * Starlight Footer override.
  *
  * Keeps everything Starlight puts here (edit link, last updated, pagination)
- * and adds a contents-style site index, the wordmark, and a copyright line.
+ * and adds a contents-style site index, the wordmark, a copyright line, and
+ * links to the contact page and the repository.
  *
  * The index is built from `starlightRoute.sidebar`, so it is the same tree as
  * the sidebar and cannot drift from it — adding a page or a group updates the
@@ -12,6 +13,7 @@
 import EditLink from 'virtual:starlight/components/EditLink';
 import LastUpdated from 'virtual:starlight/components/LastUpdated';
 import Pagination from 'virtual:starlight/components/Pagination';
+import { Icon } from '@astrojs/starlight/components';
 
 const route = Astro.locals.starlightRoute;
 const sidebar = route.sidebar;
@@ -116,7 +118,17 @@ const year = new Date().getFullYear();
 
 		<div class="pi-footer__end">
 			{isLanding && <span class="pi-footer__mark" aria-hidden="true" />}
-			<p class="pi-footer__copy">&copy; {year} Derek McTavish and The Piton Project</p>
+			<div class="pi-footer__meta">
+				<p class="pi-footer__copy">&copy; {year} Derek McTavish and The Piton Project</p>
+				<ul class="pi-footer__links">
+					<li><a href="/contact/">Contact</a></li>
+					<li>
+						<a href="https://github.com/piton-lang/piton-rs" aria-label="Piton on GitHub">
+							<Icon name="github" size="1.1em" />
+						</a>
+					</li>
+				</ul>
+			</div>
 		</div>
 	</div>
 </footer>
