@@ -25,6 +25,17 @@ cd piton
 
 Also works in Cursor and Windsurf.
 
+Every release carries the extension, built. Download
+`piton-edge-vscode-<version>.vsix` from the
+[releases page](https://github.com/piton-lang/piton-rs/releases/latest) and
+install it:
+
+```sh
+code --install-extension piton-edge-vscode-0.1.54.vsix
+```
+
+Or build it from a clone:
+
 ```sh
 cd editors/vscode
 npm install
