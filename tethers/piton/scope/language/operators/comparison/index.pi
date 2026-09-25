@@ -1,0 +1,34 @@
+from ../lib/Operator import Operator
+from ./EqOperator import EqOperator
+from ./GtEqOperator import GtEqOperator
+from ./GtOperator import GtOperator
+from ./LtEqOperator import LtEqOperator
+from ./LtOperator import LtOperator
+from ./NeqOperator import NeqOperator
+
+export anchor ComparisonOperators:
+    description:
+        Compares two values and gives you a boolean.
+
+        Introduces FOMO and jealousy.
+
+    equality:
+        `==` and `!=` work on every type. Lists and dictionaries are equal if
+        everything inside them is equal. Anchors are only equal if they're the
+        same anchor, and references are only equal if they point at the same
+        thing.
+
+    ordering:
+        `<`, `<=`, `>`, and `>=` work on numbers and strings. Strings are
+        compared by Unicode code point. Anything else, or a number against a
+        string, is a compiler error.
+
+    operators: {COMPARISON_OPERATORS}
+
+export COMPARISON_OPERATORS:: extends Operator[]:
+    - {EqOperator}
+    - {NeqOperator}
+    - {LtOperator}
+    - {LtEqOperator}
+    - {GtOperator}
+    - {GtEqOperator}

@@ -1,0 +1,6 @@
+export abstract anchor Page as page:
+    description:: string
+    slug:: string
+    title:: string
+    order:: number
+    content:: any

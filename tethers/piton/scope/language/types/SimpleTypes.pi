@@ -1,0 +1,11 @@
+from ./Booleans import Booleans
+from ./Null import Null
+from ./Numbers import Numbers
+from ./Strings import Strings
+
+export anchor SimpleTypes:
+    listOfSimpleTypes:
+        - @{Numbers}
+        - @{Strings}
+        - @{Booleans}
+        - @{Null}

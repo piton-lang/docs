@@ -1,0 +1,6 @@
+from ../reuse/Modules import Modules
+
+export anchor FilesAndModules:
+    SourceFilesAndModules:
+        Piton files carry the .pi extension. Directories with an index.pi file
+        become modules, which we cover in @{Modules}.

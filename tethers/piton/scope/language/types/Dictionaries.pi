@@ -1,0 +1,75 @@
+use ./lib/Type
+
+from ../operators/access/PropertyAccessOperator import PropertyAccessOperator
+from ../operators/comparison/EqOperator import EqOperator
+from ../operators/comparison/NeqOperator import NeqOperator
+from ../operators/concatenation/DupMergeOperator import DupMergeOperator
+from ../operators/concatenation/MergeOperator import MergeOperator
+
+export type Dictionaries:
+    description:
+        Dictionaries are nested keys and values, and there is only a single way
+        to define them:
+
+        ```piton
+        \\\
+        firstLevel:
+            secondLevel:
+                thirdLevel: This is a string
+        \\\
+        ```
+
+        You can use dot syntax to access keys in a dictionary.
+        firstLevel.secondLevel.thirdLevel would yield “This is a string”.
+
+    listsInDictionaries:
+        A list indented under a key is that key's value. If the key also has
+        something above the list, like text or another dictionary, the value
+        becomes an implicit list (see Collections) and the list goes in as a
+        single item:
+
+        ```piton
+        \\\
+        plain:
+            - x
+            - y
+        mixed:
+            text
+            - x
+            - y
+        \\\
+        ```
+
+        ```json
+        \\\
+        {
+          "plain": ["x", "y"],
+          "mixed": ["text", ["x", "y"]]
+        }
+        \\\
+        ```
+
+        For dictionaries indented under a list item, see the Lists type.
+
+    supportedOperators:
+        - {PropertyAccessOperator}
+        - {MergeOperator}
+        - {DupMergeOperator}
+        - {EqOperator}
+        - {NeqOperator}
+
+    validKeys:
+        Keys can have Unicode letters, Unicode numbers, underscores, and
+        hyphens. Nothing else, and no spaces.
+
+        Keys are always strings, even when they look like something else. So
+        `123`, `false`, and `null` are fine as keys, and they're still just
+        strings when you access them.
+
+        So for example, `thisIsAKey` and `123` and `foo-bar` and `false` and
+        `null` are all valid keys, while `This is a key` and `a.b` are not.
+
+    hyphenatedKeys:
+        A hyphen in the middle of a name is part of the name, so
+        `\ {config.foo-bar} \` reads the key `foo-bar`. If you want
+        subtraction, put spaces around it: `\ {a - b} \`.

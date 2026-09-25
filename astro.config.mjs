@@ -4,6 +4,11 @@ import starlight from "@astrojs/starlight";
 
 import { satteri } from "@astrojs/markdown-satteri";
 
+// `.pi` imports, through the compiler. The Introduction, Reference and Belay
+// sections are generated from the Piton specification tethered into
+// tethers/piton; see src/content.config.ts and plugins/spec-pages.mjs.
+import piton from "astro-piton";
+
 // Fills `from=` code blocks in the tutorials from the projects under
 // examples/ — which are also what the .zip downloads are packed from — and
 // from generated/, the compiler output `npm run examples` writes out of them.
@@ -57,6 +62,7 @@ export default defineConfig({
   },
   integrations: [
     watchExamples,
+    piton(),
     starlight({
       title: "Piton",
       logo: {

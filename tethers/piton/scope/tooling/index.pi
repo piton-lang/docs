@@ -1,0 +1,37 @@
+from ./cli import Cli
+from ./editors import
+    Emacs,
+    Helix,
+    JetBrains,
+    Kate,
+    NeoVim,
+    Sublime,
+    Vim,
+    VsCode,
+    Zed
+from ./frameworks import Frameworks
+from ./project-config import ProjectConfig
+
+from ./astro import AstroPlugin
+from ./vite import VitePlugin
+
+export anchor Tooling:
+    something:
+        HAHA TOOLING
+
+    cli: @{Cli}
+    projectConfig: @{ProjectConfig}
+    frameworks: @{Frameworks}
+    editors:
+        - @{Emacs}
+        - @{Helix}
+        - @{JetBrains}
+        - @{Kate}
+        - @{NeoVim}
+        - @{Sublime}
+        - @{Vim}
+        - @{VsCode}
+        - @{Zed}
+    consumption:
+        - @{AstroPlugin}
+        - @{VitePlugin}

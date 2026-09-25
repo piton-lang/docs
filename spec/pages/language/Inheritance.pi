@@ -1,0 +1,20 @@
+use /lib/Page
+
+from piton/scope/language/anchors/SelfReference import SelfReference
+from piton/scope/language/anchors/StructuralInheritance import
+    StructuralInheritance
+from piton/scope/language/anchors/Super import Super
+from piton/scope/language/anchors/SuperOnLists import SuperOnLists
+
+export page InheritancePage:
+    slug: language/inheritance
+    title: Structural Inheritance
+    order: 8
+    description:
+        extends, multiple bases, super, self and this, and how collisions
+        resolve.
+    content:
+        structuralInheritance: @{StructuralInheritance}
+        super: @{Super}
+        superOnLists: @{SuperOnLists}
+        selfReference: @{SelfReference}

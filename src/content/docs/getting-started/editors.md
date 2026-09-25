@@ -12,8 +12,13 @@ find references, rename, formatting, and inlay hints.
 
 :::caution
 The `piton` binary must be on your `PATH` first — see
-[Installation](/getting-started/). Run the commands below from the repository
-you cloned.
+[Installation](/getting-started/). Run the commands below from a clone of the
+compiler repository. If you installed with the install script, clone it first:
+
+```sh
+git clone https://github.com/piton-lang/piton-rs.git piton
+cd piton
+```
 :::
 
 ## VS Code

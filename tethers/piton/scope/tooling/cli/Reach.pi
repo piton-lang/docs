@@ -1,0 +1,44 @@
+use ../cli
+
+export cli-command Reach:
+    commandName: reach
+
+    positionalArguments:
+        target: Optional file, glob, or anchor. Defaults to the project.
+
+    description:
+        Analyzes which parts of the specbase are reachable from specific files,
+        anchors, or the project
+
+    emit: false
+
+    traverse:
+        - imports
+        - references
+        - inheritance
+        - composition
+
+    direction:
+        outgoing
+
+    include:
+        - direct
+        - transitive
+
+    report:
+        - reachable
+        - unreachable
+        - depth
+        - paths
+
+    groupBy:
+        source
+
+    summary: true
+
+    diagnostics:
+        errors: false
+        warnings: false
+
+    exitCode:
+        success: 0

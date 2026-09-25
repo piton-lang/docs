@@ -5,14 +5,15 @@
   "scripts": {
     "logo": "node scripts/logo.mjs",
     "examples": "node scripts/build-examples.mjs",
-    "predev": "npm run logo",
+    "predev": "npm run logo && npm run piton",
     "dev": "astro dev",
-    "prestart": "npm run logo",
+    "prestart": "npm run logo && npm run piton",
     "start": "astro dev",
-    "prebuild": "npm run logo",
+    "prebuild": "npm run logo && npm run piton",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "piton": "node scripts/piton.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.0",
@@ -20,9 +21,20 @@
     "@fontsource/barlow-semi-condensed": "^5.3.0",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "astro": "^7.2.10",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "astro-piton": "file:vendor/astro-piton-0.1.0.tgz",
+    "vite-plugin-piton": "file:vendor/vite-plugin-piton-0.1.0.tgz"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "overrides": {
+    "vite-plugin-piton": "$vite-plugin-piton",
+    "astro-piton": {
+      "astro": "$astro"
+    }
+  },
+  "piton": {
+    "version": "0.1.54"
   }
 }

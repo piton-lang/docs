@@ -1,0 +1,8 @@
+use @piton/config
+
+export piton-config PitonDocs:
+    root: ./spec
+    entry: ./spec/index.pi
+
+    dependencies:
+        - https://github.com/piton-lang/piton-rs.git

@@ -1,0 +1,12 @@
+use /lib/Page
+
+from piton/scope/belay import Belay
+
+export page CompilationPage:
+    slug: belay/serialization
+    title: Compilation and Serialization
+    order: 3
+    description:
+        What Belay emits, how values serialize into Markdown, and how
+        references become links.
+    content: @{Belay.compilation}

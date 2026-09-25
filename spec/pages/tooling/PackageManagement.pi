@@ -1,0 +1,12 @@
+use /lib/Page
+
+from piton/scope/package-management import PackageManagement
+
+export page PackageManagementPage:
+    slug: tooling/package-management
+    title: Package Management
+    order: 4
+    description:
+        Packages as vendored git dependencies: offering, tethering, updating,
+        untethering, and the lock file.
+    content: @{PackageManagement}

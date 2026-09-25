@@ -1,0 +1,82 @@
+use ./lib/Type
+
+from ../operators/comparison import COMPARISON_OPERATORS
+from ../operators/concatenation/ConcatenationOperator import
+    ConcatenationOperator
+from ../operators/concatenation/DupMergeOperator import DupMergeOperator
+from ./Escaping import Escaping
+
+export type Strings:
+    description:
+        Strings are not quoted. They can appear on the same line as what they’re
+        assigned to, or indented on the next line:
+
+        ```piton
+        \\\
+        sameLine: Hello, World!
+        nextLine:
+            Hello, World!
+        \\\
+        ```
+
+        The leading whitespace on a string block is discarded, as that’s part of
+        the syntax of the language, not the string. In other words, the string
+        in both examples is “Hello, World!”.
+
+    quotes:
+        Quotes don't mean anything special. They're just characters, so
+        `\ greeting: "Hello" \` is the string `"Hello"`, quotes and all.
+
+        The one exception is inside an expression. There, bare words are
+        symbols, so you write strings in double quotes:
+        `\ {"Hello" + name} \`. In that case the quotes aren't part of the
+        string.
+
+    lineBreaks:
+        Within a string block, you can add line breaks without affecting the
+        structure of the string. To start a new paragraph, you must include a
+        blank line. More than one blank line in a row still counts as one.
+
+        ```piton
+        \\\
+        myString:
+            This broken string is not considered
+            a line break.
+
+            While this *is* a new paragraph because there was a blank line above.
+        \\\
+        ```
+
+        When compiled, we’ll get two paragraphs:
+
+        ```markdown
+        \\\
+        This broken string is not considered a line break.
+
+        While this *is* a new paragraph because there was a blank line above.
+        \\\
+        ```
+
+    escaping: @{Escaping}
+    codeBlocks:
+        Code blocks are not escaped. To Piton they're just text, so anything
+        inside them still gets parsed: expressions, comments, lists, all of it.
+
+        So often, you'll want to put an escape block inside the code block.
+        Every example in this spec does that.
+
+    markdown:
+        Markdown in a string is text too. Piton has no link syntax of its own,
+        so a link or an image written in Markdown, like
+        `\ [the guide](./guide.md) \` or `\ ![A diagram](./diagram.png) \`, is
+        passed through exactly as written. Nothing resolves it, rewrites it, or
+        checks that it goes anywhere, and it can never be an error.
+
+        The only links Piton makes are references, `\ @{Button} \`. Those are
+        resolved to wherever the anchor was compiled, and a renderer or
+        framework can check that they land there.
+
+    supportedOperators:
+        - {ConcatenationOperator}
+        - {DupMergeOperator}
+        + {COMPARISON_OPERATORS}

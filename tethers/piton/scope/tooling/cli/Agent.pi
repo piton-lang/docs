@@ -1,0 +1,16 @@
+use ../cli
+from ../../../agent/skills/GenerateFluencyPrompt import GenerateFluencyPrompt
+
+export cli-command AgentCli:
+    commandName: agent
+
+    positionalArguments:
+        agent: Which agent to run [ claude ]
+
+    namedArguments:
+        print-fluency: Print the entire fluency prompt
+
+    description:
+        Launches the specified agent with Piton fluency using the output of the
+        @{GenerateFluencyPrompt} skill, which is FLUENCY_PROMPT.md in the
+        project root.

@@ -1,0 +1,12 @@
+use /lib/Page
+
+from piton/scope/language/variables import Variables
+
+export page VariablesPage:
+    slug: language/variables
+    title: Variables and Type Constraints
+    order: 3
+    description:
+        Declaring variables, constraining their types, coercion rules,
+        mutability, and scope.
+    content: @{Variables}

@@ -1,0 +1,13 @@
+from ./agent export *
+from ./scope/belay import Belay
+from ./scope/founding-thesis import FoundingThesis
+from ./scope/language import Language
+from ./scope/package-management import PackageManagement
+from ./scope/tooling import Tooling
+
+export anchor Specification:
+    FoundingThesis: @{FoundingThesis}
+    Language: @{Language}
+    Tooling: @{Tooling}
+    Belay: @{Belay}
+    PackageManagement: @{PackageManagement}

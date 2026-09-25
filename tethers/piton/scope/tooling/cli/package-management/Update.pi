@@ -1,0 +1,10 @@
+use ../../cli
+
+export cli-command Update:
+    commandName: update
+    description:
+        Using the dependencies in the piton.config.pi, update all packages
+    positionalArguments:
+        packages:
+            optional list of package names to update; if not provided, all
+            packages will be updated

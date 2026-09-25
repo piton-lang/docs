@@ -1,0 +1,12 @@
+use /lib/Page
+
+from piton/scope/language/expressions import Expressions
+
+export page ExpressionsPage:
+    slug: language/expressions
+    title: Expressions
+    order: 5
+    description:
+        The four expression forms, how expressions sit inside text, and how
+        references resolve.
+    content: @{Expressions}

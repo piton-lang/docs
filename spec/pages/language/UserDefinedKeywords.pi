@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/language/anchors/Keywords import UserDefinedKeywords
+
+export page UserDefinedKeywordsPage:
+    slug: language/user-defined-keywords
+    title: User-Defined Keywords
+    order: 10
+    description:
+        Syntactic sugar for extends that emphasizes fundamental base anchors.
+    content: @{UserDefinedKeywords}

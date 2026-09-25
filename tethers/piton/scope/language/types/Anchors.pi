@@ -1,0 +1,20 @@
+use ./lib/Type
+from ../operators/access/PropertyAccessOperator import PropertyAccessOperator
+from ../operators/comparison/EqOperator import EqOperator
+from ../operators/comparison/NeqOperator import NeqOperator
+from ./Dictionaries import Dictionaries
+
+export type AnchorType:
+    description:
+        There is exactly one user-defined type, and it’s called an anchor. This
+        is something that can be shaped by other types via properties and
+        promotes inheritance. However, it’s a larger and more advanced topic
+        than belongs in this introductory part of the guide, so instead we’ve
+        devoted an entire section to it later on.
+
+    validKeys: {Dictionaries.validKeys}
+
+    supportedOperators:
+        - {PropertyAccessOperator}
+        - {EqOperator}
+        - {NeqOperator}

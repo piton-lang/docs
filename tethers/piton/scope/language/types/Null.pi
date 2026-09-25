@@ -1,0 +1,13 @@
+use ./lib/Type
+from ../operators/comparison/EqOperator import EqOperator
+from ../operators/comparison/NeqOperator import NeqOperator
+
+export type Null:
+    description:
+        Null is represented with lowercase null. Null is a value that means
+        "nothing" So yes, `\ {null == null} \` is true. Piton doesn’t have the
+        concept of undefined or any other "nothing" value.
+
+    supportedOperators:
+        - {EqOperator}
+        - {NeqOperator}

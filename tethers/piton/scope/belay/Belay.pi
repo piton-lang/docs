@@ -1,0 +1,69 @@
+from ./Compilation import Compilation
+from ./Decisions import
+    BuildGuarantees,
+    OpenDecisions,
+    PermissionBoundary
+from ./Framework import
+    ConstructComposition,
+    FrameworkBoundaries,
+    FrameworkPurpose,
+    ProjectConfiguration,
+    SourceAuthority
+from ./Scope import
+    AnchorReferences,
+    ShapeMapping,
+    ShapeRootReference
+from ./adapters/ClaudeCode import ClaudeCodeAdapter
+from ./adapters/Codex import CodexAdapter
+from ./adapters/OpenCode import OpenCodeAdapter
+from ./anchors/Agent import AgentBehavior
+from ./anchors/Command import CommandBehavior
+from ./anchors/Instruction import InstructionBehavior
+from ./anchors/Skill import SkillBehavior
+
+export anchor Belay:
+    description:
+        A Piton framework for structured agent instructions, skills, commands,
+        and agents, compiled into the formats used by agentic coding tools.
+
+    specialImports:
+        description:
+            The following special imports can be brought in from `@piton/belay`
+            and used. They're filled in at compile time, for each adapter, as
+            a path relative to the file they end up in.
+
+        BELAY_AGENT_ROOT: The agent's directory, so that might be .claude or .opencode, etc.
+        BELAY_PROJECT_ROOT: The project, where piton.config.pi lives.
+        BELAY_SHAPE_ROOT: The shape as configured in the project config. If not specified, it's the project root.
+        BELAY_CODE_ROOT: The code as configured in the project config.
+        BELAY_COMPILED_SHAPE: The compiled copy of the shape for the agent, under its reference directory.
+
+    framework:
+        - @{FrameworkPurpose}
+        - @{SourceAuthority}
+        - @{FrameworkBoundaries}
+        - @{ProjectConfiguration}
+        - @{ConstructComposition}
+
+    anchors:
+        - @{InstructionBehavior}
+        - @{SkillBehavior}
+        - @{CommandBehavior}
+        - @{AgentBehavior}
+    compilation: @{Compilation}
+
+    scope:
+        - @{ShapeMapping}
+        - @{ShapeRootReference}
+        - @{AnchorReferences}
+
+    adapters:
+        - @{ClaudeCodeAdapter}
+        - @{CodexAdapter}
+        - @{OpenCodeAdapter}
+
+    guarantees:
+        - @{BuildGuarantees}
+        - @{PermissionBoundary}
+
+    unresolved: @{OpenDecisions}

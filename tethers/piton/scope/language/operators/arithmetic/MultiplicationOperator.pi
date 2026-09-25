@@ -1,0 +1,7 @@
+use ./lib/ArithmeticOperator
+
+export arithmetic-operator MultiplicationOperator:
+    description:
+        Multiplies two numbers together
+
+    symbol: *

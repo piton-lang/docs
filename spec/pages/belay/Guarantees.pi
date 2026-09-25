@@ -1,0 +1,12 @@
+use /lib/Page
+
+from piton/scope/belay import Belay
+
+export page GuaranteesPage:
+    slug: belay/guarantees
+    title: Guarantees
+    order: 6
+    description:
+        What a Belay build promises: deterministic output, honest diagnostics,
+        and permission boundaries.
+    content: @{Belay.guarantees}

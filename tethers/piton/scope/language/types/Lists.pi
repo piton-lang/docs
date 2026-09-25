@@ -1,0 +1,87 @@
+use ./lib/Type
+from ../operators/comparison/EqOperator import EqOperator
+from ../operators/comparison/NeqOperator import NeqOperator
+from ../operators/concatenation/DupMergeOperator import DupMergeOperator
+from ../operators/concatenation/MergeOperator import MergeOperator
+
+export type Lists:
+    description:
+        Lists can be defined two ways, Markdown/YAML-style or inline.
+
+        ```piton
+        \\\
+        markdownStyle:
+            - One
+            - List
+            - Item
+            - Per
+            - Line
+
+        inlineStyle: [This, is, a, list, of, strings]
+        \\\
+        ```
+
+    nestedLists:
+        It’s possible to do nested lists:
+
+        ```piton
+        \\\
+        nestedMarkdownList:
+            - Level 1
+                - Level 2
+                    - Level 3
+        \\\
+        ```
+
+        Which is equivalent to:
+
+        ```piton
+        \\\
+        inlineMultiList: [Level 1, [Level 2, [Level 3]]]
+        \\\
+        ```
+
+    dictionariesInLists:
+        Anything indented under a list item isn't part of that item. It
+        becomes the next item in the list. So a dictionary indented under an
+        item is its own item, right after it:
+
+        ```piton
+        \\\
+        repos:
+            - https://github.com/piton-lang/piton-rs
+                tag: v1
+            - https://github.com/piton-lang/other
+        \\\
+        ```
+
+        ```json
+        \\\
+        {
+          "repos": [
+            "https://github.com/piton-lang/piton-rs",
+            { "tag": "v1" },
+            "https://github.com/piton-lang/other"
+          ]
+        }
+        \\\
+        ```
+
+        A list item is never a key, even with a colon at the end.
+        `\ - Settings: \` is just the string `Settings:`.
+
+        For lists indented under a dictionary key, see the Dictionaries
+        type.
+
+    access:
+        Piton intentionally does not provide a way to access items within a
+        list. Because this is not a runtime-based general purpose language but
+        rather a language designed for description, a list is a construct
+        intended for merging via inheritance; myList[0] is not very descriptive,
+        is it?
+
+    supportedOperators:
+        - {MergeOperator}
+        - {DupMergeOperator}
+        - {EqOperator}
+        - {NeqOperator}

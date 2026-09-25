@@ -1,0 +1,54 @@
+from ./ControlFlow import ControlFlow
+from ./access import ACCESS_OPERATORS, AccessOperators
+from ./arithmetic import ARITHMETIC_OPERATORS, ArithmeticOperators
+from ./comparison import COMPARISON_OPERATORS, ComparisonOperators
+from ./concatenation import CONCATENATION_OPERATORS, ConcatenationOperators
+from ./conditional import CONDITIONAL_OPERATORS, ConditionalOperators
+from ./declaration import DeclarationOperators
+from ./logical import LOGICAL_OPERATORS, LogicalOperators
+
+export anchor Operators:
+    ControlFlow: @{ControlFlow}
+
+    StandardOperators:
+        Piton supports a pretty standard if not small set of operators, plus a
+        few slightly more unique ones. Let’s start with the standard ones.
+
+    AccessOperators: @{AccessOperators}
+    ArithmeticOperators: @{ArithmeticOperators}
+    ComparisonOperators: @{ComparisonOperators}
+    ConcatenationOperators: @{ConcatenationOperators}
+    ConditionalOperators: @{ConditionalOperators}
+    LogicalOperators: @{LogicalOperators}
+    DeclarationOperators: @{DeclarationOperators}
+    precedence:
+        Higher rows go first. Operators on the same row go left to right,
+        except the ternary, which goes right to left. Parentheses change the
+        order.
+
+        ```markdown
+        \\\
+        | Precedence | Operators          |
+        | ---------- | ------------------ |
+        | 1 highest  | `.`                |
+        | 2          | `!`                |
+        | 3          | `*` `/` `%`        |
+        | 4          | `+` `-` `++`       |
+        | 5          | `<` `<=` `>` `>=`  |
+        | 6          | `==` `!=`          |
+        | 7          | `&&`               |
+        | 8          | `||`               |
+        | 9 lowest   | `? :`              |
+        \\\
+        ```
+
+        So `\ {1 + 2 == 3 && !false} \` is `\ {((1 + 2) == 3) && (!false)} \`,
+        and `\ {a ? b : c ? d : e} \` is `\ {a ? b : (c ? d : e)} \`.
+
+    allOperators:
+        + {ACCESS_OPERATORS}
+        + {ARITHMETIC_OPERATORS}
+        + {COMPARISON_OPERATORS}
+        + {CONCATENATION_OPERATORS}
+        + {CONDITIONAL_OPERATORS}
+        + {LOGICAL_OPERATORS}

@@ -1,0 +1,12 @@
+use /lib/Page
+
+from piton/scope/language/reuse import Reuse
+
+export page ModulesPage:
+    slug: language/modules
+    title: Import, Export, Modules, and Use
+    order: 11
+    description:
+        Composing a codebase from smaller focused files with export,
+        from...import, use, and folders-as-modules.
+    content: @{Reuse}
