@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/founding-thesis/Introduction import Introduction
+
+export page ThesisPage:
+    title: Thesis
+    order: 1
+    description:
+        What Piton is, and the thesis behind a semi-natural programming
+        language for agentic development.
+    content: @{Introduction}

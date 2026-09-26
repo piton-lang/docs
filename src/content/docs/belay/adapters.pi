@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/belay import Belay
+
+export page AdaptersPage:
+    title: Adapters
+    order: 5
+    description:
+        What Claude Code, Codex, and OpenCode each receive, and the rules every
+        adapter follows.
+    content: @{Belay.adapters}

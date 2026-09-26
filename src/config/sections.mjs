@@ -15,7 +15,12 @@
  */
 
 /**
- * @typedef {{ label: string, groups: { label: string, directory: string }[] }} Section
+ * A group can end with `links`: sidebar entries that point at a page in
+ * another group rather than holding one of their own. The export skips them;
+ * the page they point at is already in it, or deliberately not.
+ *
+ * @typedef {{ label: string, link: string }} Link
+ * @typedef {{ label: string, groups: { label: string, directory: string, links?: Link[] }[] }} Section
  */
 
 /** @type {Section[]} */
@@ -29,19 +34,25 @@ export const sections = [
 		groups: [{ label: 'Setup', directory: 'getting-started' }],
 	},
 	{
-		label: 'Belay Framework',
-		groups: [{ label: 'Belay', directory: 'belay' }],
+		label: 'Tutorials',
+		groups: [{ label: 'Guides', directory: 'tutorials' }],
 	},
 	{
 		label: 'Reference',
 		groups: [
 			{ label: 'The Language', directory: 'language' },
-			{ label: 'Tooling', directory: 'tooling' },
+			{
+				label: 'Tooling',
+				directory: 'tooling',
+				// How editors behave is set up, not looked up: the one page
+				// for it is in Getting Started.
+				links: [{ label: 'Editor Setup', link: '/getting-started/editors/' }],
+			},
 		],
 	},
 	{
-		label: 'Tutorials',
-		groups: [{ label: 'Guides', directory: 'tutorials' }],
+		label: 'Belay Framework',
+		groups: [{ label: 'Belay', directory: 'belay' }],
 	},
 ];
 

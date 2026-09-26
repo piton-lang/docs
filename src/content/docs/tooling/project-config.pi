@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/tooling/project-config import ProjectConfig
+
+export page ProjectConfigPage:
+    title: piton.config.pi
+    order: 2
+    description:
+        Configuring the root, entry, output, renderer, frameworks, and packages
+        with piton.config.pi.
+    content: @{ProjectConfig}

@@ -13,7 +13,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "piton": "node scripts/piton.mjs"
+    "piton": "node scripts/piton.mjs",
+    "check": "piton check src/content"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.42.0",

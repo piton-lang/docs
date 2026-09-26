@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/language/types import Types
+
+export page ValuesAndTypesPage:
+    title: Values and Types
+    order: 2
+    description:
+        Numbers, strings, booleans, null, collections, references, and how
+        Piton infers types.
+    content: @{Types}

@@ -1,11 +1,11 @@
 // The documentation pages that are generated from the Piton specification.
 //
-// The spec is tethered into tethers/piton (see piton.config.pi), and the site's
-// own Piton source under spec/ says which spec anchors make up which page:
-// every `page` exported from spec/index.pi is one page, with its slug, title,
-// description, sidebar order and `content`. The content is references into the
-// spec — `@{Types}`, or a dictionary of them — and this module follows those
-// references and writes the Markdown that Starlight renders.
+// The spec is tethered into tethers/piton (see piton.config.pi). A page made
+// from it is a .pi file among the Markdown pages in src/content/docs, exporting
+// one `page` (src/content/lib/Page.pi): its title, description, sidebar order,
+// and `content` — references into the spec, `@{Types}` or a dictionary of them.
+// Where the file sits is its URL, as for any other page. This module follows
+// those references and writes the Markdown that Starlight renders.
 //
 // Everything is read through `compileFile` from astro-piton, which runs the
 // `piton` compiler, so what appears on a page is what the compiler says the
@@ -50,13 +50,16 @@ const LINK = /\u0000([^\u0001]*)\u0001([^\u0000]*)\u0000/g;
  */
 
 /**
- * Compiles the site's page list and renders each page.
+ * Compiles the page files and renders each page.
  *
- * @param {{ root: string, entry?: string }} options `root` is the project root,
- *   where piton.config.pi lives.
+ * @param {{ root: string, files: { id: string, file: string, group?: number }[] }} options
+ *   `root` is the project root, where piton.config.pi lives. `files` are the
+ *   page files with the id each is served under, and the position of its
+ *   sidebar section. Where an anchor is shown when no page claims it is decided
+ *   first come, first served, in sidebar order.
  * @returns {Promise<{ pages: SpecPage[], warnings: string[] }>}
  */
-export async function renderSpecPages({ root, entry = 'spec/index.pi' }) {
+export async function renderSpecPages({ root, files }) {
 	const compiled = new Map();
 	/** The compiled exports of a file, compiled once. */
 	const compile = (file) => {
@@ -88,24 +91,48 @@ export async function renderSpecPages({ root, entry = 'spec/index.pi' }) {
 		return value;
 	};
 
-	const entryFile = resolve(root, entry);
-	const exports = await compile(entryFile);
-	const definitions = Object.entries(exports)
-		.filter(([, value]) => isPage(value))
-		.map(([name, value]) => ({ name, ...value }));
+	const definitions = [];
+	for (const { id, file, group = 0 } of files) {
+		const pages = Object.entries(await compile(file)).filter(([, value]) => isPage(value));
+		if (pages.length !== 1) {
+			throw new Error(`${relative(root, file)} has to export exactly one page; it exports ${pages.length}`);
+		}
+		const [name, value] = pages[0];
+		definitions.push({ name, ...value, slug: id, file, group });
+	}
+	// Sidebar order: by section, then by each page's own order.
+	definitions.sort((a, b) => a.group - b.group || a.order - b.order);
 
 	/** Where each anchor or property is shown: `{ page, fragment }`. */
 	const locations = new Map();
 	/** Anchors a page claims in its content: they are shown there and nowhere else. */
 	const owners = new Map();
 	for (const page of definitions) {
-		for (const ref of claimed(page.content, entryFile, parse)) {
+		for (const ref of claimed(page.content, page.file, parse)) {
 			if (!owners.has(ref.id)) owners.set(ref.id, page.slug);
 		}
 	}
 
 	const warnings = [];
 	const pages = [];
+
+	/*
+	 * Every long string property the pages show, and which page shows it,
+	 * first page in sidebar order first. A table's shared column — the
+	 * precedence note every arithmetic operator inherits — is often the spec
+	 * saying again what a property says in its own words; when it is, the
+	 * property is what gets shown and the note defers to it.
+	 */
+	const statements = new Map();
+	for (const page of definitions) {
+		await walkAnchors(page, parse, dereference, owners, (anchor, ref) => {
+			for (const [key, entry] of Object.entries(anchor)) {
+				if (typeof entry === 'string' && entry.length > 40 && !statements.has(entry.trim())) {
+					statements.set(entry.trim(), { id: `${ref.file}#${ref.dotted}.${key}`, page: page.slug, key });
+				}
+			}
+		});
+	}
 
 	for (const page of definitions) {
 		const slugger = new GithubSlugger();
@@ -129,6 +156,50 @@ export async function renderSpecPages({ root, entry = 'spec/index.pi' }) {
 		const place = (id, fragment) => {
 			if (!locations.has(id)) locations.set(id, { page: page.slug, fragment });
 		};
+
+		/*
+		 * Properties the page's anchors inherit alike. Every anchor declared
+		 * with the abstract `type` carries the same `what-is-a-type` prose, so
+		 * a page showing eight types would say it eight times. A property is
+		 * shared when two or more anchors on the page have it, every one that
+		 * has it has the same value, and that value is more than a word or
+		 * two. It is written once, as a section of its own just ahead of the
+		 * first anchor that has it, and left out of all of them.
+		 */
+		const shared = await sharedProperties(page, parse, dereference, owners);
+		/** Shared properties already written: key → fragment. */
+		const written = new Map();
+		const hoist = async (value, level, from) => {
+			if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+			for (const [key, entry] of Object.entries(value)) {
+				if (!shared.has(key) || written.has(key)) continue;
+				written.set(key, heading(level, titleCase(key)));
+				await write(entry, level + 1, from, '', new Set());
+			}
+		};
+		/** Whether a reference is to an anchor that will be shown right here. */
+		const expandable = (ref, expanding) =>
+			ref && !owners.has(ref.id) && !expanding.has(ref.id) && !locations.has(ref.id);
+
+		/**
+		 * Properties the page leaves out: its `omit` list, references to
+		 * properties like `@{Operators.allOperators}`.
+		 */
+		const omitted = new Set(
+			(Array.isArray(page.omit) ? page.omit : []).map((value) => {
+				const ref = parse(value, page.file);
+				if (!ref) throw new Error(`${relative(root, page.file)}: omit has to list references, like @{Anchor.property}`);
+				return ref.id;
+			}),
+		);
+
+		/**
+		 * Values already shown on the page, by property name and value: the
+		 * first anchor that showed it. Booleans and Null support the same two
+		 * operators; the second says so, with a link, rather than repeating
+		 * the table.
+		 */
+		const shown = new Map();
 
 		/** Prose: one paragraph per line, except inside code blocks and tables. */
 		const prose = (text, from) => {
@@ -171,31 +242,27 @@ export async function renderSpecPages({ root, entry = 'spec/index.pi' }) {
 				if (value.every((item) => isScalar(item) && !parse(item, from))) {
 					return out.push(bullets(value, (text) => inline(text, from)));
 				}
-				if (isTable(value)) return out.push(table(value, (text) => inline(text, from)));
-
-				// A list of anchors: each is a section, named after itself. What
-				// every one of them has in common — usually inherited from the
-				// abstract they all implement — is written once, first.
-				const expandable = (ref) => ref && !owners.has(ref.id) && !expanding.has(ref.id) && !locations.has(ref.id);
-				const sections = value.map((item) => parse(item, from)).filter(expandable);
-				const values = new Map();
-				for (const ref of sections) values.set(ref.id, await dereference(ref));
-				const shared = sharedKeys([...values.values()]);
-				for (const key of shared) {
-					heading(level, titleCase(key));
-					await write(values.get(sections[0].id)[key], level + 1, sections[0].file, '', expanding);
+				if (isTable(value)) {
+					return out.push(
+						table(value, (text) => inline(text, from), (key, note) => {
+							const statement = statements.get(note.trim());
+							if (!statement) return true;
+							// Stated on this page in its own right: that is enough.
+							if (statement.page === page.slug) return false;
+							return `**${titleCase(key)}.** See ${link(statement.id, titleCase(statement.key))}.`;
+						}),
+					);
 				}
-				const omit = (object) =>
-					shared.length && object && typeof object === 'object' && !Array.isArray(object)
-						? Object.fromEntries(Object.entries(object).filter(([key]) => !shared.includes(key)))
-						: object;
 
+				// A list of anchors: each is a section, named after itself.
 				for (const item of value) {
 					const itemRef = parse(item, from);
-					if (itemRef && values.has(itemRef.id) && !locations.has(itemRef.id)) {
+					if (expandable(itemRef, expanding)) {
+						const anchor = await dereference(itemRef);
+						await hoist(anchor, level, itemRef.file);
 						const fragment = heading(level, titleCase(last(itemRef.dotted)));
 						place(itemRef.id, fragment);
-						await body(omit(values.get(itemRef.id)), level + 1, itemRef.file, itemRef.dotted, expanding, itemRef.id, currentTitle);
+						await body(anchor, level + 1, itemRef.file, itemRef.dotted, expanding, itemRef.id, currentTitle);
 					} else if (Array.isArray(item) && item.every(isScalar)) {
 						out.push(bullets(item, (text) => inline(text, from)));
 					} else {
@@ -233,6 +300,22 @@ export async function renderSpecPages({ root, entry = 'spec/index.pi' }) {
 				if (key === 'description' && typeof entry === 'string') continue;
 				// An optional property left at its default says nothing.
 				if (entry === null) continue;
+				if (written.has(key)) {
+					if (path) place(`${from}#${path}.${key}`, written.get(key));
+					continue;
+				}
+				if (path && omitted.has(`${from}#${path}.${key}`)) continue;
+				const signature = `${key}\u0000${JSON.stringify(entry)}`;
+				const earlier = path && isSubstantial(entry) && shown.get(signature);
+				if (earlier) {
+					heading(level, titleCase(key));
+					if (path) place(`${from}#${path}.${key}`, current);
+					out.push(`Same as ${link(earlier.id, earlier.anchor)}.`);
+					continue;
+				}
+				if (path && isSubstantial(entry) && !parse(entry, from)) {
+					shown.set(signature, { id: `${from}#${path}.${key}`, anchor: path.split('.')[0] });
+				}
 				if (titleCase(key) === title) {
 					// `overview: @{TypesOverview}`, whose own `overview` would
 					// repeat the heading it is already under.
@@ -240,12 +323,13 @@ export async function renderSpecPages({ root, entry = 'spec/index.pi' }) {
 					await write(entry, level, from, path && `${path}.${key}`, inner);
 					continue;
 				}
-				const fragment = heading(level, titleCase(key));
 				const ref = parse(entry, from);
-				if (ref && !owners.has(ref.id) && !inner.has(ref.id) && !locations.has(ref.id)) {
-					// `numbers: @{Numbers}` — the heading is the anchor's own.
-					place(ref.id, fragment);
-				}
+				const child = expandable(ref, inner);
+				if (child) await hoist(await dereference(ref), level, ref.file);
+				const fragment = heading(level, titleCase(key));
+				// `numbers: @{Numbers}` — the heading is the anchor's own.
+				if (child) place(ref.id, fragment);
+				if (shared.has(key) && !written.has(key)) written.set(key, fragment);
 				if (path) place(`${from}#${path}.${key}`, fragment);
 				await write(entry, level + 1, from, path && `${path}.${key}`, inner);
 			}
@@ -265,23 +349,25 @@ export async function renderSpecPages({ root, entry = 'spec/index.pi' }) {
 		// The page's own content. A single reference is the page; a dictionary
 		// is a set of sections.
 		const content = page.content;
-		const pageRef = parse(content, entryFile);
+		const pageRef = parse(content, page.file);
 		if (pageRef) {
 			place(pageRef.id, '');
 			await body(await dereference(pageRef), 2, pageRef.file, pageRef.dotted, new Set(), pageRef.id);
 		} else if (content && typeof content === 'object' && !Array.isArray(content)) {
 			for (const [key, entry] of Object.entries(content)) {
-				const ref = parse(entry, entryFile);
+				const ref = parse(entry, page.file);
+				const anchor = ref && (await dereference(ref));
+				if (ref) await hoist(anchor, 2, ref.file);
 				const fragment = heading(2, titleCase(key));
 				if (ref) {
 					place(ref.id, fragment);
-					await body(await dereference(ref), 3, ref.file, ref.dotted, new Set(), ref.id, currentTitle);
+					await body(anchor, 3, ref.file, ref.dotted, new Set(), ref.id, currentTitle);
 				} else {
-					await write(entry, 3, entryFile, '', new Set());
+					await write(entry, 3, page.file, '', new Set());
 				}
 			}
 		} else {
-			await write(content, 2, entryFile, '', new Set());
+			await write(content, 2, page.file, '', new Set());
 		}
 
 		pages.push({
@@ -308,9 +394,9 @@ export async function renderSpecPages({ root, entry = 'spec/index.pi' }) {
 	return { pages, warnings: [...new Set(warnings)] };
 }
 
-/** Whether an export of the entry is a page. */
+/** Whether an export is a page. */
 function isPage(value) {
-	return value && typeof value === 'object' && typeof value.slug === 'string' && 'content' in value;
+	return value && typeof value === 'object' && typeof value.title === 'string' && 'content' in value;
 }
 
 /** The references a page's content names directly. */
@@ -353,15 +439,56 @@ function last(dotted) {
 	return dotted.split('.').at(-1);
 }
 
-/** Keys, other than `description`, that every one of several anchors has with the same value. */
-function sharedKeys(objects) {
-	if (objects.length < 2 || !objects.every((o) => o && typeof o === 'object' && !Array.isArray(o))) return [];
-	return Object.keys(objects[0]).filter(
-		(key) =>
-			key !== 'description' &&
-			objects[0][key] !== null &&
-			objects.every((o) => key in o && JSON.stringify(o[key]) === JSON.stringify(objects[0][key])),
+/**
+ * Calls `visit(anchor, ref)` for every anchor a page's content reaches through
+ * references in structural positions, once each, leaving out anchors another
+ * page claims.
+ */
+async function walkAnchors(page, parse, dereference, owners, visit) {
+	const visited = new Set();
+	const walk = async (value, from) => {
+		const ref = parse(value, from);
+		if (ref) {
+			const owner = owners.get(ref.id);
+			if ((owner && owner !== page.slug) || visited.has(ref.id)) return;
+			visited.add(ref.id);
+			const anchor = await dereference(ref);
+			if (anchor && typeof anchor === 'object' && !Array.isArray(anchor)) visit(anchor, ref);
+			return walk(anchor, ref.file);
+		}
+		if (value && typeof value === 'object') {
+			for (const entry of Object.values(value)) await walk(entry, from);
+		}
+	};
+	await walk(page.content, page.file);
+}
+
+/**
+ * The properties a page's anchors share: had by two or more of the anchors the
+ * page shows, with the same value in every one that has it, and too long to
+ * be worth repeating. `description` is never shared; it is what each anchor
+ * says about itself.
+ */
+async function sharedProperties(page, parse, dereference, owners) {
+	/** key → the values it has, one per anchor. */
+	const seen = new Map();
+	await walkAnchors(page, parse, dereference, owners, (anchor) => {
+		for (const [key, entry] of Object.entries(anchor)) {
+			if (key === 'description' || entry === null) continue;
+			if (!seen.has(key)) seen.set(key, []);
+			seen.get(key).push(JSON.stringify(entry));
+		}
+	});
+	return new Set(
+		[...seen]
+			.filter(([, values]) => values.length > 1 && new Set(values).size === 1 && values[0].length > 40)
+			.map(([key]) => key),
 	);
+}
+
+/** Worth a "same as" rather than a repeat: a structure, or more than a few words. */
+function isSubstantial(value) {
+	return value !== null && JSON.stringify(value).length > 40;
 }
 
 function isScalar(value) {
@@ -400,7 +527,11 @@ function isTable(list) {
  * that has it agrees on — the precedence note each arithmetic operator
  * inherits, say — is written once under the table instead of on every row.
  */
-function table(list, cell) {
+/**
+ * `fresh(key, value)` decides a shared column's note: `true` writes it,
+ * `false` leaves it out, and a string is written in its place.
+ */
+function table(list, cell, fresh = () => true) {
 	const keys = [...new Set(list.flatMap(Object.keys))].sort((a, b) => (b === 'symbol') - (a === 'symbol'));
 	const shared = keys.filter((key) => {
 		const values = list.filter((item) => key in item).map((item) => item[key]);
@@ -415,9 +546,12 @@ function table(list, cell) {
 		`| ${columns.map(() => '---').join(' | ')} |`,
 		...list.map((item) => `| ${columns.map((key) => code(key, item[key])).join(' | ')} |`),
 	].join('\n');
-	const notes = shared.map((key) => {
-		const value = list.find((item) => key in item)[key];
-		return `**${titleCase(key)}.** ${String(value).split('\n').map(cell).join('\n\n')}`;
+	const notes = shared.flatMap((key) => {
+		const value = String(list.find((item) => key in item)[key]);
+		const verdict = fresh(key, value);
+		if (verdict === false) return [];
+		if (typeof verdict === 'string') return [verdict];
+		return [`**${titleCase(key)}.** ${value.split('\n').map(cell).join('\n\n')}`];
 	});
 	return [rows, ...notes].join('\n\n');
 }
@@ -439,6 +573,22 @@ function bullets(list, text, depth = 0) {
  * which in the spec is always an escape block, kept exactly — lines are lines.
  * Consecutive table rows are one table.
  */
+function isTableRow(row) {
+	return /^\s*\|.*\|\s*$/.test(row);
+}
+
+/**
+ * A table row as written for a Markdown reader. A `|` inside a code span —
+ * the `||` operator, say — still ends a cell in a table, so it is escaped.
+ */
+function tableRow(row) {
+	return row
+		.trim()
+		.split(/(`+[^`]*`+)/)
+		.map((part, i) => (i % 2 ? part.replace(/\|/g, '\\|') : part))
+		.join('');
+}
+
 function paragraphs(text, line) {
 	const blocks = [];
 	let fence = null;
@@ -453,6 +603,13 @@ function paragraphs(text, line) {
 			block.push(raw);
 			if (marker && marker[0] === fence[0] && marker.length >= fence.length && raw.trim() === marker) {
 				fence = null;
+				// A Markdown table the spec fenced so its rows would survive —
+				// an escape block keeps line breaks, and a fence keeps the
+				// escape block — is meant to be read as a table, not as code.
+				const inside = block.slice(1, -1).filter((row) => row.trim());
+				if (/^ {0,3}(`{3,}|~{3,})\s*(markdown|md)\s*$/.test(block[0]) && inside.length > 1 && inside.every(isTableRow)) {
+					block = inside.map(tableRow);
+				}
 				flush();
 			}
 			continue;

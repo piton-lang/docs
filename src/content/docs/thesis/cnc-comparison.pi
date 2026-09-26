@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/founding-thesis/CncComparison import CncComparison
+
+export page CncComparisonPage:
+    title: The CNC Comparison
+    order: 2
+    description:
+        What the transition from manual machining to CNC and CAM tells us about
+        agentic software development.
+    content: @{CncComparison}

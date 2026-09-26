@@ -1,17 +1,17 @@
 ---
 title: Installation
-description: Install the Piton compiler with the install script, from a prebuilt binary, or from source.
+description: Getting the Piton compiler onto your machine – by script, by hand, or by building it yourself.
 sidebar:
   order: 1
 ---
 
-Piton is a single binary, `piton`: the compiler, the language server, and the
-build tool. Every push to `main` is published as a release with a build for
-each platform, so there are three ways to get it.
+Piton is a single binary called `piton` and that's the compiler, the language
+server, and the build tool all in one. There are three ways to get it onto your
+machine.
 
 ## Install Script
 
-On macOS or Linux (or Git Bash on Windows):
+The easy way. On macOS or Linux (or Git Bash on Windows):
 
 ```sh
 curl -fsSL https://github.com/piton-lang/piton-rs/releases/latest/download/install.sh | sh
@@ -23,62 +23,58 @@ On Windows, in PowerShell:
 irm https://github.com/piton-lang/piton-rs/releases/latest/download/install.ps1 | iex
 ```
 
-Both install the latest build from `main`, check it against its checksum, and
-put `piton` in `~/.local/bin` (`%LOCALAPPDATA%\piton\bin` on Windows). If that
-directory isn't on your `PATH`, the script says so and prints the line to add
-to your shell's profile. On a Mac the script also clears the quarantine flag,
-since the builds aren't signed yet.
+Both fetch the latest build, checks it against its checksum and puts `piton` in
+`~/.local/bin` (`%LOCALAPPDATA%\piton\bin` on Windows). If that directory isn't
+on your `PATH`, the script will tell you and give you the line to add to your
+shell's profile. On a Mac it also clears the quarantine flag, since the builds
+aren't signed yet and Gatekeeper is suspicious of strangers.
 
-Set `PITON_VERSION=0.1.41` to install a particular build, or
-`PITON_INSTALL_DIR` to put it somewhere else:
+If you'd rather have a particular build, set `PITON_VERSION`. If you'd rather
+it lived somewhere else, set `PITON_INSTALL_DIR`:
 
 ```sh
 curl -fsSL https://github.com/piton-lang/piton-rs/releases/latest/download/install.sh | PITON_VERSION=0.1.41 sh
 ```
 
-Running the script again updates `piton` to the latest build.
+To update, run the script again. That's it.
 
 ## Prebuilt Binaries
 
-The script only downloads and unpacks what is on the
-[releases page](https://github.com/piton-lang/piton-rs/releases/latest), so you
-can do that yourself. Each release carries one archive per platform, holding a
-binary called `piton` (`piton.exe` on Windows), and a `.sha256` checksum next
-to each:
+The script isn't doing anything crazy; it's just downloading an archive from the
+[releases page](https://github.com/piton-lang/piton-rs/releases/latest) and
+unpacks it, and you're entirely welcome to do that yourself. Every release
+provides a package per platform, each holding a binary called `piton`
+(`piton.exe` on Windows) and a `.sha256` checksum sitting next to it:
 
-| Platform | Archive |
-| --- | --- |
-| Linux, x86_64 | `piton-edge-linux-x86_64-<version>.tar.gz` |
-| macOS, Apple Silicon | `piton-edge-macos-aarch64-<version>.zip` |
-| macOS, Intel | `piton-edge-macos-x86_64-<version>.zip` |
-| Windows, x86_64 | `piton-edge-windows-x86_64-<version>.zip` |
+| Platform             | Archive                                    |
+| -------------------- | ------------------------------------------ |
+| Linux, x86_64        | `piton-edge-linux-x86_64-<version>.tar.gz` |
+| macOS, Apple Silicon | `piton-edge-macos-aarch64-<version>.zip`   |
+| macOS, Intel         | `piton-edge-macos-x86_64-<version>.zip`    |
+| Windows, x86_64      | `piton-edge-windows-x86_64-<version>.zip`  |
 
 Put the binary anywhere on your `PATH`. On a Mac, clear the quarantine flag
-first, or Gatekeeper refuses to run it:
+first, or Gatekeeper will politely refuse to run it:
 
 ```sh
 xattr -d com.apple.quarantine piton
 ```
 
-Versions count up with every build: `0.1.N` is the Nth commit on `main`, and
-`piton --version` prints the version it was released as. For any other
-platform, build from source.
-
 ## From Source
 
-Building needs Rust 1.75 or newer:
+You'll need Rust 1.75 or newer:
 
 ```sh
-git clone https://github.com/piton-lang/piton-rs.git piton
-cd piton
+git clone https://github.com/piton-lang/piton-rs.git
+cd piton-rs
 cargo xtask install
 ```
 
-That builds the release binary and copies it into Cargo's bin directory,
-saying where it went and whether that directory is on your `PATH`.
-Reinstalling over a `piton` that is currently running works. Pass
+That builds the release binary and copies it into Cargo's bin directory.
+Reinstalling over a `piton` that's currently running works just fine. Pass
 `--root <dir>` to install into `<dir>/bin` instead, or `--dry-run` to see what
-would happen. `cargo xtask` on its own lists the tasks.
+would happen without it actually happening. `cargo xtask` on its own lists
+everything else it can do.
 
 ## Verify the Install
 
@@ -86,14 +82,15 @@ would happen. `cargo xtask` on its own lists the tasks.
 piton --version
 ```
 
-If that fails, the directory `piton` went into isn't on your `PATH`.
+If that prints a version, congratulations -- you have a compiler. If it
+doesn't, the directory `piton` went into isn't on your `PATH`.
 
-The package commands, `piton tether` and `piton update`, also need `git` on
-your `PATH`. Nothing else does.
+One more thing: the package commands, `piton tether` and `piton update`, also
+need `git` on your `PATH`. Nothing else does.
 
 :::note
-The editor integrations in [Editor Setup](/getting-started/editors/) are
-installed from `editors/` in the compiler repository, except the VS Code
-extension, which comes with every release. You need a clone of the repository
-for the others, however you installed `piton`.
+The editor integrations in [Editor Setup](/getting-started/editors/) live in
+`editors/` in the compiler repository -- all except the VS Code extension, which
+comes with every release. For the others you'll want a clone of the repository,
+however you installed `piton`.
 :::

@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/language/overview import LanguageOverview
+
+export page LanguageOverviewPage:
+    title: Overview
+    order: 1
+    description:
+        Source files, whitespace, comments, and keywords — the ground rules of
+        Piton.
+    content: @{LanguageOverview}

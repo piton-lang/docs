@@ -42,11 +42,16 @@ https://github.com/piton-lang/piton-rs.git into `tethers/piton` (see
 `piton.config.pi` and `.piton/tether.lock`). Never edit `tethers/`; run
 `piton update` to pull a newer spec, and commit the diff.
 
-Which spec anchors make up which page is the site's own Piton source under
-`spec/`: every `page` exported from `spec/index.pi` is one page, with its slug,
-title, description, sidebar order and `content` (a reference into the spec, or
-a dictionary of them). The sidebar section follows from the slug's first
-segment, as it does for hand-written pages. Run `piton check` after editing.
+A page made from the spec is a `.pi` file among the Markdown pages in
+`src/content/docs/`, and is organised the same way: its path is its URL
+(`language/values-and-types.pi` is `/language/values-and-types/`, an
+`index.pi` is its directory's page), and its directory is its sidebar group.
+It exports one `page` (`src/content/lib/Page.pi`) with a title, description,
+sidebar order and `content` — a reference into the spec, or a dictionary of
+them. To add a page, add a file; nothing lists them. `src/content` is the
+Piton `root`, so `use /lib/Page` resolves there. Run `npm run check`
+(`piton check src/content`) after editing; there is no entry file, so a bare
+`piton check` has nothing to start from.
 
 `plugins/spec-pages.mjs` compiles those pages through `compileFile` from
 `astro-piton` and writes their Markdown; `src/content.config.ts` adds them to

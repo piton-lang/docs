@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/belay import Belay
+
+export page ShapePage:
+    title: Shape and References
+    order: 4
+    description:
+        Mapping instructions from the shape tree onto the code, the compiled
+        shape, and anchor references.
+    content: @{Belay.scope}

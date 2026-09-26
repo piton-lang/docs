@@ -1,0 +1,14 @@
+use /lib/Page
+
+from piton/scope/belay import Belay
+
+export page BelayIntroductionPage:
+    title: Introduction
+    order: 1
+    description:
+        The bundled framework that turns Piton into agentic skills, commands,
+        instructions, and agents.
+    content:
+        overview: @{Belay.description}
+        specialImports: @{Belay.specialImports}
+        framework: @{Belay.framework}

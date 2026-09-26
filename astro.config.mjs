@@ -150,7 +150,10 @@ export default defineConfig({
         label,
         items: groups.map((group) => ({
           label: group.label,
-          items: [{ autogenerate: { directory: group.directory } }],
+          items: [
+            { autogenerate: { directory: group.directory } },
+            ...(group.links ?? []),
+          ],
         })),
       })),
     }),

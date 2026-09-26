@@ -121,7 +121,7 @@ function pagesOf(docs: CollectionEntry<'docs'>[], directory: string) {
 				entry.data.sidebar?.order ?? Number.MAX_SAFE_INTEGER;
 			if (order(a) !== order(b)) return order(a) - order(b);
 			const name = (entry: CollectionEntry<'docs'>) =>
-				entry.filePath!.slice(prefix.length).replace(/\.mdx?$/, '');
+				entry.filePath!.slice(prefix.length).replace(/\.(mdx?|pi)$/, '');
 			if (name(a) === 'index') return -1;
 			if (name(b) === 'index') return 1;
 			return name(a).localeCompare(name(b));

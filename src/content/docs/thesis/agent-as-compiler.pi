@@ -1,0 +1,11 @@
+use /lib/Page
+
+from piton/scope/founding-thesis/AgentAsCompiler import AgentAsCompiler
+
+export page AgentAsCompilerPage:
+    title: Agent as Compiler
+    order: 3
+    description:
+        Why so much of software development feels repetitive, and what it means
+        to treat an agent as the compiler.
+    content: @{AgentAsCompiler}

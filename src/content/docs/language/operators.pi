@@ -1,0 +1,16 @@
+use /lib/Page
+
+from piton/scope/language/operators import Operators
+
+export page OperatorsPage:
+    title: Operators
+    order: 4
+    description:
+        Arithmetic, comparison, logical, conditional, access, declaration, and
+        the concatenation operators.
+    content: @{Operators}
+
+    // Every group's operators merged into one list: data for tooling, and on
+    // this page a second copy of every table above it.
+    omit:
+        - @{Operators.allOperators}

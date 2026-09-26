@@ -1,0 +1,11 @@
+export abstract anchor Page as page:
+    description:: string
+    title:: string
+    order:: number
+    content:: any
+
+    // Properties of the content to leave off the page, as references:
+    // `- @{Operators.allOperators}`. A reference, not a name, so a property
+    // the spec renames or removes fails `piton check` instead of quietly
+    // reappearing.
+    omit:: list:: null: null

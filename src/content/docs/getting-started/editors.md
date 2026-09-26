@@ -10,22 +10,11 @@ generated from the compiler itself. They all start the same language server,
 `piton lsp`, which gives you diagnostics, completion, hover, go to definition,
 find references, rename, formatting, and inlay hints.
 
-:::caution
-The `piton` binary must be on your `PATH` first — see
-[Installation](/getting-started/). Run the commands below from a clone of the
-compiler repository. If you installed with the install script, clone it first:
-
-```sh
-git clone https://github.com/piton-lang/piton-rs.git piton
-cd piton
-```
-:::
-
 ## VS Code
 
 Also works in Cursor and Windsurf.
 
-Every release carries the extension, built. Download
+Every release includes the extension prebuilt. Download
 `piton-edge-vscode-<version>.vsix` from the
 [releases page](https://github.com/piton-lang/piton-rs/releases/latest) and
 install it:
